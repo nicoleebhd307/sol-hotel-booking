@@ -1,0 +1,64 @@
+<section class="bg-[#faf7f2] py-20 overflow-hidden">
+  <!-- Section header -->
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 mb-12">
+    <p class="text-[#9ca3af] text-[10px] tracking-[0.35em] uppercase font-normal mb-2">
+      Discover Our
+    </p>
+    <h2 class="font-serif text-3xl font-normal text-[#1a1a1a]">Featured Services</h2>
+  </div>
+
+  <!-- Cards carousel -->
+  <div class="relative">
+    <div
+      class="flex gap-5 transition-transform duration-500 ease-in-out px-6 lg:px-10"
+      [style.transform]="'translateX(calc(-' + activeIndex() + ' * (min(320px, 80vw) + 20px)))'"
+    >
+      @for (card of services; track card.id; let i = $index) {
+        <div
+          class="flex-shrink-0 w-[300px] lg:w-[320px] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 group"
+          [class]="i === activeIndex() ? 'shadow-2xl scale-[1.02]' : 'shadow-md opacity-85'"
+          (click)="activeIndex.set(i)"
+        >
+          <!-- Card image -->
+          <div class="relative h-52 overflow-hidden">
+            <img
+              [src]="card.image"
+              [alt]="card.title"
+              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </div>
+
+          <!-- Card body -->
+          <div class="bg-white p-6 flex flex-col gap-3">
+            <h3 class="font-serif text-lg font-normal text-[#1a1a1a]">{{ card.title }}</h3>
+            <p class="text-gray-500 text-sm leading-relaxed">{{ card.description }}</p>
+            <div class="pt-2 flex items-center gap-4">
+              <button class="btn btn-outline btn-sm">Details</button>
+              <button class="btn btn-sm text-[#1a1a1a] hover:text-[#c5a059] border-none bg-transparent shadow-none px-0 transition-colors">
+                Explore →
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Navigation arrows -->
+    <div class="flex justify-end gap-3 mt-8 px-6 lg:px-10">
+      <button
+        (click)="prev()"
+        [disabled]="activeIndex() === 0"
+        class="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:border-[#c5a059] hover:text-[#c5a059] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+      >
+        <lucide-icon [img]="prevIcon" [size]="16"></lucide-icon>
+      </button>
+      <button
+        (click)="next()"
+        [disabled]="activeIndex() === services.length - 1"
+        class="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:border-[#c5a059] hover:text-[#c5a059] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+      >
+        <lucide-icon [img]="nextIcon" [size]="16"></lucide-icon>
+      </button>
+    </div>
+  </div>
+</section>

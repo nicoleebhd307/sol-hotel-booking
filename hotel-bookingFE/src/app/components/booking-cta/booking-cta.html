@@ -1,0 +1,86 @@
+<section
+  class="relative py-32 px-6 overflow-hidden"
+  style="
+    background-image: url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=2000&q=80');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  "
+>
+  <!-- Overlay -->
+  <div class="absolute inset-0 bg-black/50"></div>
+
+  <!-- Content -->
+  <div class="relative z-10 max-w-4xl mx-auto flex flex-col items-center gap-8 text-center">
+    <!-- Headline -->
+    <div class="flex flex-col gap-3">
+      <p class="text-white/70 text-xs tracking-[0.4em] uppercase font-light">Exclusive Offer</p>
+      <h2 class="font-serif text-4xl lg:text-5xl font-normal text-white italic leading-tight">
+        Experience the <em>perfect</em><br />blend of luxury
+      </h2>
+      <p class="text-white/70 text-sm font-light max-w-lg leading-relaxed mx-auto">
+        Reserve your stay at The Kahala today and enjoy world-class hospitality with breathtaking
+        ocean views, premium amenities, and unmatched service.
+      </p>
+    </div>
+
+    <!-- Booking form -->
+    <div
+      class="bg-white/15 backdrop-blur-md rounded-2xl border border-white/30 p-8 w-full max-w-2xl"
+      style="box-shadow: 0px 25px 50px -12px rgba(0,0,0,0.3)"
+    >
+      <div class="flex flex-col lg:flex-row gap-3">
+        <!-- Check In -->
+        <div class="flex-1 bg-white/20 rounded-lg px-4 py-3 flex flex-col gap-1 border border-white/30">
+          <label class="text-white/60 text-[9px] tracking-[0.25em] uppercase">Check In</label>
+          <input
+            type="text"
+            [(ngModel)]="checkIn"
+            class="text-white text-sm font-medium bg-transparent outline-none placeholder-white/50 w-full"
+          />
+        </div>
+
+        <!-- Check Out -->
+        <div class="flex-1 bg-white/20 rounded-lg px-4 py-3 flex flex-col gap-1 border border-white/30">
+          <label class="text-white/60 text-[9px] tracking-[0.25em] uppercase">Check Out</label>
+          <input
+            type="text"
+            [(ngModel)]="checkOut"
+            class="text-white text-sm font-medium bg-transparent outline-none placeholder-white/50 w-full"
+          />
+        </div>
+
+        <!-- Guests -->
+        <div
+          class="flex-1 bg-white/20 rounded-lg px-4 py-3 flex flex-col gap-1 border border-white/30 relative cursor-pointer"
+          (click)="guestsOpen.update((v) => !v)"
+        >
+          <label class="text-white/60 text-[9px] tracking-[0.25em] uppercase cursor-pointer"
+            >Guests</label
+          >
+          <div class="flex items-center justify-between">
+            <span class="text-white text-sm font-medium">{{ selectedGuests }}</span>
+            <lucide-icon [img]="chevronDownIcon" [size]="14" class="text-white/70"></lucide-icon>
+          </div>
+          @if (guestsOpen()) {
+            <div
+              class="absolute top-full left-0 right-0 mt-1 bg-white shadow-xl rounded-lg z-20 py-1 border border-gray-100"
+            >
+              @for (opt of guestOptions; track opt) {
+                <div
+                  class="px-4 py-2.5 text-sm text-gray-700 hover:bg-[#faf7f2] hover:text-[#c5a059] cursor-pointer transition-colors"
+                  (click)="selectGuest(opt); $event.stopPropagation()"
+                >
+                  {{ opt }}
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Search button -->
+      <button class="btn btn-gold w-full mt-4">Search Availability</button>
+    </div>
+  </div>
+</section>

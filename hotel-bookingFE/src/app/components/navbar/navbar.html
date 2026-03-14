@@ -1,0 +1,103 @@
+<nav
+  [class]="
+    isScrolled()
+      ? 'fixed top-0 left-0 right-0 z-50 transition-all duration-500 bg-white/95 backdrop-blur-md shadow-sm'
+      : 'fixed top-0 left-0 right-0 z-50 transition-all duration-500 bg-transparent'
+  "
+>
+  <div class="max-w-7xl mx-auto px-6 lg:px-12 py-4 flex items-center justify-between">
+
+    <!-- Left Nav -->
+    <div class="hidden md:flex items-center gap-10 flex-1">
+      @for (link of ['Our Perspectives','Our Stories','About Us']; track link) {
+        <a
+          href="#"
+          [class]="
+            isScrolled()
+              ? 'text-stone-700 text-xs font-serif font-light tracking-wide hover:text-[#c5a059] transition-colors'
+              : 'text-white/90 text-xs font-serif font-light tracking-wide hover:text-white transition-colors'
+          "
+        >{{ link }}</a>
+      }
+    </div>
+
+    <!-- Logo (Center) -->
+    <div class="flex flex-col items-center gap-0.5 flex-shrink-0">
+      <!-- Flower emblem -->
+      <lucide-icon
+        [img]="flowerIcon"
+        [size]="22"
+        [class]="isScrolled() ? 'text-[#c5a059] mb-0.5' : 'text-white/80 mb-0.5'"
+      ></lucide-icon>
+      <!-- Brand name -->
+      <div
+        [class]="
+          isScrolled()
+            ? 'font-serif text-[22px] font-semibold tracking-[0.45em] uppercase text-[#1a1a1a] leading-none'
+            : 'font-serif text-[22px] font-semibold tracking-[0.45em] uppercase text-white leading-none'
+        "
+      >
+        THE KAHALA
+      </div>
+      <!-- Subtitle -->
+      <div [class]="isScrolled() ? 'text-stone-400 text-[7px] tracking-[0.45em] uppercase leading-tight' : 'text-white/60 text-[7px] tracking-[0.45em] uppercase leading-tight'">
+        HOTEL &amp; RESORT
+      </div>
+      <!-- Location -->
+      <div [class]="isScrolled() ? 'text-stone-400 text-[8px] italic font-light mt-0.5' : 'text-white/50 text-[8px] italic font-light mt-0.5'">
+        Honolulu, Hawaii
+      </div>
+    </div>
+
+    <!-- Right Nav -->
+    <div class="hidden md:flex items-center gap-3 flex-1 justify-end">
+      <!-- Contact us — pill outline -->
+      <a
+        href="#"
+        [class]="
+          isScrolled()
+            ? 'text-stone-700 text-xs font-serif border border-stone-400 rounded-full px-5 py-2 hover:border-[#c5a059] hover:text-[#c5a059] transition-colors'
+            : 'text-white/90 text-xs font-serif border border-white/60 rounded-full px-5 py-2 hover:border-white hover:text-white transition-colors'
+        "
+      >
+        Contact us
+      </a>
+      <!-- Reserve Now — gold pill -->
+      <a
+        href="#"
+        class="text-white text-xs font-serif rounded-full px-6 py-2 transition-all hover:opacity-90"
+        style="background: linear-gradient(2.6deg, #c99d35 0%, #ddc27f 100%); box-shadow: 0 4px 14px rgba(197,160,89,0.35)"
+      >
+        Reserve Now
+      </a>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button
+      (click)="toggleMobileMenu()"
+      class="md:hidden p-2"
+      [class]="isScrolled() ? 'text-stone-700' : 'text-white'"
+    >
+      <lucide-icon [img]="mobileMenuOpen() ? closeIcon : menuIcon" [size]="24"></lucide-icon>
+    </button>
+  </div>
+
+  <!-- Mobile Menu -->
+  @if (mobileMenuOpen()) {
+    <div class="md:hidden bg-white border-t border-gray-100 py-4">
+      <div class="flex flex-col px-6 gap-0">
+        @for (link of ['Our Perspectives','Our Stories','About Us','Contact']; track link) {
+          <a href="#" class="text-stone-700 text-sm font-medium py-3 border-b border-gray-100 tracking-wide">{{ link }}</a>
+        }
+        <a
+          href="#"
+          class="text-white text-sm font-normal rounded-full text-center px-6 py-3 mt-4 block transition-all hover:opacity-90"
+          style="background: linear-gradient(2.6deg, #c99d35 0%, #ddc27f 100%)"
+        >
+          Reserve Now
+        </a>
+      </div>
+    </div>
+  }
+</nav>
+

@@ -1,0 +1,91 @@
+<footer class="bg-white border-t border-gray-100">
+  <!-- Top nav links -->
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 py-12 border-b border-gray-100">
+    <div class="flex flex-col md:flex-row flex-wrap justify-between gap-10">
+      <!-- Column: Discover -->
+      <div class="flex flex-col gap-4">
+        <h4 class="text-[#1a1a1a] text-[9px] tracking-[0.35em] uppercase font-semibold">
+          Discover
+        </h4>
+        <div class="flex flex-col gap-3">
+          <a href="#" class="text-gray-500 text-sm hover:text-[#c5a059] transition-colors">Our Rooms</a>
+          <a href="#" class="text-gray-500 text-sm hover:text-[#c5a059] transition-colors">Our Suites</a>
+          <a href="#" class="text-gray-500 text-sm hover:text-[#c5a059] transition-colors">Villas</a>
+          <a href="#" class="text-gray-500 text-sm hover:text-[#c5a059] transition-colors">Penthouse</a>
+        </div>
+      </div>
+
+      <!-- Column: Experiences -->
+      <div class="flex flex-col gap-4">
+        <h4 class="text-[#1a1a1a] text-[9px] tracking-[0.35em] uppercase font-semibold">
+          Experiences
+        </h4>
+        <div class="flex flex-col gap-3">
+          <a href="#" class="text-gray-500 text-sm hover:text-[#c5a059] transition-colors">Private Beach</a>
+          <a href="#" class="text-gray-500 text-sm hover:text-[#c5a059] transition-colors">Dolphin Lagoon</a>
+          <a href="#" class="text-gray-500 text-sm hover:text-[#c5a059] transition-colors">Golf Course</a>
+          <a href="#" class="text-gray-500 text-sm hover:text-[#c5a059] transition-colors">Spa &amp; Wellness</a>
+        </div>
+      </div>
+
+      <!-- Column: Hotel -->
+      <div class="flex flex-col gap-4">
+        <h4 class="text-[#1a1a1a] text-[9px] tracking-[0.35em] uppercase font-semibold">
+          Hotel
+        </h4>
+        <div class="flex flex-col gap-3">
+          <a href="#" class="text-gray-500 text-sm hover:text-[#c5a059] transition-colors">About Us</a>
+          <a href="#" class="text-gray-500 text-sm hover:text-[#c5a059] transition-colors">Privacy Policy</a>
+          <a href="#" class="text-gray-500 text-sm hover:text-[#c5a059] transition-colors">Rooms Tour</a>
+          <a href="#" class="text-gray-500 text-sm hover:text-[#c5a059] transition-colors">Gallery</a>
+        </div>
+      </div>
+
+      <!-- Column: Center logo + social -->
+      <div class="flex flex-col items-center gap-6">
+        <div class="flex flex-col items-center gap-1">
+          <div class="font-serif text-2xl font-semibold tracking-[0.35em] uppercase text-[#1a1a1a]">
+            THE KAHALA
+          </div>
+          <div class="text-[#c5a059] text-[7px] tracking-[0.5em] uppercase">HOTEL &amp; RESORT</div>
+        </div>
+        <div class="flex items-center gap-4">
+          <a
+            href="#"
+            class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[#c5a059] hover:text-[#c5a059] transition-colors"
+            aria-label="Instagram"
+          >
+            <lucide-icon [img]="instagramIcon" [size]="15"></lucide-icon>
+          </a>
+          <a
+            href="#"
+            class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[#c5a059] hover:text-[#c5a059] transition-colors"
+            aria-label="Twitter / X"
+          >
+            <lucide-icon [img]="twitterIcon" [size]="15"></lucide-icon>
+          </a>
+          <a
+            href="#"
+            class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[#c5a059] hover:text-[#c5a059] transition-colors"
+            aria-label="YouTube"
+          >
+            <lucide-icon [img]="youtubeIcon" [size]="15"></lucide-icon>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Large email & copyright -->
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 py-10 flex flex-col items-center gap-4 text-center">
+    <a
+      href="mailto:Hello@kahalainfo.com"
+      class="font-serif text-3xl lg:text-5xl font-normal text-[#1a1a1a] hover:text-[#c5a059] transition-colors tracking-tight"
+    >
+      Hello&#64;kahalainfo.com
+    </a>
+    <p class="text-gray-400 text-xs tracking-wide">
+      &copy; {{ currentYear }} The Kahala Hotel &amp; Resort. All Rights Reserved.
+    </p>
+  </div>
+</footer>

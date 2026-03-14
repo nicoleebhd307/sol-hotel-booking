@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+/*
+  Calvino is a commercial typeface (Erik Spiekermann / ReSanity).
+  Place font files in public/fonts/ and the @font-face below will activate them.
+  Until then the serif system stack is used as fallback.
+*/
+@font-face {
+  font-family: 'Calvino';
+  src: url('/fonts/Calvino-Light.woff2') format('woff2'),
+       url('/fonts/Calvino-Light.woff')  format('woff');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Calvino';
+  src: url('/fonts/Calvino-Regular.woff2') format('woff2'),
+       url('/fonts/Calvino-Regular.woff')  format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Calvino';
+  src: url('/fonts/Calvino-LightItalic.woff2') format('woff2'),
+       url('/fonts/Calvino-LightItalic.woff')  format('woff');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Calvino';
+  src: url('/fonts/Calvino-Italic.woff2') format('woff2'),
+       url('/fonts/Calvino-Italic.woff')  format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-serif: 'Calvino', serif;
+  --color-gold: #c5a059;
+  --color-gold-light: #d4b87a;
+  --color-beige: #faf7f2;
+  --color-beige-dark: #f0ebe0;
+  --color-dark: #1a1a1a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 200;
+  color: #1a1a1a;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Base button ─────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Calvino', serif;
+  font-weight: 300;
+  font-size: 1rem;          /* 16px  */
+  line-height: 1;
+  letter-spacing: 0.04em;
+  border-radius: 0.5rem;    /* rounded-lg */
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.btn:hover  { opacity: 0.88; transform: translateY(-1px); }
+.btn:active { opacity: 1;    transform: translateY(0);    }
+
+/* ── Outline / "Details" variant ────────────────────────── */
+.btn-outline {
+  background: transparent;
+  color: #1a1a1a;
+  border: 0.5px solid #1a1a1a;
+  box-shadow: none;
+}
+
+.btn-outline:hover {
+  background: rgba(26, 26, 26, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Gold / "Book Now" variant ───────────────────────────── */
+.btn-gold {
+  background: linear-gradient(2.6deg, #c99d35 0%, #ddc27f 100%);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4px 14px rgba(197, 160, 89, 0.35);
+}
+
+.btn-gold:hover {
+  box-shadow: 0 6px 20px rgba(197, 160, 89, 0.5);
+}
+
+/* ── Dark / filled variant ───────────────────────────────── */
+.btn-dark {
+  background: #1a1a1a;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+.btn-dark:hover {
+  background: #2e2e2e;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+/* ── Ghost / white (for dark backgrounds) ───────────────── */
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(4px);
+}
+
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+/* ── Size modifiers ──────────────────────────────────────── */
+.btn-sm { padding: 0.5rem 1rem;    font-size: 0.8rem;  }
+.btn-lg { padding: 1rem 2.5rem;    font-size: 1.125rem; }
