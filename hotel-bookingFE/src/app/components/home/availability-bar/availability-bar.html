@@ -1,0 +1,28 @@
+<div class="w-full max-w-6xl mx-auto -mt-[44px] px-4 relative z-10 reveal-up">
+	<div
+		class="rounded-lg bg-white/90 shadow-xl ring-1 ring-black/5"
+		style="backdrop-filter: blur(4px); box-shadow: 0px 8px 10px -6px rgba(0,0,0,0.1), 0px 20px 25px -5px rgba(0,0,0,0.1);"
+	>
+		<div class="grid grid-cols-5 divide-x divide-slate-200" style="grid-template-rows: 87px;">
+			@for (field of fields(); track field.label; let last = $last) {
+				<div class="p-6 flex flex-col justify-center transition-colors duration-300 hover:bg-slate-50/80 cursor-pointer">
+					<p class="text-[10px] uppercase tracking-[0.1em] text-[#9ca3af]">{{ field.label }}</p>
+					<div class="mt-1 flex items-center justify-between">
+						<p class="text-sm font-medium text-[#1a1a1a]">{{ field.value }}</p>
+						@if (field.icon) {
+							<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M6.29999 8.3999L10.5 12.5999L14.7 8.3999" stroke="#6B7280" stroke-width="1.575" stroke-linecap="round" stroke-linejoin="round"/>
+							</svg>
+						}
+					</div>
+				</div>
+			}
+			<button
+				class="rounded-tr-lg rounded-br-lg flex items-center justify-center text-sm uppercase tracking-[0.1em] text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+				style="background: linear-gradient(0deg, rgba(199,158,53,1) 0%, rgba(221,188,108,1) 100%);"
+			>
+				Search Availability
+			</button>
+		</div>
+	</div>
+</div>

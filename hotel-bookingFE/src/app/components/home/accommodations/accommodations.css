@@ -1,0 +1,7 @@
+:host {
+  --animation-delay: 0s;
+}
+
+article {
+  animation-delay: var(--animation-delay);
+}

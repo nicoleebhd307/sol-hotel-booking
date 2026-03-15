@@ -1,0 +1,71 @@
+<section
+	id="accommodations"
+	class="relative overflow-hidden px-4 py-24"
+	style="background: url('https://images.unsplash.com/photo-1502943693086-33b5b1cfdf2f?auto=format&fit=crop&w=1600&q=80') center / cover no-repeat;"
+>
+	<!-- Gradient overlay -->
+	<div class="absolute inset-0" style="background: linear-gradient(180deg, rgba(255,255,255,0) 15%, rgba(253,249,238,1) 100%);"></div>
+
+	<div class="relative mx-auto max-w-7xl">
+		<!-- Heading -->
+		<div class="mb-12 text-center reveal-up">
+			<h2 class="font-serif text-5xl italic text-[#1a1a1a]">Luxury Accommodations</h2>
+		</div>
+
+		<!-- Cards row -->
+		<div class="flex items-center justify-center gap-6">
+			@for (card of cards(); track card.title; let i = $index) {
+				<article
+					class="reveal-up bg-white flex flex-col gap-4 transition-all duration-500"
+					[class]="card.featured
+						? 'rounded-2xl p-5 z-10 w-[394px] shadow-[4px_4px_50px_0px_rgba(255,237,203,1)] scale-105'
+						: 'rounded-2xl p-5 w-[395px] h-[460px] shadow-sm hover:shadow-lg'"
+					[style]="'animation-delay:' + (i * 0.1) + 's'"
+				>
+					<!-- Room image -->
+					<div class="relative overflow-hidden rounded-[10px] h-64">
+						<img
+							[src]="card.imageUrl"
+							[alt]="card.title"
+							class="h-full w-full object-cover transition-transform duration-700 hover:scale-110"
+						/>
+					</div>
+
+					<!-- Title -->
+					<h3 class="font-serif text-2xl text-[#1a1a1a]">{{ card.title }}</h3>
+
+					<!-- Description -->
+					<p class="text-sm leading-6 text-[#374151]">{{ card.description }}</p>
+
+					<!-- Actions -->
+					<div [class]="card.featured ? 'px-4' : 'border-t border-[#e5e7eb] pt-4 px-4'">
+						@if (card.featured) {
+							<div class="flex gap-5">
+								<button
+									class="flex-1 rounded-lg border border-[#1a1a1a] border-[0.5px] py-3 font-serif italic text-[#1a1a1a] text-sm transition-all duration-300 hover:bg-[#1a1a1a] hover:text-white"
+								>
+									{{ card.primaryAction }}
+								</button>
+								<button
+									class="flex-1 rounded-lg py-3 font-serif italic text-white text-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+									style="background: linear-gradient(0deg, rgba(199,158,53,1) 0%, rgba(221,188,108,1) 100%);"
+								>
+									{{ card.secondaryAction }}
+								</button>
+							</div>
+						} @else {
+							<div class="flex items-center justify-between">
+								<button class="font-serif italic text-sm text-[#1a1a1a] transition hover:text-[#c5a059]">
+									{{ card.primaryAction }}
+								</button>
+								<button class="font-serif italic text-sm text-[#c5a059] transition-transform duration-300 hover:translate-x-1">
+									{{ card.secondaryAction }} →
+								</button>
+							</div>
+						}
+					</div>
+				</article>
+			}
+		</div>
+	</div>
+</section>

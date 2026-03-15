@@ -1,0 +1,45 @@
+<nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out"
+	[class]="isScrolled() ? 'bg-[#fffbef] shadow-md py-4 md:py-6' : 'bg-transparent py-4 md:py-6'">
+	<div class="mx-auto max-w-[1280px] px-8">
+		<div class="flex items-center justify-between relative">
+
+			<!-- Left: Nav Links -->
+			<div class="flex items-center gap-10">
+				<a href="#" class="text-sm uppercase tracking-[0.1em] transition-colors duration-300 hover:opacity-70"
+					[class]="isScrolled() ? 'text-[#1a1a1a]' : 'text-white'">Home</a>
+				<a href="#" class="text-sm uppercase tracking-[0.1em] transition-colors duration-300 hover:opacity-70"
+					[class]="isScrolled() ? 'text-[#1a1a1a]' : 'text-white'">Our Stories</a>
+				<a href="#accommodations"
+					class="text-sm uppercase tracking-[0.1em] transition-colors duration-300 hover:opacity-70"
+					[class]="isScrolled() ? 'text-[#1a1a1a]' : 'text-white'">Accommodations</a>
+			</div>
+
+			<!-- Center: Logo (absolute) -->
+			<div
+				class="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-0.5 transition-all duration-300">
+				<div class="h-7 flex items-center justify-center">
+					<img
+						[src]="isScrolled() ? 'assets/images/sol-gold.png' : 'assets/images/sol-white.png'"
+						alt="Sol An Bang logo"
+						class="h-7 w-auto object-contain transition-all duration-500"
+					/>
+				</div>
+				<p class="text-xl uppercase font-serif tracking-[0.35em] leading-tight transition-colors duration-300"
+					[class]="isScrolled() ? 'text-[#1a1a1a]' : 'text-white'">Sol An Bang</p>
+				<p class="text-[10px] uppercase tracking-[0.25em] transition-colors duration-300"
+					[class]="isScrolled() ? 'text-[#6b7280]' : 'text-white/70'">Beach Resort &amp; Spa</p>
+			</div>
+
+			<!-- Right: Contact + Reserve -->
+			<div class="flex items-center gap-6">
+				<a href="#" class="text-sm uppercase tracking-[0.1em] transition-colors duration-300 hover:opacity-70"
+					[class]="isScrolled() ? 'text-[#1a1a1a]' : 'text-white'">Contact Us</a>
+				<button
+					class="rounded-lg px-8 py-3 font-serif text-sm italic text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+					style="background: linear-gradient(0deg, rgba(199,158,53,1) 0%, rgba(221,188,108,1) 100%)">
+					Reserve now
+				</button>
+			</div>
+		</div>
+	</div>
+</nav>

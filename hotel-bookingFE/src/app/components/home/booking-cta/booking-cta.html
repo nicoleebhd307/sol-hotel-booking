@@ -1,0 +1,50 @@
+<section
+	id="contact"
+	class="relative flex min-h-[793px] items-center justify-center overflow-hidden px-4 py-24"
+>
+	<!-- Background image -->
+	<div
+		class="absolute inset-0 bg-[#1a1a1a]"
+		[style.background-image]="'url(' + data().backgroundImageUrl + ')'"
+		style="background-size: cover; background-position: center; background-repeat: no-repeat;"
+	></div>
+
+	<!-- Dark overlay -->
+	<div class="absolute inset-0" style="background: rgba(0,0,0,0.5);"></div>
+
+	<!-- Frosted glass card -->
+	<div
+		class="reveal-up relative w-full max-w-2xl rounded-3xl border border-white/20 bg-white/15 p-12 pb-16 shadow-2xl"
+		style="backdrop-filter: blur(6px); box-shadow: 0px 25px 50px -12px rgba(0,0,0,0.25);"
+	>
+		<!-- Heading -->
+		<h2 class="text-center font-serif text-5xl text-white leading-tight">
+			Experience the<br />
+			<span class="italic">perfect</span><br />
+			<span class="italic">blend of luxury</span>
+		</h2>
+
+		<!-- Form -->
+		<div class="mt-12 space-y-4">
+			<input
+				type="text"
+				placeholder="Full name"
+				class="w-full rounded-lg border border-white/30 bg-white/20 px-6 py-[18px] text-base text-white placeholder-white/60 outline-none transition-all duration-300 focus:border-white/70 focus:bg-white/30 hover:border-white/50"
+			/>
+			<input
+				type="email"
+				placeholder="Email Address"
+				class="w-full rounded-lg border border-white/30 bg-white/20 px-6 py-[18px] text-base text-white placeholder-white/60 outline-none transition-all duration-300 focus:border-white/70 focus:bg-white/30 hover:border-white/50"
+			/>
+			<button
+				class="w-full rounded-2xl py-5 font-serif italic text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+				style="background: linear-gradient(0deg, rgba(199,158,53,1) 0%, rgba(221,188,108,1) 100%);"
+			>
+				Contact us
+			</button>
+			<p class="px-8 text-center text-[10px] leading-[1.625] text-white/70">
+				By clicking Contact Us, you agree to our Privacy Policy. Your personal information will be kept secure and used only to process your request and share occasional updates.
+			</p>
+		</div>
+	</div>
+</section>

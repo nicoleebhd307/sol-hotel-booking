@@ -40,12 +40,98 @@
 
 @theme {
   --font-sans: 'Plus Jakarta Sans', sans-serif;
-  --font-serif: 'Calvino', serif;
+  --font-serif: 'Playfair Display', serif;
   --color-gold: #c5a059;
   --color-gold-light: #d4b87a;
   --color-beige: #faf7f2;
   --color-beige-dark: #f0ebe0;
   --color-dark: #1a1a1a;
+}
+
+/* ─── Scroll-triggered reveal animations ─────────────────── */
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes revealLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes revealRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes revealScale {
+  from { opacity: 0; transform: scale(0.93); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Default hidden state for reveal elements */
+.reveal-up,
+.reveal-left,
+.reveal-right,
+.reveal-scale {
+  opacity: 0;
+}
+
+/* Triggered state — added by IntersectionObserver */
+.reveal-up.in-view {
+  animation: revealUp 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+.reveal-left.in-view {
+  animation: revealLeft 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+.reveal-right.in-view {
+  animation: revealRight 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+.reveal-scale.in-view {
+  animation: revealScale 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Stagger support via inline --animation-delay */
+.reveal-up.in-view,
+.reveal-left.in-view,
+.reveal-right.in-view,
+.reveal-scale.in-view {
+  animation-delay: var(--animation-delay, 0s);
+}
+
+/* ─── Navbar animation ─────────────────────────────────────── */
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Global micro-animations ─────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+@layer utilities {
+  .animate-fade-in-up {
+    animation: revealUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s forwards;
+    opacity: 0;
+  }
+
+  .transition-smooth {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-300 hover:scale-105;
+  }
+
+  .button-glow {
+    @apply relative transition-all duration-300;
+  }
+
+  .button-glow:hover {
+    @apply shadow-lg shadow-[#c5a059]/30;
+  }
 }
 
 * {
@@ -57,11 +143,15 @@ html {
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 200;
+  font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
+  font-weight: 300;
   color: #1a1a1a;
   margin: 0;
   padding: 0;
+}
+
+.mat-icon {
+  font-family: 'Material Icons' !important;
 }
 
 /* ── Base button ─────────────────────────────────────────── */
@@ -71,10 +161,10 @@ body {
   justify-content: center;
   font-family: 'Calvino', serif;
   font-weight: 300;
-  font-size: 1rem;          /* 16px  */
+  font-size: 1rem;
   line-height: 1;
   letter-spacing: 0.04em;
-  border-radius: 0.5rem;    /* rounded-lg */
+  border-radius: 0.5rem;
   padding: 0.75rem 1.5rem;
   cursor: pointer;
   transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
@@ -83,9 +173,8 @@ body {
 }
 
 .btn:hover  { opacity: 0.88; transform: translateY(-1px); }
-.btn:active { opacity: 1;    transform: translateY(0);    }
+.btn:active { opacity: 1;    transform: translateY(0); }
 
-/* ── Outline / "Details" variant ────────────────────────── */
 .btn-outline {
   background: transparent;
   color: #1a1a1a;
@@ -98,7 +187,6 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-/* ── Gold / "Book Now" variant ───────────────────────────── */
 .btn-gold {
   background: linear-gradient(2.6deg, #c99d35 0%, #ddc27f 100%);
   color: #ffffff;
@@ -110,7 +198,6 @@ body {
   box-shadow: 0 6px 20px rgba(197, 160, 89, 0.5);
 }
 
-/* ── Dark / filled variant ───────────────────────────────── */
 .btn-dark {
   background: #1a1a1a;
   color: #ffffff;
@@ -123,7 +210,6 @@ body {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
 }
 
-/* ── Ghost / white (for dark backgrounds) ───────────────── */
 .btn-ghost {
   background: rgba(255, 255, 255, 0.15);
   color: #ffffff;
@@ -136,6 +222,5 @@ body {
   border-color: rgba(255, 255, 255, 0.7);
 }
 
-/* ── Size modifiers ──────────────────────────────────────── */
-.btn-sm { padding: 0.5rem 1rem;    font-size: 0.8rem;  }
-.btn-lg { padding: 1rem 2.5rem;    font-size: 1.125rem; }
+.btn-sm { padding: 0.5rem 1rem;   font-size: 0.8rem; }
+.btn-lg { padding: 1rem 2.5rem;   font-size: 1.125rem; }
