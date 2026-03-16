@@ -19,8 +19,10 @@ interface NavLink {
 export class StickyNavbar {
   readonly navLinks = input.required<NavLink[]>();
   readonly logoUrl = input.required<string>();
+  readonly reserveLabel = input<string>('Reserve now');
 
   protected isScrolled = signal(false);
+  protected isMenuOpen = signal(false);
   private ngZone = inject(NgZone);
 
   onWindowScroll() {
@@ -37,6 +39,15 @@ export class StickyNavbar {
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
+      this.isMenuOpen.set(false);
     }
+  }
+
+  toggleMenu() {
+    this.isMenuOpen.update((state) => !state);
+  }
+
+  closeMenu() {
+    this.isMenuOpen.set(false);
   }
 }

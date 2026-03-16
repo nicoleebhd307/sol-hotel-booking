@@ -47,6 +47,15 @@ export interface HomePageData {
     backgroundImageUrl: string;
     logoUrl: string;
     navLinks: NavLink[];
+    welcomeEyebrow: string;
+    headingLineOne: string;
+    headingLineTwo: string;
+    subHeading: string;
+    primaryCtaLabel: string;
+    primaryCtaHref: string;
+    secondaryCtaLabel: string;
+    secondaryCtaHref: string;
+    reserveLabel: string;
   };
   availabilityFields: AvailabilityField[];
   intro: {

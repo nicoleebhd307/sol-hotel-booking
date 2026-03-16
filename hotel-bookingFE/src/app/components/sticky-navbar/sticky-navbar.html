@@ -4,14 +4,11 @@
 		<div class="flex items-center justify-between relative">
 
 			<!-- Left: Nav Links -->
-			<div class="flex items-center gap-10">
-				<a href="#" class="text-sm uppercase tracking-[0.1em] transition-colors duration-300 hover:opacity-70"
-					[class]="isScrolled() ? 'text-[#1a1a1a]' : 'text-white'">Home</a>
-				<a href="#" class="text-sm uppercase tracking-[0.1em] transition-colors duration-300 hover:opacity-70"
-					[class]="isScrolled() ? 'text-[#1a1a1a]' : 'text-white'">Our Stories</a>
-				<a href="#accommodations"
-					class="text-sm uppercase tracking-[0.1em] transition-colors duration-300 hover:opacity-70"
-					[class]="isScrolled() ? 'text-[#1a1a1a]' : 'text-white'">Accommodations</a>
+			<div class="hidden md:flex items-center gap-10">
+				@for (link of navLinks(); track link.label) {
+					<a [href]="link.href" class="text-sm uppercase tracking-[0.1em] transition-colors duration-300 hover:opacity-70"
+						[class]="isScrolled() ? 'text-[#1a1a1a]' : 'text-white'">{{ link.label }}</a>
+				}
 			</div>
 
 			<!-- Center: Logo (absolute) -->
@@ -19,7 +16,7 @@
 				class="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-0.5 transition-all duration-300">
 				<div class="h-7 flex items-center justify-center">
 					<img
-						[src]="isScrolled() ? 'assets/images/sol-gold.png' : 'assets/images/sol-white.png'"
+						[src]="isScrolled() ? 'assets/images/sol-gold.png' : logoUrl()"
 						alt="Sol An Bang logo"
 						class="h-7 w-auto object-contain transition-all duration-500"
 					/>
@@ -31,15 +28,54 @@
 			</div>
 
 			<!-- Right: Contact + Reserve -->
-			<div class="flex items-center gap-6">
-				<a href="#" class="text-sm uppercase tracking-[0.1em] transition-colors duration-300 hover:opacity-70"
+			<div class="hidden md:flex items-center gap-6">
+				<a href="#footer" class="text-sm uppercase tracking-[0.1em] transition-colors duration-300 hover:opacity-70"
 					[class]="isScrolled() ? 'text-[#1a1a1a]' : 'text-white'">Contact Us</a>
-				<button
+				<a
+					href="#"
 					class="rounded-lg px-8 py-3 font-serif text-sm italic text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
 					style="background: linear-gradient(0deg, rgba(199,158,53,1) 0%, rgba(221,188,108,1) 100%)">
-					Reserve now
-				</button>
+					{{ reserveLabel() }}
+				</a>
 			</div>
+
+			<button
+				type="button"
+				class="md:hidden relative z-20 rounded-md p-2 transition-colors duration-300"
+				[class]="isScrolled() ? 'text-[#1a1a1a] bg-black/5' : 'text-white bg-white/10'"
+				(click)="toggleMenu()"
+				aria-label="Toggle navigation"
+			>
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M4 7H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+					<path d="M4 12H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+					<path d="M4 17H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+				</svg>
+			</button>
+		</div>
+	</div>
+
+	<div
+		class="md:hidden mx-4 mt-4 rounded-xl border border-white/20 bg-black/55 p-4 backdrop-blur-md transition-all duration-300"
+		[class]="isMenuOpen() ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-3 pointer-events-none'"
+	>
+		<div class="flex flex-col gap-2">
+			@for (link of navLinks(); track link.label) {
+				<a
+					[href]="link.href"
+					(click)="closeMenu()"
+					class="rounded-lg px-3 py-2 text-sm uppercase tracking-[0.12em] text-white/90 transition-colors duration-300 hover:bg-white/10"
+				>
+					{{ link.label }}
+				</a>
+			}
+			<a
+				href="#"
+				(click)="closeMenu()"
+				class="mt-2 rounded-lg bg-gradient-to-b from-[#ddbc6c] to-[#c79e35] px-4 py-3 text-center text-sm uppercase tracking-[0.14em] text-white"
+			>
+				{{ reserveLabel() }}
+			</a>
 		</div>
 	</div>
 </nav>

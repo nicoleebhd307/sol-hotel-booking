@@ -1,20 +1,57 @@
 <section
 	id="hero"
-	class="relative flex flex-col items-center overflow-hidden min-h-screen w-full"
-	[style.background-image]="'linear-gradient(rgba(0,0,0,0.1),rgba(0,0,0,0.1)), url(' + data().backgroundImageUrl + ')'"
+	class="relative isolate flex w-full min-h-[793px] flex-col items-center overflow-visible px-4 pb-48 pt-28 md:min-h-screen md:px-8 md:pt-40 md:pb-56"
+	[style.background-image]="
+		'linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 50%), linear-gradient(to bottom, rgba(255,255,255,0.08), rgba(255,255,255,0)), url(' +
+		data().backgroundImageUrl +
+		')'
+	"
 	style="background-size: cover; background-position: center; background-repeat: no-repeat;"
 >
-	<!-- Spacer to push card to vertical center within hero -->
-	<div class="flex flex-1 w-full flex-col items-center justify-center pt-28 pb-32">
-		<!-- Glassmorphism welcome card -->
+	<div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/8 to-transparent"></div>
+	<div class="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#f9f7f2] via-[#f9f7f2]/80 to-transparent"></div>
+
+	<div class="hero-orb hero-orb-one"></div>
+	<div class="hero-orb hero-orb-two"></div>
+	<div class="hero-orb hero-orb-three"></div>
+
+	<div class="relative z-10 flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-12 md:gap-20">
 		<div
-			class="relative w-full max-w-2xl rounded-xl border border-white/30 bg-white/15 px-20 py-20 pb-26 text-center shadow-2xl"
-			style="backdrop-filter: blur(6px); box-shadow: 0px 25px 50px -12px rgba(0,0,0,0.25);"
+			class="hero-card-enter relative w-full max-w-2xl rounded-2xl border border-white/30 bg-white/12 px-5 py-10 text-center shadow-2xl sm:px-10 sm:py-14 md:px-20 md:py-24"
+			style="backdrop-filter: blur(6px); box-shadow: 0px 24px 55px -18px rgba(0, 0, 0, 0.3);"
 		>
-			<p class="text-xs uppercase tracking-[0.5em] text-black/70">Welcome to</p>
-			<h1 class="mt-2 font-serif text-6xl md:text-7xl italic leading-[1.05] text-white">
-				Experience<br />New Perspective
+			<div class="absolute inset-0 rounded-2xl border border-white/15 hero-card-shine"></div>
+			<p class="text-[10px] uppercase tracking-[0.5em] text-white/80 md:text-xs">{{ data().welcomeEyebrow }}</p>
+			<h1 class="hero-heading mt-3 font-serif italic leading-tight text-white">
+				{{ data().headingLineOne }}
+				<br />
+				{{ data().headingLineTwo }}
 			</h1>
+			<p class="mx-auto mt-4 max-w-xs text-xs leading-relaxed text-white/85 sm:max-w-sm sm:text-sm md:max-w-md md:text-base">
+				{{ data().subHeading }}
+			</p>
+
+			<div class="mt-6 flex flex-col gap-2 sm:flex-row sm:gap-3 md:mt-8 md:gap-4">
+				<a
+					[href]="data().primaryCtaHref"
+					class="rounded-lg bg-gradient-to-b from-[#ddbc6c] to-[#c79e35] px-5 py-2 text-xs uppercase tracking-[0.12em] text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#c5a059]/50 sm:px-6 sm:py-3 sm:text-sm"
+				>
+					{{ data().primaryCtaLabel }}
+				</a>
+				<a
+					[href]="data().secondaryCtaHref"
+					class="rounded-lg border border-white/50 bg-white/8 px-5 py-2 text-xs uppercase tracking-[0.12em] text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/15 sm:px-6 sm:py-3 sm:text-sm"
+				>
+					{{ data().secondaryCtaLabel }}
+				</a>
+			</div>
+		</div>
+
+		<div class="hero-scroll-enter hidden md:flex items-center gap-2 text-white/80" style="--animation-delay: 0.2s;">
+			<div class="h-8 w-4 rounded-full border border-white/60 p-1">
+				<div class="hero-scroll-dot h-1.5 w-1.5 rounded-full bg-white"></div>
+			</div>
+			<span class="text-[10px] uppercase tracking-[0.3em]">Scroll to explore</span>
 		</div>
 	</div>
 </section>
