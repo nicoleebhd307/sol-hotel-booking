@@ -1,0 +1,102 @@
+/* Sidebar Navigation Styles */
+
+:host {
+  display: flex;
+  height: 100%;
+}
+
+/* Navigation menu container */
+nav {
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav li {
+  flex-shrink: 0;
+}
+
+/* Default menu item link */
+nav a {
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: center;
+  justify-content: flex-start;
+  align-self: stretch;
+  position: relative;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Active menu item styling */
+a.active-menu-item {
+  background-color: #ede8d9;
+}
+
+a.active-menu-item span:not(:first-child) {
+  color: #1d1c13;
+  font-weight: 600;
+}
+
+/* Inactive menu items text color */
+nav a:not(.active-menu-item) span:not(:first-child) {
+  color: #4e4639;
+  font-weight: 500;
+}
+
+/* Icon styling */
+nav a .material-symbols-outlined {
+  font-size: 22px;
+  flex-shrink: 0;
+  line-height: 1;
+  color: #6a5f4c;
+}
+
+a.active-menu-item .material-symbols-outlined {
+  color: #775a19;
+}
+
+/* Bottom section styles */
+div.border-t a {
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+div.border-t a span:not(:first-child) {
+  color: #4e4639;
+  font-weight: 500;
+}
+
+div.border-t a.active-menu-item span:not(:first-child) {
+  color: #1d1c13;
+  font-weight: 600;
+}
+
+/* Logout link red color */
+a[routerLink="/logout"] span:not(:first-child) {
+  color: #ba1a1a !important;
+  font-weight: 500;
+}
+
+a[routerLink="/logout"].active-menu-item {
+  background-color: #ede8d9;
+}
+
+a[routerLink="/logout"].active-menu-item span:not(:first-child) {
+  color: #ba1a1a !important;
+  font-weight: 600;
+}
+
+

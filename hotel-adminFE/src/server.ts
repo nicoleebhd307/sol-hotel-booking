@@ -8,6 +8,7 @@ import express from 'express';
 import { join } from 'node:path';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
+const publicFolder = join(import.meta.dirname, '../public');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
@@ -23,6 +24,17 @@ const angularApp = new AngularNodeAppEngine();
  * });
  * ```
  */
+
+/**
+ * Serve static files from public folder
+ */
+app.use(
+  express.static(publicFolder, {
+    maxAge: '1y',
+    index: false,
+    redirect: false,
+  }),
+);
 
 /**
  * Serve static files from /browser

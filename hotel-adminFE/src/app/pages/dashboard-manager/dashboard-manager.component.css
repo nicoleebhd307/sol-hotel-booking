@@ -1,0 +1,37 @@
+:host {
+  display: block;
+}
+
+.manager-activity {
+  box-shadow: 0 14px 30px rgba(126, 99, 40, 0.07);
+}
+
+.chart-wrap {
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(243, 238, 223, 0.32) 0%, rgba(243, 238, 223, 0.1) 100%);
+  padding: 12px 8px 4px;
+}
+
+@media (max-width: 1200px) {
+  .manager-activity h3 {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .grid.grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grid.grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .col-span-2 {
+    grid-column: span 1 / span 1;
+  }
+
+  .grid.grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+}

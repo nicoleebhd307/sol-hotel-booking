@@ -1,0 +1,117 @@
+<div
+  class="min-h-screen flex items-center justify-center px-4 py-8 overflow-y-auto"
+  style="
+    background-image: url('assets/images/login_bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    position: relative;
+  "
+>
+  <!-- Overlay gradient -->
+  <div
+    class="absolute inset-0"
+    style="
+      background: linear-gradient(to left, rgba(249, 247, 242, 0.85), rgba(249, 247, 242, 0.85));
+      pointer-events: none;
+    "
+  ></div>
+
+  <!-- Content -->
+  <div class="relative z-10 flex flex-col gap-6 w-full max-w-md items-center justify-center">
+    <!-- Logo Brand Section -->
+    <div class="flex flex-col gap-4 items-center justify-center w-full">
+      <app-logo-brand></app-logo-brand>
+
+      <!-- Management Portal Title -->
+      <h2
+        class="text-2xl font-semibold text-[#775a19] uppercase tracking-wider mt-2"
+        style="font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: 4px"
+      >
+        Management Portal
+      </h2>
+    </div>
+
+    <!-- Login Card -->
+    <div
+      class="w-full bg-white/90 rounded-sm border px-12 py-12 shadow-lg"
+      style="
+        backdrop-filter: blur(2px);
+        border-color: rgba(197, 160, 89, 0.2);
+        box-shadow: 0px 8px 10px -6px rgba(0, 0, 0, 0.1),
+          0px 20px 25px -5px rgba(0, 0, 0, 0.1);
+      "
+    >
+      <!-- Error Message -->
+      <div
+        *ngIf="errorMessage"
+        class="mb-4 p-3 bg-red-50 border border-red-300 rounded-sm text-red-600 text-sm"
+      >
+        {{ errorMessage }}
+      </div>
+
+      <!-- Login Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" (keypress)="onKeyPress($event)">
+        <!-- Email Field -->
+        <div class="mb-6">
+          <app-input-field
+            label="Email Address"
+            type="email"
+            icon="mail"
+            placeholder="admin@azuresands.com"
+            [control]="emailControl"
+          ></app-input-field>
+        </div>
+
+        <!-- Password Field -->
+        <div class="mb-6">
+          <app-input-field
+            label="Password"
+            type="password"
+            icon="lock"
+            placeholder="Enter your password"
+            [control]="passwordControl"
+          ></app-input-field>
+        </div>
+
+        <!-- Forgot Password Link -->
+        <div class="flex justify-end mb-8">
+          <button
+            type="button"
+            (click)="onForgotPassword()"
+            class="text-xs font-semibold text-[#c5a059] uppercase tracking-tight hover:underline transition-all"
+            style="font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: 1.0px"
+          >
+            Forgot Password?
+          </button>
+        </div>
+
+        <!-- Login Button -->
+        <app-button-primary
+          text="Login"
+          [isLoading]="isLoading"
+          [isDisabled]="loginForm.invalid || isLoading"
+          (clicked)="onSubmit()"
+        ></app-button-primary>
+      </form>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center mt-8 w-full">
+      <p
+        class="text-xs font-light text-[#4e4639] uppercase tracking-wider"
+        style="font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: 1.2px"
+      >
+        Copyright © 2026 Sol An Bang Beach Resort &amp; Spa
+      </p>
+      <p
+        class="text-xs font-light text-[#4e4639] uppercase tracking-wider mt-1"
+        style="font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: 1.2px"
+      >
+        Powered by NHA CO 5 NANG TIEN
+      </p>
+    </div>
+  </div>
+</div>

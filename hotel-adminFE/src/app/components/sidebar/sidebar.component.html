@@ -1,0 +1,70 @@
+<div class="flex flex-col min-h-screen w-[260px] border-r border-[rgba(209,197,180,0.1)] bg-white">
+  <!-- Brand Section -->
+  <div class="px-8 py-8">
+    <div class="flex flex-row gap-3 items-center">
+      <!-- Logo Background -->
+      <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-[#775a19] to-[#c5a059] flex-shrink-0">
+        <img 
+          src="/assets/images/sol-white.png?v=2" 
+          alt="Sol An Bang Logo" 
+          width="31"
+          height="18"
+          class="w-[31px] h-[18px] object-contain [filter:brightness(0)_invert(1)]"
+        />
+      </div>
+
+      <!-- Brand Text -->
+      <div class="flex flex-col gap-1">
+        <h1 class="text-[20px] leading-5 font-medium text-black" style="font-family: 'Playfair Display', serif;">
+          SOL AN BANG
+        </h1>
+        <p class="text-[12px] leading-4 font-normal text-[#775a19] uppercase tracking-[0.6px]" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+          Management Portal
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Menu -->
+  <nav class="flex-1 px-4 py-0 overflow-hidden">
+    <ul class="flex flex-col gap-1">
+      <li *ngFor="let item of menuItems">
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active-menu-item"
+          [routerLinkActiveOptions]="{ exact: false }"
+          class="flex flex-row gap-4 items-center px-4 py-3 rounded-[12px] transition-all duration-200"
+        >
+          <!-- Icon -->
+          <span class="material-symbols-outlined text-[22px] text-[#6a5f4c]">{{ item.icon }}</span>
+          <span class="text-[14px] leading-5 font-medium text-[#4e4639]" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+            {{ item.label }}
+          </span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Bottom Section -->
+  <div class="border-t border-[rgba(209,197,180,0.1)] px-4 py-4">
+    <ul class="flex flex-col gap-1">
+      <li *ngFor="let item of bottomMenuItems; let isLast = last">
+        <a
+          [routerLink]="item.route"
+          (click)="handleMenuClick($event, item)"
+          routerLinkActive="active-menu-item"
+          class="flex flex-row gap-4 items-center px-4 py-3 rounded-[12px] transition-all duration-200"
+          [ngClass]="{
+            'text-[#ba1a1a]': item.label === 'Logout'
+          }"
+        >
+          <!-- Icon -->
+          <span class="material-symbols-outlined text-[22px] text-[#6a5f4c]">{{ item.icon }}</span>
+          <span class="text-[14px] leading-5 font-medium" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+            {{ item.label }}
+          </span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
