@@ -136,7 +136,7 @@ export class HomeContent {
       },
       bookingCta: {
         backgroundImageUrl:
-          'https://images.unsplash.com/photo-1501117716987-c8e1ecb210a0?auto=format&fit=crop&w=1600&q=80',
+        'https://images.unsplash.com/photo-1610641818989-c2051b5e2cfd?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
         headingLineOne: 'Experience the perfect',
         headingLineTwo: 'blend of luxury',
       },

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { input } from '@angular/core';
-import { HomePageData } from '../../../models/home.models';
+import { HomePageData } from '../../models/home.models';
 
 @Component({
   selector: 'app-site-footer',

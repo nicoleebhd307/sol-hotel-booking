@@ -9,7 +9,7 @@ import { ExperienceOffers } from '../../components/home/experience-offers/experi
 import { GuestExperiences } from '../../components/home/guest-experiences/guest-experiences';
 import { NewsSection } from '../../components/home/news-section/news-section';
 import { BookingCta } from '../../components/home/booking-cta/booking-cta';
-import { SiteFooter } from '../../components/home/site-footer/site-footer';
+import { SiteFooter } from '../../components/site-footer/site-footer';
 
 @Component({
   selector: 'app-main-layout',

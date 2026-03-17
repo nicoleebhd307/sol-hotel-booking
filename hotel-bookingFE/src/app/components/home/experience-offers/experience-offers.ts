@@ -15,16 +15,16 @@ export class ExperienceOffers {
   readonly displayImage = computed(() => {
     const items = this.data().items;
     const hovered = this.hoveredIndex();
+
     if (hovered !== null && items[hovered]?.imageUrl) {
       return items[hovered].imageUrl!;
     }
+
     const active = items.find(i => i.active);
     return active?.imageUrl ?? this.data().imageUrl;
   });
 
   isHighlighted(i: number): boolean {
-    const hovered = this.hoveredIndex();
-    if (hovered !== null) return hovered === i;
-    return this.data().items[i]?.active === true;
+    return this.hoveredIndex() === i;
   }
 }

@@ -15,25 +15,35 @@
 				style="font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: 3.6px;">{{ data().title }}</p>
 
 			<div class="flex flex-col gap-6">
-				@for (item of data().items; track item.title; let i = $index) {
-				<a routerLink="/stories"
-					class="border-b border-[#f3f4f6] pb-4 flex items-end justify-between no-underline"
-					(mouseenter)="hoveredIndex.set(i)" (mouseleave)="hoveredIndex.set(null)"
-					[style.--animation-delay]="(i * 0.08) + 's'">
-					<h3 class="font-normal transition-all duration-500 cursor-pointer"
-						[style.color]="isHighlighted(i) ? '#c5a059' : '#1a1a1a'"
-						[style.font-size]="isHighlighted(i) ? '3rem' : '2.25rem'"
-						style="font-family: 'Playfair Display', serif; line-height: 1.1;">
-						{{ item.title }}
-					</h3>
+  @for (item of data().items; track item.title; let i = $index) {
+    <a
+      routerLink="/stories"
+      class="border-b border-[#f3f4f6] pb-4 flex items-end justify-between no-underline"
+      (mouseenter)="hoveredIndex.set(i)"
+      (mouseleave)="hoveredIndex.set(null)"
+      [style.--animation-delay]="(i * 0.05) + 's'"
+    >
+<h3
+  class="font-normal transition-all duration-500 ease-out cursor-pointer"
+  [style.color]="isHighlighted(i) ? '#c5a059' : '#1a1a1a'"
+  [style.transform]="isHighlighted(i) ? 'scale(1.08)' : 'scale(1)'"
+  [style.fontSize]="isHighlighted(i) ? '2.5rem' : '2.25rem'"
+  style="font-family: 'Playfair Display', serif; line-height: 1.1;"
+>
+  {{ item.title }}
+</h3>
 
-					<span class="text-sm italic whitespace-nowrap transition-all duration-300 cursor-pointer"
-						[style.opacity]="isHighlighted(i) ? '1' : '0'"
-						[style.transform]="isHighlighted(i) ? 'translateX(0)' : 'translateX(10px)'"
-						style="font-family: 'Playfair Display', serif; color: #1a1a1a;">View More →</span>
-				</a>
-				}
-			</div>
+      <span
+        class="text-sm italic whitespace-nowrap transition-all duration-300 cursor-pointer"
+        [style.opacity]="isHighlighted(i) ? '1' : '0'"
+        [style.transform]="isHighlighted(i) ? 'translateX(0)' : 'translateX(10px)'"
+        style="font-family: 'Playfair Display', serif; color: #c5a059;"
+      >
+        View More 
+      </span>
+    </a>
+  }
+</div>
 		</div>
 	</div>
 </section>
