@@ -6,8 +6,7 @@
   "type": "commonjs",
   "scripts": {
     "dev": "nodemon server.js",
-    "start": "node server.js",
-    "seed": "node scripts/seed.js"
+    "start": "node server.js"
   },
   "engines": {
     "node": ">=18"
@@ -18,7 +17,6 @@
     "dotenv": "^16.6.1",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
-    "mongodb-memory-server": "^10.2.0",
     "mongoose": "^8.5.2",
     "morgan": "^1.10.0"
   },
