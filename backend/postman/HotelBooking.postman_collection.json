@@ -8,6 +8,7 @@
   "variable": [
     { "key": "baseUrl",    "value": "http://localhost:5000" },
     { "key": "adminToken", "value": "" },
+    { "key": "adminEmail", "value": "an.admin@gmail.com" },
     { "key": "roomTypeId", "value": "" },
     { "key": "roomId",     "value": "" },
     { "key": "bookingId",  "value": "" },
@@ -532,7 +533,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin@12345\"\n}"
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"123456\"\n}"
             }
           },
           "event": [{
@@ -542,8 +543,12 @@
               "  pm.response.to.have.status(200);",
               "  const body = pm.response.json();",
               "  pm.expect(body.token).to.be.a('string');",
+              "  pm.expect(body).to.have.property('account');",
+              "  pm.expect(body.account).to.have.property('email');",
+              "  pm.expect(body.account).to.have.property('role');",
               "  pm.collectionVariables.set('adminToken', body.token);",
-              "  console.log('Admin role:', body.staff.role);",
+              "  pm.collectionVariables.set('adminEmail', body.account.email);",
+              "  console.log('Admin role:', body.account.role);",
               "});"
             ]}
           }]
@@ -556,7 +561,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{ \"username\": \"admin\", \"password\": \"wrongpassword\" }"
+              "raw": "{ \"email\": \"{{adminEmail}}\", \"password\": \"wrongpassword\" }"
             }
           },
           "event": [{
@@ -786,6 +791,56 @@
     {
       "name": "8 – Admin: Room Calendar & Stats",
       "item": [
+        {
+          "name": "GET /api/admin/dashboard?receptionist",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/dashboard?receptionist",
+              "query": [{ "key": "receptionist", "value": "" }]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 dashboard payload shape', () => {",
+              "  pm.response.to.have.status(200);",
+              "  const body = pm.response.json();",
+              "  pm.expect(body).to.have.property('stats');",
+              "  pm.expect(body.stats).to.have.property('totalBookingsToday');",
+              "  pm.expect(body.stats).to.have.property('checkInToday');",
+              "  pm.expect(body.stats).to.have.property('checkOutToday');",
+              "  pm.expect(body.stats).to.have.property('availableRooms');",
+              "  pm.expect(body.stats).to.have.property('growth');",
+              "  pm.expect(body.stats.growth).to.have.property('bookings');",
+              "  pm.expect(body.stats.growth).to.have.property('checkIn');",
+              "  pm.expect(body.stats.growth).to.have.property('checkOut');",
+              "  pm.expect(body.stats.growth).to.have.property('rooms');",
+              "  pm.expect(body.roomAvailability).to.be.an('array');",
+              "  pm.expect(body.checkins).to.be.an('array');",
+              "  pm.expect(body.checkouts).to.be.an('array');",
+              "  if (body.roomAvailability.length > 0) {",
+              "    pm.expect(body.roomAvailability[0]).to.have.property('roomType');",
+              "    pm.expect(body.roomAvailability[0]).to.have.property('occupiedPercent');",
+              "  }",
+              "  if (body.checkins.length > 0) {",
+              "    pm.expect(body.checkins[0]).to.have.property('customerName');",
+              "    pm.expect(body.checkins[0]).to.have.property('room');",
+              "    pm.expect(body.checkins[0]).to.have.property('time');",
+              "    pm.expect(body.checkins[0]).to.have.property('bookingId');",
+              "  }",
+              "  if (body.checkouts.length > 0) {",
+              "    pm.expect(body.checkouts[0]).to.have.property('customerName');",
+              "    pm.expect(body.checkouts[0]).to.have.property('room');",
+              "    pm.expect(body.checkouts[0]).to.have.property('status');",
+              "    pm.expect(['paid', 'pending']).to.include(body.checkouts[0].status);",
+              "    pm.expect(body.checkouts[0]).to.have.property('bookingId');",
+              "  }",
+              "});"
+            ]}
+          }]
+        },
         {
           "name": "GET /api/admin/rooms/calendar  – for a room",
           "request": {

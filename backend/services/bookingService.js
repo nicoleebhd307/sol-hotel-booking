@@ -281,10 +281,35 @@ async function listBookings({ status, from, to, limit = 50, skip = 0 }) {
     .sort({ createdAt: -1 })
     .skip(Math.max(0, Number(skip) || 0))
     .limit(Math.min(200, Math.max(1, Number(limit) || 50)))
-    .populate('customer_id')
     .lean();
 
-  return items;
+  const customerIds = Array.from(
+    new Set(
+      items
+        .map((item) => item.customer_id)
+        .filter((id) => mongoose.isValidObjectId(id))
+        .map((id) => String(id))
+    )
+  );
+
+  if (customerIds.length === 0) {
+    return items;
+  }
+
+  const customers = await Customer.find({ _id: { $in: customerIds } }).lean();
+  const customerMap = new Map(customers.map((customer) => [String(customer._id), customer]));
+
+  return items.map((item) => {
+    const key = String(item.customer_id || '');
+    if (!customerMap.has(key)) {
+      return item;
+    }
+
+    return {
+      ...item,
+      customer_id: customerMap.get(key)
+    };
+  });
 }
 
 async function getRoomCalendar({ roomId, from, to }) {

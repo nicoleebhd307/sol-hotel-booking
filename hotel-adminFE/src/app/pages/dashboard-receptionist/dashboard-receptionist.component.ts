@@ -118,20 +118,18 @@ export class DashboardReceptionistComponent implements OnInit, OnDestroy {
    * Load all dashboard data from API
    */
   loadDashboardData(): void {
-    this.loadSummary();
-    this.loadCheckIns();
-    this.loadCheckOuts();
-    this.loadRoomAvailability();
-  }
-
-  /**
-   * Load dashboard summary statistics
-   */
-  private loadSummary(): void {
     this.isLoadingSummary = true;
+    this.isLoadingCheckIns = true;
+    this.isLoadingCheckOuts = true;
+    this.isLoadingRooms = true;
+
     this.summaryError = '';
-    
-    this.dashboardService.getSummary()
+    this.checkInsError = '';
+    this.checkOutsError = '';
+    this.roomsError = '';
+
+    this.dashboardService
+      .getReceptionistDashboard()
       .pipe(
         takeUntil(this.destroy$),
         timeout(8000)
@@ -143,134 +141,63 @@ export class DashboardReceptionistComponent implements OnInit, OnDestroy {
             this.dashboardStats = [
               {
                 label: 'Total Bookings Today',
-                value: data.totalBookingsToday,
-                percentage: data.bookingStats.percentage,
-                trend: data.bookingStats.trend as 'up' | 'down',
-                icon: 'event'
+                value: data.summary.totalBookingsToday,
+                percentage: data.summary.bookingStats.percentage,
+                trend: data.summary.bookingStats.trend as 'up' | 'down',
+                icon: 'event',
               },
               {
                 label: 'Check-in',
-                value: data.checkIn,
-                percentage: data.checkInStats.percentage,
-                trend: data.checkInStats.trend as 'up' | 'down',
-                icon: 'login'
+                value: data.summary.checkIn,
+                percentage: data.summary.checkInStats.percentage,
+                trend: data.summary.checkInStats.trend as 'up' | 'down',
+                icon: 'login',
               },
               {
                 label: 'Check-out',
-                value: data.checkOut,
-                percentage: data.checkOutStats.percentage,
-                trend: data.checkOutStats.trend as 'up' | 'down',
-                icon: 'logout'
+                value: data.summary.checkOut,
+                percentage: data.summary.checkOutStats.percentage,
+                trend: data.summary.checkOutStats.trend as 'up' | 'down',
+                icon: 'logout',
               },
               {
                 label: 'Available Rooms',
-                value: data.availableRooms,
-                percentage: Math.abs(data.availableRoomsStats.percentage),
-                trend: data.availableRoomsStats.trend as 'up' | 'down',
-                icon: 'hotel'
-              }
+                value: data.summary.availableRooms,
+                percentage: Math.abs(data.summary.availableRoomsStats.percentage),
+                trend: data.summary.availableRoomsStats.trend as 'up' | 'down',
+                icon: 'hotel',
+              },
             ];
+
+            this.roomAvailability = data.roomAvailability;
+            this.checkInGuests = data.checkIns;
+            this.checkOutGuests = data.checkOuts;
           }
+
           this.isLoadingSummary = false;
+          this.isLoadingCheckIns = false;
+          this.isLoadingCheckOuts = false;
+          this.isLoadingRooms = false;
           this.cdr.detectChanges();
         },
         error: (error) => {
-          console.error('Error loading dashboard summary:', error);
+          console.error('Error loading receptionist dashboard:', error);
           this.summaryError = 'Failed to load dashboard summary. Using default data.';
-          this.setDefaultSummary();
-          this.isLoadingSummary = false;
-          this.cdr.detectChanges();
-        }
-      });
-  }
-
-  /**
-   * Load check-in guests
-   */
-  private loadCheckIns(): void {
-    this.isLoadingCheckIns = true;
-    this.checkInsError = '';
-    
-    this.dashboardService.getCheckIns()
-      .pipe(
-        takeUntil(this.destroy$),
-        timeout(8000)
-      )
-      .subscribe({
-        next: (response) => {
-          if (response.success && Array.isArray(response.data)) {
-            this.checkInGuests = response.data;
-          }
-          this.isLoadingCheckIns = false;
-          this.cdr.detectChanges();
-        },
-        error: (error) => {
-          console.error('Error loading check-ins:', error);
           this.checkInsError = 'Failed to load check-in data. Using default data.';
-          this.setDefaultCheckIns();
-          this.isLoadingCheckIns = false;
-          this.cdr.detectChanges();
-        }
-      });
-  }
-
-  /**
-   * Load check-out guests
-   */
-  private loadCheckOuts(): void {
-    this.isLoadingCheckOuts = true;
-    this.checkOutsError = '';
-    
-    this.dashboardService.getCheckOuts()
-      .pipe(
-        takeUntil(this.destroy$),
-        timeout(8000)
-      )
-      .subscribe({
-        next: (response) => {
-          if (response.success && Array.isArray(response.data)) {
-            this.checkOutGuests = response.data;
-          }
-          this.isLoadingCheckOuts = false;
-          this.cdr.detectChanges();
-        },
-        error: (error) => {
-          console.error('Error loading check-outs:', error);
           this.checkOutsError = 'Failed to load check-out data. Using default data.';
-          this.setDefaultCheckOuts();
-          this.isLoadingCheckOuts = false;
-          this.cdr.detectChanges();
-        }
-      });
-  }
+          this.roomsError = 'Failed to load room data. Using default data.';
 
-  /**
-   * Load room availability
-   */
-  private loadRoomAvailability(): void {
-    this.isLoadingRooms = true;
-    this.roomsError = '';
-    
-    this.dashboardService.getRoomAvailability()
-      .pipe(
-        takeUntil(this.destroy$),
-        timeout(8000)
-      )
-      .subscribe({
-        next: (response) => {
-          if (response.success && Array.isArray(response.data)) {
-            this.roomAvailability = response.data;
-          }
+          this.setDefaultSummary();
+          this.setDefaultCheckIns();
+          this.setDefaultCheckOuts();
+          this.setDefaultRooms();
+
+          this.isLoadingSummary = false;
+          this.isLoadingCheckIns = false;
+          this.isLoadingCheckOuts = false;
           this.isLoadingRooms = false;
           this.cdr.detectChanges();
         },
-        error: (error) => {
-          console.error('Error loading room availability:', error);
-          this.roomsError = 'Failed to load room data. Using default data.';
-          this.setDefaultRooms();
-          this.isLoadingRooms = false;
-          this.cdr.detectChanges();
-        }
       });
   }
 

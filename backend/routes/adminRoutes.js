@@ -1,11 +1,13 @@
 const express = require('express');
 const adminController = require('../controllers/adminController');
+const dashboardController = require('../controllers/dashboard.controller');
 const authMiddleware = require('../middleware/authMiddleware');
 const roleMiddleware = require('../middleware/roleMiddleware');
 
 const router = express.Router();
 
 router.post('/login', adminController.login);
+router.get('/dashboard', authMiddleware, roleMiddleware(['receptionist', 'manager', 'admin']), dashboardController.getReceptionistDashboard);
 
 router.get('/bookings', authMiddleware, roleMiddleware(['receptionist', 'manager', 'admin']), adminController.listBookings);
 router.get('/bookings/:id', authMiddleware, roleMiddleware(['receptionist', 'manager', 'admin']), adminController.getBookingDetails);

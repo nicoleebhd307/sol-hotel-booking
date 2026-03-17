@@ -98,6 +98,44 @@ interface RoomItem {
   };
 }
 
+interface ReceptionistDashboardResponse {
+  stats: {
+    totalBookingsToday: number;
+    checkInToday: number;
+    checkOutToday: number;
+    availableRooms: number;
+    growth: {
+      bookings: number;
+      checkIn: number;
+      checkOut: number;
+      rooms: number;
+    };
+  };
+  roomAvailability: Array<{
+    roomType: string;
+    occupiedPercent: number;
+  }>;
+  checkins: Array<{
+    customerName: string;
+    room: string;
+    time: string;
+    bookingId: string;
+  }>;
+  checkouts: Array<{
+    customerName: string;
+    room: string;
+    status: 'paid' | 'pending';
+    bookingId: string;
+  }>;
+}
+
+export interface ReceptionistDashboardData {
+  summary: DashboardSummary;
+  roomAvailability: RoomAvailability[];
+  checkIns: CheckInGuest[];
+  checkOuts: CheckOutGuest[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -123,6 +161,75 @@ export class DashboardService {
 
   private toSuccess<T>(data: T): ApiResponse<T> {
     return { success: true, data };
+  }
+
+  private toTrend(value: number): 'up' | 'down' {
+    return value >= 0 ? 'up' : 'down';
+  }
+
+  /**
+   * Fetch receptionist dashboard with a single optimized endpoint.
+   */
+  getReceptionistDashboard(): Observable<ApiResponse<ReceptionistDashboardData>> {
+    return this.http
+      .get<ReceptionistDashboardResponse>(`${this.adminApiUrl}/dashboard`, { params: { receptionist: '' } })
+      .pipe(
+        map((response) => {
+          const summary: DashboardSummary = {
+            totalBookingsToday: response.stats.totalBookingsToday,
+            checkIn: response.stats.checkInToday,
+            checkOut: response.stats.checkOutToday,
+            availableRooms: response.stats.availableRooms,
+            bookingStats: {
+              percentage: Math.abs(response.stats.growth.bookings),
+              trend: this.toTrend(response.stats.growth.bookings),
+            },
+            checkInStats: {
+              percentage: Math.abs(response.stats.growth.checkIn),
+              trend: this.toTrend(response.stats.growth.checkIn),
+            },
+            checkOutStats: {
+              percentage: Math.abs(response.stats.growth.checkOut),
+              trend: this.toTrend(response.stats.growth.checkOut),
+            },
+            availableRoomsStats: {
+              percentage: Math.abs(response.stats.growth.rooms),
+              trend: this.toTrend(response.stats.growth.rooms),
+            },
+          };
+
+          const roomAvailability: RoomAvailability[] = response.roomAvailability.map((item) => ({
+            roomType: item.roomType,
+            available: 0,
+            total: 0,
+            percentage: Math.max(0, Math.min(100, 100 - item.occupiedPercent)),
+          }));
+
+          const checkIns: CheckInGuest[] = response.checkins.map((item, index) => ({
+            id: index + 1,
+            guestName: item.customerName,
+            room: item.room,
+            time: item.time,
+            roomType: '-',
+          }));
+
+          const checkOuts: CheckOutGuest[] = response.checkouts.map((item, index) => ({
+            id: index + 1,
+            guestName: item.customerName,
+            room: item.room,
+            status: item.status === 'paid' ? 'Paid' : 'Pending',
+            amount: 0,
+            checkoutTime: '',
+          }));
+
+          return this.toSuccess({
+            summary,
+            roomAvailability,
+            checkIns,
+            checkOuts,
+          });
+        })
+      );
   }
 
   /**
