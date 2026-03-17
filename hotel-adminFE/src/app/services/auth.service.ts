@@ -2,7 +2,7 @@ import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, of } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 import { API_CONFIG } from '../config/api.config';
 
@@ -12,18 +12,22 @@ export interface LoginRequest {
 }
 
 export interface User {
-  id: number;
+  id: string;
   email: string;
-  role: 'receptionist' | 'manager';
+  role: 'receptionist' | 'manager' | 'admin';
   name: string;
   profileImage: string;
   token?: string;
 }
 
-export interface LoginResponse {
-  success: boolean;
-  message: string;
-  data: User;
+interface BackendLoginResponse {
+  token: string;
+  account: {
+    id: string;
+    role: 'receptionist' | 'manager' | 'admin';
+    name: string;
+    email?: string;
+  };
 }
 
 @Injectable({
@@ -32,7 +36,7 @@ export interface LoginResponse {
 export class AuthService {
   private readonly TOKEN_KEY = 'authToken';
   private readonly USER_KEY = 'authUser';
-  private readonly apiUrl = `${API_CONFIG.baseUrl}/api/auth`;
+  private readonly apiUrl = `${API_CONFIG.baseUrl}/api/admin`;
   private readonly platformId = inject(PLATFORM_ID);
   
   private currentUserSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
@@ -44,17 +48,31 @@ export class AuthService {
    * Login with backend API
    */
   login(credentials: LoginRequest): Observable<User> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
-      tap(response => {
-        if (response.success && response.data) {
-          const user = response.data;
-          this.saveToken(user.token || '');
-          this.saveUser(user);
-          this.currentUserSubject.next(user);
-        }
+    const payload = {
+      email: credentials.email.trim().toLowerCase(),
+      password: credentials.password,
+    };
+
+    return this.http.post<BackendLoginResponse>(`${this.apiUrl}/login`, payload).pipe(
+      map((response) => {
+        return {
+          id: response.account.id,
+          email: response.account.email || '',
+          role: response.account.role,
+          name: response.account.name,
+          profileImage:
+            response.account.role === 'manager' || response.account.role === 'admin'
+              ? 'assets/images/manager-profile.png'
+              : 'assets/images/admin-profile.png',
+          token: response.token,
+        } as User;
       }),
-      map(response => response.data),
-      catchError(error => {
+      tap((user) => {
+        this.saveToken(user.token || '');
+        this.saveUser(user);
+        this.currentUserSubject.next(user);
+      }),
+      catchError((error) => {
         console.error('Login error:', error);
         throw error;
       })
@@ -64,12 +82,9 @@ export class AuthService {
   /**
    * Logout user
    */
-  logout(): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/logout`, {}).pipe(
-      tap(() => {
-        this.clearAuth();
-      })
-    );
+  logout(): Observable<{ success: boolean }> {
+    this.clearAuth();
+    return of({ success: true });
   }
 
   /**
@@ -150,7 +165,8 @@ export class AuthService {
    * Check if user can access manager dashboard
    */
   canAccessManagerDashboard(): boolean {
-    return this.hasRole('manager');
+    const user = this.currentUserSubject.value;
+    return user?.role === 'manager' || user?.role === 'admin';
   }
 
   /**

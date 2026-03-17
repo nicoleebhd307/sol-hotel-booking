@@ -79,7 +79,8 @@ export class LoginComponent implements OnInit {
     this.authService.login(this.loginForm.value).subscribe({
       next: (response) => {
         this.isLoading = false;
-        const destination = response.role === 'manager' ? '/manager-dashboard' : '/dashboard';
+        const destination =
+          response.role === 'manager' || response.role === 'admin' ? '/manager-dashboard' : '/dashboard';
         this.router.navigate([destination]);
       },
       error: (error) => {

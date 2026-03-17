@@ -1,45 +1,49 @@
-<section class="border-y border-[#f3f4f6] bg-[#fffcf1] py-24 px-4">
-	<div class="mx-auto grid max-w-7xl gap-16 lg:grid-cols-2 items-center px-12">
+<section class="border-y border-[#f3f4f6] bg-[#fffcf1] py-24">
+	<div class="mx-auto max-w-7xl px-4 grid gap-16 items-center"
+		style="grid-template-columns: repeat(2, minmax(0, 1fr));">
 
-		<!-- Left: Image -->
-		<div class="reveal-left">
-			<img
-				[src]="data().imageUrl"
-				alt="Experience preview"
-				class="w-full max-w-[474px] rounded-lg object-cover transition-transform duration-500 hover:scale-[1.02]"
-				style="aspect-ratio: 1; box-shadow: 0px 25px 50px -12px rgba(0,0,0,0.25);"
-			/>
+		<!-- Col 1: Image changes reactively based on hovered/active item -->
+		<div class="reveal-left flex items-center justify-center pl-12">
+			<img [src]="displayImage()" alt="Experience at Sol An Bang"
+				class="rounded-lg object-cover transition-all duration-500"
+				style="width: 473.59px; height: 473.59px; box-shadow: 0px 25px 50px -12px rgba(0,0,0,0.25); aspect-ratio: 1;" />
 		</div>
 
-		<!-- Right: Content -->
-		<div class="reveal-right">
-			<!-- Subtitle -->
-			<p class="text-sm uppercase tracking-[0.25em] text-[#c5a059]">{{ data().title }}</p>
+		<!-- Col 2: Offer list -->
+		<div class="reveal-right flex flex-col gap-8">
+			<p class="text-sm uppercase text-[#c5a059]"
+				style="font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: 3.6px;">{{ data().title }}</p>
 
-			<!-- Offer items -->
-			<div class="mt-7 space-y-5">
-				@for (item of data().items; track item.title; let i = $index) {
-					<div
-						class="flex items-center justify-between border-b border-[#f3f4f6] pb-4 transition-all duration-300 cursor-pointer group"
-						[style]="'animation-delay:' + (i * 0.08) + 's'"
-					>
-						<h3
-							class="font-serif transition-all duration-300"
-							[class]="item.active
-								? 'text-5xl italic font-semibold text-[#1a1a1a]'
-								: 'text-4xl text-[#1a1a1a] group-hover:text-[#c5a059]'"
-						>
-							{{ item.title }}
-						</h3>
+			<div class="flex flex-col gap-6">
+  @for (item of data().items; track item.title; let i = $index) {
+    <a
+      routerLink="/stories"
+      class="border-b border-[#f3f4f6] pb-4 flex items-end justify-between no-underline"
+      (mouseenter)="hoveredIndex.set(i)"
+      (mouseleave)="hoveredIndex.set(null)"
+      [style.--animation-delay]="(i * 0.05) + 's'"
+    >
+<h3
+  class="font-normal transition-all duration-500 ease-out cursor-pointer"
+  [style.color]="isHighlighted(i) ? '#c5a059' : '#1a1a1a'"
+  [style.transform]="isHighlighted(i) ? 'scale(1.08)' : 'scale(1)'"
+  [style.fontSize]="isHighlighted(i) ? '2.5rem' : '2.25rem'"
+  style="font-family: 'Playfair Display', serif; line-height: 1.1;"
+>
+  {{ item.title }}
+</h3>
 
-						@if (item.active) {
-							<button class="font-serif italic text-sm text-[#1a1a1a] whitespace-nowrap transition-transform duration-300 hover:translate-x-1">
-								View More →
-							</button>
-						}
-					</div>
-				}
-			</div>
+      <span
+        class="text-sm italic whitespace-nowrap transition-all duration-300 cursor-pointer"
+        [style.opacity]="isHighlighted(i) ? '1' : '0'"
+        [style.transform]="isHighlighted(i) ? 'translateX(0)' : 'translateX(10px)'"
+        style="font-family: 'Playfair Display', serif; color: #c5a059;"
+      >
+        View More 
+      </span>
+    </a>
+  }
+</div>
 		</div>
 	</div>
 </section>

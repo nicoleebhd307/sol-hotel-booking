@@ -3,7 +3,7 @@
 
 		<!-- Section Heading -->
 		<div class="mb-12 text-center reveal-up">
-			<h2 class="font-serif text-5xl italic text-[#1a1a1a]">Guest Experiences</h2>
+			<h2 class="text-5xl italic text-[#1a1a1a]" style="font-family: 'Playfair Display', serif; font-style: italic;">Guest Experiences</h2>
 		</div>
 
 		<!-- Rating + Cards row -->
@@ -11,43 +11,45 @@
 
 			<!-- Left: Rating summary -->
 			<div class="flex flex-col items-center text-center w-[300px] shrink-0 reveal-left">
-				<h3 class="font-serif text-4xl text-[#0f172a]">{{ data().scoreText }}</h3>
+				<h3 class="text-4xl leading-4 text-[#0f172a] mb-2" style="font-family: 'Playfair Display', serif;">{{ data().scoreText }}</h3>
 
-				<!-- Stars -->
-				<div class="mt-3 flex items-center justify-center gap-0.5">
+				<!-- 4.5 stars -->
+				<div class="mt-6 flex items-center justify-center pb-2">
 					@for (_ of [1,2,3,4]; track $index) {
-						<svg width="20" height="19" viewBox="0 0 20 19" fill="none"><path d="M3.825 19L5.45 11.975L0 7.25L7.2 6.625L10 0L12.8 6.625L20 7.25L14.55 11.975L16.175 19L10 15.275L3.825 19Z" fill="#F9BF00"/></svg>
+						<svg width="20" height="19" viewBox="0 0 20 19" fill="none">
+							<path d="M3.825 19L5.45 11.975L0 7.25L7.2 6.625L10 0L12.8 6.625L20 7.25L14.55 11.975L16.175 19L10 15.275L3.825 19Z" fill="#F9BF00"/>
+						</svg>
 					}
 					<svg width="20" height="19" viewBox="0 0 20 19" fill="none">
 						<defs>
-							<linearGradient id="half-star" x1="0" y1="0" x2="20" y2="0">
-								<stop offset="50%" stop-color="#F9BF00"/>
-								<stop offset="50%" stop-color="#CBD5E1"/>
+							<linearGradient id="half-star-g" x1="0" y1="9.5" x2="20" y2="9.5" gradientUnits="userSpaceOnUse">
+								<stop offset="0.5" stop-color="#F9BF00"/>
+								<stop offset="0.5" stop-color="#CBD5E1"/>
 							</linearGradient>
 						</defs>
-						<path d="M3.825 19L5.45 11.975L0 7.25L7.2 6.625L10 0L12.8 6.625L20 7.25L14.55 11.975L16.175 19L10 15.275L3.825 19Z" fill="url(#half-star)"/>
+						<path d="M3.825 19L5.45 11.975L0 7.25L7.2 6.625L10 0L12.8 6.625L20 7.25L14.55 11.975L16.175 19L10 15.275L3.825 19Z" fill="url(#half-star-g)"/>
 					</svg>
 				</div>
 
-				<p class="mt-3 text-sm text-[#475569]">{{ data().reviewCountText }}</p>
+				<p class="mt-3 text-sm text-[#475569] pb-4" style="font-family: 'Plus Jakarta Sans', sans-serif;">{{ data().reviewCountText }}</p>
 
-				<!-- Google logo placeholder -->
-				<div class="mt-3 flex items-center gap-1">
-					<svg width="102" height="34" viewBox="0 0 102 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<text x="0" y="24" font-family="sans-serif" font-size="12" fill="#9ca3af" letter-spacing="1">Google</text>
-					</svg>
-				</div>
+				<!-- Google logo -->
+				<svg width="102" height="34" viewBox="0 0 102 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<text x="2" y="26" font-family="'Plus Jakarta Sans', sans-serif" font-size="22" font-weight="500" fill="#9ca3af">Google</text>
+				</svg>
 			</div>
 
-			<!-- Right: Testimonial cards (2-col) -->
+			<!-- Right: Testimonial cards 2-col -->
 			<div class="relative flex-1">
-				<div class="grid gap-8 md:grid-cols-2">
+				<div class="grid gap-8" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
 					@for (card of data().cards; track card.author; let i = $index) {
 						<article
-							class="reveal-up flex flex-col justify-between rounded-2xl border border-[rgba(197,160,89,0.10)] bg-white/80 p-10 transition-all duration-300 hover:border-[rgba(197,160,89,0.4)] hover:shadow-xl"
-							[class]="i === 1 ? 'scale-105 shadow-xl' : ''"
-							[style]="i === 1 ? 'box-shadow: 0px 25px 50px -12px rgba(0,0,0,0.25);' + 'animation-delay:0.1s' : 'animation-delay:0s'"
-							style="backdrop-filter: blur(4px);"
+							class="reveal-up flex flex-col justify-between rounded-2xl border border-[rgba(197,160,89,0.10)] p-10 transition-all duration-300 hover:border-[rgba(197,160,89,0.40)] hover:shadow-xl cursor-default"
+							[class.scale-105]="i === 1"
+							[class.bg-white]="true"
+							[style.box-shadow]="i === 1 ? '0px 25px 50px -12px rgba(0,0,0,0.25)' : ''"
+							[style.--animation-delay]="(i * 0.1) + 's'"
+							style="backdrop-filter: blur(4px); background: rgba(255,255,255,0.8);"
 						>
 							<!-- Stars -->
 							<div>
@@ -58,16 +60,22 @@
 										</svg>
 									}
 								</div>
-								<p class="mt-6 text-base leading-[26px] text-[#374151]">"{{ card.quote }}"</p>
+								<p class="mt-6 text-base leading-[26px] text-[#374151]" style="font-family: 'Inter', sans-serif;">"{{ card.quote }}"</p>
 							</div>
 
 							<!-- Author -->
-							<div class="mt-8 flex items-center gap-2">
-								<div>
-									<p class="text-sm uppercase tracking-[0.25em] text-[#1a1a1a]">{{ card.author }}</p>
-									<div class="mt-1 flex items-center gap-1">
-										<span class="text-[11px] uppercase tracking-[0.1em] text-[#9ca3af]">{{ card.source }}</span>
-										<!-- Google icon -->
+							<div class="mt-8 flex items-center">
+								<div class="flex flex-col gap-1">
+									<p
+										class="text-xs uppercase text-[#1a1a1a]"
+										style="font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: 3.6px;"
+									>{{ card.author }}</p>
+									<div class="flex items-center gap-1">
+										<span
+											class="text-[11px] uppercase text-[#9ca3af]"
+											style="font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: 1.4px;"
+										>{{ card.source }}</span>
+										<!-- Google G icon -->
 										<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
 											<path d="M11.28 6.125C11.28 5.735 11.245 5.36 11.18 5H6V7.13H8.96C8.83 7.815 8.44 8.395 7.855 8.785V10.17H9.64C10.68 9.21 11.28 7.8 11.28 6.125Z" fill="#4285F4"/>
 											<path d="M6 11.5C7.485 11.5 8.73 11.01 9.64 10.17L7.855 8.785C7.365 9.115 6.74 9.315 6 9.315C4.57 9.315 3.355 8.35 2.92 7.05H1.09V8.47C1.995 10.265 3.85 11.5 6 11.5Z" fill="#34A853"/>
@@ -81,11 +89,11 @@
 					}
 				</div>
 
-				<!-- Nav arrows -->
-				<button class="absolute -left-12 top-1/2 -translate-y-1/2 flex items-center justify-center transition-colors duration-300 hover:text-[#c5a059]">
+				<!-- Carousel nav arrows -->
+				<button class="absolute -left-12 top-1/2 -translate-y-1/2 flex items-center justify-center transition-colors duration-300 hover:opacity-60">
 					<svg width="8" height="12" viewBox="0 0 8 12" fill="none"><path d="M6 12L0 6L6 0L7.4 1.4L2.8 6L7.4 10.6L6 12Z" fill="#CBD5E1"/></svg>
 				</button>
-				<button class="absolute -right-12 top-1/2 -translate-y-1/2 flex items-center justify-center transition-colors duration-300 hover:text-[#c5a059]">
+				<button class="absolute -right-12 top-1/2 -translate-y-1/2 flex items-center justify-center transition-colors duration-300 hover:opacity-60">
 					<svg width="8" height="12" viewBox="0 0 8 12" fill="none"><path d="M4.6 6L0 1.4L1.4 0L7.4 6L1.4 12L0 10.6L4.6 6Z" fill="#CBD5E1"/></svg>
 				</button>
 			</div>
@@ -94,8 +102,8 @@
 		<!-- Google reviews CTA -->
 		<div class="mt-12 flex justify-center reveal-up">
 			<button
-				class="rounded-2xl px-10 py-4 font-serif italic text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
-				style="background: linear-gradient(0deg, rgba(199,158,53,1) 0%, rgba(221,188,108,1) 100%);"
+				class="rounded-2xl px-10 py-4 text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg active:scale-95"
+				style="background: linear-gradient(0deg, rgba(199,158,53,1) 0%, rgba(221,188,108,1) 100%); font-family: 'Playfair Display', serif; font-style: italic;"
 			>
 				View Reviews on Google
 			</button>

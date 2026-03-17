@@ -1,0 +1,28 @@
+:host {
+  display: block;
+}
+
+.absolute-booking-bar {
+  width: 100%;
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  animation: availabilityBarEnter 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+.booking-bar-wrapper {
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+@keyframes availabilityBarEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

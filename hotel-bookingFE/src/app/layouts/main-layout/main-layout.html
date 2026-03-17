@@ -1,9 +1,11 @@
 <div class="bg-[#f9f7f2] text-[#1a1a1a]">
-	<app-sticky-navbar [navLinks]="data().hero.navLinks" [logoUrl]="data().hero.logoUrl" />
+	<app-sticky-navbar
+		[navLinks]="data().hero.navLinks"
+		[logoUrl]="data().hero.logoUrl"
+		[reserveLabel]="data().hero.reserveLabel"
+	/>
 
-	<app-hero [data]="data().hero" />
-
-	<app-availability-bar [fields]="data().availabilityFields" />
+	<app-hero [data]="data().hero" [availabilityFields]="data().availabilityFields" />
 
 	<app-intro [data]="data().intro" />
 	<app-accommodations [cards]="data().accommodations" />
