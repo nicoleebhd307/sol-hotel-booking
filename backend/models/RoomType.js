@@ -14,7 +14,7 @@ const RoomTypeSchema = new mongoose.Schema(
     amenities: { type: [String], default: [] },
     rate_includes: { type: [String], default: [] },
     service_charge: { type: Number, default: 5, min: 0 },
-    vat: { type: Boolean, default: true }
+    vat: { type: Number, default: 10, min: 0 }
   },
   {
     collection: 'room_types'

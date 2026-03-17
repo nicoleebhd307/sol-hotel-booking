@@ -1,0 +1,905 @@
+{
+  "info": {
+    "name": "Hotel Booking API",
+    "_postman_id": "hotel-booking-api-v1",
+    "description": "Full manual test suite — follows the guest booking flow end-to-end plus Admin use cases.\n\nSetup:\n1. Set `baseUrl` variable to `http://localhost:5000`\n2. Run requests in order within each folder.\n3. The collection uses `pm.environment.set` to pass IDs between steps automatically.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl",    "value": "http://localhost:5000" },
+    { "key": "adminToken", "value": "" },
+    { "key": "roomTypeId", "value": "" },
+    { "key": "roomId",     "value": "" },
+    { "key": "bookingId",  "value": "" },
+    { "key": "guestEmail", "value": "john.doe@example.com" }
+  ],
+  "item": [
+
+    {
+      "name": "0 – Health",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('status ok', () => {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.json().status).to.eql('ok');",
+              "});"
+            ]}
+          }]
+        }
+      ]
+    },
+
+    {
+      "name": "1 – Rooms (public)",
+      "item": [
+        {
+          "name": "GET /api/rooms/types  – list room types",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/rooms/types"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 and array', () => {",
+              "  pm.response.to.have.status(200);",
+              "  const body = pm.response.json();",
+              "  pm.expect(body).to.be.an('array');",
+              "  pm.expect(body.length).to.be.greaterThan(0);",
+              "  // Save first id for later",
+              "  pm.collectionVariables.set('roomTypeId', body[0]._id);",
+              "  console.log('roomTypeId saved:', body[0]._id);",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "GET /api/rooms/types/:id  – single room type",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/rooms/types/{{roomTypeId}}"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 and has _id', () => {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.json()._id).to.be.a('string');",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "GET /api/rooms/types/:id  – 404 for bad id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/rooms/types/000000000000000000000000"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('404 not found', () => {",
+              "  pm.response.to.have.status(404);",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "GET /api/rooms  – list all active rooms",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/rooms"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 array', () => {",
+              "  pm.response.to.have.status(200);",
+              "  const body = pm.response.json();",
+              "  pm.expect(body).to.be.an('array');",
+              "  if (body.length > 0) {",
+              "    pm.collectionVariables.set('roomId', body[0]._id);",
+              "    console.log('roomId saved:', body[0]._id);",
+              "  }",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "GET /api/rooms?roomTypeId=…  – filter by type",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/rooms?roomTypeId={{roomTypeId}}",
+              "query": [{ "key": "roomTypeId", "value": "{{roomTypeId}}" }]
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));"
+            ]}
+          }]
+        },
+        {
+          "name": "GET /api/rooms/available  – check availability",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/rooms/available?checkIn=2026-04-01&checkOut=2026-04-05",
+              "query": [
+                { "key": "checkIn",  "value": "2026-04-01" },
+                { "key": "checkOut", "value": "2026-04-05" }
+              ]
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 with rooms array', () => {",
+              "  pm.response.to.have.status(200);",
+              "  const body = pm.response.json();",
+              "  pm.expect(body).to.have.property('rooms');",
+              "  pm.expect(body.rooms).to.be.an('array');",
+              "  pm.expect(body).to.have.property('count');",
+              "  if (body.rooms.length > 0) {",
+              "    pm.collectionVariables.set('roomId', body.rooms[0]._id);",
+              "    console.log('available roomId saved:', body.rooms[0]._id);",
+              "  }",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "GET /api/rooms/available  – 400 missing dates",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/rooms/available"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('400 missing checkIn/checkOut', () => {",
+              "  pm.response.to.have.status(400);",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "GET /api/rooms/available?roomTypeId=…  – filter by type",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/rooms/available?checkIn=2026-04-01&checkOut=2026-04-05&roomTypeId={{roomTypeId}}",
+              "query": [
+                { "key": "checkIn",    "value": "2026-04-01" },
+                { "key": "checkOut",   "value": "2026-04-05" },
+                { "key": "roomTypeId", "value": "{{roomTypeId}}" }
+              ]
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));"
+            ]}
+          }]
+        }
+      ]
+    },
+
+    {
+      "name": "2 – Guest: Create Booking (pending)",
+      "item": [
+        {
+          "name": "POST /api/bookings  – success (new customer)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/bookings",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": {\n    \"name\": \"John Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"phone\": \"0901234567\",\n    \"identityId\": \"079123456789\",\n    \"nationality\": \"Vietnamese\"\n  },\n  \"roomIds\": [\"{{roomId}}\"],\n  \"check_in\": \"2026-04-01\",\n  \"check_out\": \"2026-04-05\",\n  \"guests\": { \"adults\": 2, \"children\": 0 },\n  \"note\": \"Late check-in requested\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('201 pending booking created', () => {",
+              "  pm.response.to.have.status(201);",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.status).to.eql('pending');",
+              "  pm.expect(body._id).to.be.a('string');",
+              "  pm.expect(body.depositAmount).to.be.greaterThan(0);",
+              "  pm.collectionVariables.set('bookingId', body._id);",
+              "  console.log('bookingId saved:', body._id);",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "POST /api/bookings  – re-use existing customer (same email)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/bookings",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": {\n    \"email\": \"john.doe@example.com\"\n  },\n  \"roomIds\": [\"{{roomId}}\"],\n  \"check_in\": \"2026-05-10\",\n  \"check_out\": \"2026-05-12\",\n  \"guests\": { \"adults\": 1, \"children\": 0 }\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "// Should succeed (customer email is already in DB)",
+              "pm.test('201 or 409 (room busy)', () => {",
+              "  pm.expect([201, 409]).to.include(pm.response.code);",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "POST /api/bookings  – 400 missing email",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/bookings",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": { \"name\": \"No Email\" },\n  \"roomIds\": [\"{{roomId}}\"],\n  \"check_in\": \"2026-04-10\",\n  \"check_out\": \"2026-04-12\",\n  \"guests\": { \"adults\": 1, \"children\": 0 }\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('400 missing email', () => pm.response.to.have.status(400));"
+            ]}
+          }]
+        },
+        {
+          "name": "POST /api/bookings  – 400 missing roomIds",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/bookings",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": { \"email\": \"john.doe@example.com\" },\n  \"roomIds\": [],\n  \"check_in\": \"2026-04-10\",\n  \"check_out\": \"2026-04-12\",\n  \"guests\": { \"adults\": 1, \"children\": 0 }\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('400 missing roomIds', () => pm.response.to.have.status(400));"
+            ]}
+          }]
+        }
+      ]
+    },
+
+    {
+      "name": "3 – Guest: View Booking",
+      "item": [
+        {
+          "name": "GET /api/bookings/:id  – guest fetches own booking (no email guard)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/bookings/{{bookingId}}"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 booking returned', () => {",
+              "  pm.response.to.have.status(200);",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.booking._id).to.eql(pm.collectionVariables.get('bookingId'));",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "GET /api/bookings/:id?email=…  – with email guard (correct)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/{{bookingId}}?email={{guestEmail}}",
+              "query": [{ "key": "email", "value": "{{guestEmail}}" }]
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 owner email matches', () => pm.response.to.have.status(200));"
+            ]}
+          }]
+        },
+        {
+          "name": "GET /api/bookings/:id?email=…  – 404 wrong email",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/{{bookingId}}?email=wrong@example.com",
+              "query": [{ "key": "email", "value": "wrong@example.com" }]
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('404 wrong email rejected', () => pm.response.to.have.status(404));"
+            ]}
+          }]
+        },
+        {
+          "name": "GET /api/bookings/:id  – 400 invalid id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/bookings/not-a-valid-id"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('400 invalid id', () => pm.response.to.have.status(400));"
+            ]}
+          }]
+        }
+      ]
+    },
+
+    {
+      "name": "4 – Guest: Pay Deposit",
+      "item": [
+        {
+          "name": "POST /api/payments/deposit  – payment SUCCESS (stub)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/payments/deposit",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"paymentMethod\": \"credit_card\",\n  \"simulateStatus\": \"success\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 payment success, booking confirmed', () => {",
+              "  pm.response.to.have.status(200);",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.booking.status).to.eql('confirmed');",
+              "  pm.expect(body.payment.paymentStatus).to.eql('success');",
+              "  console.log('Booking confirmed. transactionId:', body.payment.transactionId);",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "POST /api/payments/deposit  – 409 already paid",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/payments/deposit",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"paymentMethod\": \"credit_card\",\n  \"simulateStatus\": \"success\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('409 already paid', () => pm.response.to.have.status(409));"
+            ]}
+          }]
+        },
+        {
+          "name": "POST /api/payments/deposit  – payment FAILED (stub)",
+          "description": "Create a fresh pending booking first, then simulate a failed payment.",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/payments/deposit",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"paymentMethod\": \"bank_transfer\",\n  \"simulateStatus\": \"failed\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "// Booking was already confirmed above, so this may 409.",
+              "// To test a fresh fail: create a new booking first and paste its id here.",
+              "pm.test('200 with failed payment OR 409', () => {",
+              "  pm.expect([200, 409]).to.include(pm.response.code);",
+              "  if (pm.response.code === 200) {",
+              "    const body = pm.response.json();",
+              "    pm.expect(body.payment.paymentStatus).to.eql('failed');",
+              "    pm.expect(body.booking.status).to.eql('pending');",
+              "  }",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "POST /api/payments/deposit  – 400 missing paymentMethod",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/payments/deposit",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": \"{{bookingId}}\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('400 missing paymentMethod', () => pm.response.to.have.status(400));"
+            ]}
+          }]
+        }
+      ]
+    },
+
+    {
+      "name": "5 – Guest: Cancel Booking",
+      "item": [
+        {
+          "name": "POST /api/bookings/:id/cancel  – confirmed booking (refund policy applies)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/bookings/{{bookingId}}/cancel",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 cancelled with refund info', () => {",
+              "  pm.response.to.have.status(200);",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.booking.status).to.eql('cancelled');",
+              "  pm.expect(body.refund).to.have.property('refundAmount');",
+              "  console.log('Refund amount:', body.refund.refundAmount);",
+              "  console.log('Days before check-in:', body.refund.daysBeforeCheckIn);",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "POST /api/bookings/:id/cancel  – 409 already cancelled",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/bookings/{{bookingId}}/cancel",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"email\": \"john.doe@example.com\" }"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('409 already cancelled', () => pm.response.to.have.status(409));"
+            ]}
+          }]
+        },
+        {
+          "name": "POST /api/bookings/:id/cancel  – cancel pending booking (no refund)",
+          "description": "Create a fresh pending booking without paying deposit first, then cancel it.",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/bookings/{{bookingId}}/cancel",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"email\": \"john.doe@example.com\" }"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "// If booking is already cancelled this returns 409 — that is expected.",
+              "pm.test('cancelled (no refund for pending) or 409', () => {",
+              "  pm.expect([200, 409]).to.include(pm.response.code);",
+              "  if (pm.response.code === 200) {",
+              "    pm.expect(pm.response.json().refund.refundAmount).to.eql(0);",
+              "  }",
+              "});"
+            ]}
+          }]
+        }
+      ]
+    },
+
+    {
+      "name": "6 – Admin: Login",
+      "item": [
+        {
+          "name": "POST /api/admin/login  – success",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin@12345\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 token returned', () => {",
+              "  pm.response.to.have.status(200);",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.token).to.be.a('string');",
+              "  pm.collectionVariables.set('adminToken', body.token);",
+              "  console.log('Admin role:', body.staff.role);",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "POST /api/admin/login  – 401 wrong password",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"username\": \"admin\", \"password\": \"wrongpassword\" }"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('401 invalid credentials', () => pm.response.to.have.status(401));"
+            ]}
+          }]
+        },
+        {
+          "name": "POST /api/admin/login  – 400 missing fields",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{}" }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('400 missing fields', () => pm.response.to.have.status(400));"
+            ]}
+          }]
+        }
+      ]
+    },
+
+    {
+      "name": "7 – Admin: Manage Bookings",
+      "item": [
+        {
+          "name": "GET /api/admin/bookings  – list all",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/bookings",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 list', () => {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.json().items).to.be.an('array');",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "GET /api/admin/bookings?status=pending",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/bookings?status=pending",
+              "query": [{ "key": "status", "value": "pending" }]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 filtered by pending', () => pm.response.to.have.status(200));"
+            ]}
+          }]
+        },
+        {
+          "name": "GET /api/admin/bookings?status=confirmed&limit=5",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/bookings?status=confirmed&limit=5",
+              "query": [
+                { "key": "status", "value": "confirmed" },
+                { "key": "limit",  "value": "5" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 confirmed list', () => pm.response.to.have.status(200));"
+            ]}
+          }]
+        },
+        {
+          "name": "GET /api/admin/bookings/:id  – detail",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/bookings/{{bookingId}}",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 detail', () => {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.json().booking).to.have.property('_id');",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "POST /api/admin/bookings  – create manual booking (confirmImmediately)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/bookings",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": {\n    \"name\": \"Walk-in Guest\",\n    \"email\": \"walkin@hotel.local\",\n    \"phone\": \"0909999888\"\n  },\n  \"roomIds\": [\"{{roomId}}\"],\n  \"check_in\": \"2026-06-01\",\n  \"check_out\": \"2026-06-03\",\n  \"guests\": { \"adults\": 2, \"children\": 1 },\n  \"note\": \"Walk-in offline booking\",\n  \"confirmImmediately\": true\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('201 manual booking confirmed', () => {",
+              "  pm.response.to.have.status(201);",
+              "  pm.expect(pm.response.json().status).to.eql('confirmed');",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "POST /api/admin/bookings/:id/check-in",
+          "description": "Requires a booking with status=confirmed. Use bookingId from a confirmed booking.",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/bookings/{{bookingId}}/check-in",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 checked_in or 404/409', () => {",
+              "  pm.expect([200, 404, 409]).to.include(pm.response.code);",
+              "  if (pm.response.code === 200) {",
+              "    pm.expect(pm.response.json().booking.status).to.eql('checked_in');",
+              "  }",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "POST /api/admin/bookings/:id/check-out",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/bookings/{{bookingId}}/check-out",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 checked_out or 404', () => {",
+              "  pm.expect([200, 404]).to.include(pm.response.code);",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "PATCH /api/admin/bookings/:id/extra-charges",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/admin/bookings/{{bookingId}}/extra-charges",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"extraCharge\": 150000 }"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 extra charges updated', () => {",
+              "  pm.expect([200, 404]).to.include(pm.response.code);",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "PATCH /api/admin/bookings/:id/note",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/admin/bookings/{{bookingId}}/note",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"note\": \"Guest requested extra pillows\" }"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 note updated', () => {",
+              "  pm.expect([200, 404]).to.include(pm.response.code);",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "POST /api/admin/bookings/:id/cancel  – admin cancel",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/bookings/{{bookingId}}/cancel",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 cancelled (or 404/409 if not found/already done)', () => {",
+              "  pm.expect([200, 404, 409]).to.include(pm.response.code);",
+              "});"
+            ]}
+          }]
+        }
+      ]
+    },
+
+    {
+      "name": "8 – Admin: Room Calendar & Stats",
+      "item": [
+        {
+          "name": "GET /api/admin/rooms/calendar  – for a room",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/rooms/calendar?roomId={{roomId}}&from=2026-04-01&to=2026-06-30",
+              "query": [
+                { "key": "roomId", "value": "{{roomId}}" },
+                { "key": "from",   "value": "2026-04-01" },
+                { "key": "to",     "value": "2026-06-30" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 calendar items', () => {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.json().items).to.be.an('array');",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "GET /api/admin/rooms/calendar  – 400 invalid roomId",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/rooms/calendar?roomId=badid",
+              "query": [{ "key": "roomId", "value": "badid" }]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('400 invalid roomId', () => pm.response.to.have.status(400));"
+            ]}
+          }]
+        },
+        {
+          "name": "GET /api/admin/stats/bookings",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/stats/bookings?from=2026-01-01&to=2026-12-31",
+              "query": [
+                { "key": "from", "value": "2026-01-01" },
+                { "key": "to",   "value": "2026-12-31" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 stats', () => {",
+              "  pm.response.to.have.status(200);",
+              "  const body = pm.response.json();",
+              "  pm.expect(body).to.have.property('byStatus');",
+              "  pm.expect(body).to.have.property('range');",
+              "});"
+            ]}
+          }]
+        }
+      ]
+    },
+
+    {
+      "name": "9 – Auth Edge Cases",
+      "item": [
+        {
+          "name": "GET /api/admin/bookings  – 401 no token",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/bookings"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('401 no token', () => pm.response.to.have.status(401));"
+            ]}
+          }]
+        },
+        {
+          "name": "GET /api/admin/bookings  – 401 bad token",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/bookings",
+            "header": [{ "key": "Authorization", "value": "Bearer this.is.not.valid" }]
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('401 bad token', () => pm.response.to.have.status(401));"
+            ]}
+          }]
+        },
+        {
+          "name": "GET /api/unknown-route  – 404",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/unknown-route"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('404 route not found', () => pm.response.to.have.status(404));"
+            ]}
+          }]
+        }
+      ]
+    }
+
+  ]
+}

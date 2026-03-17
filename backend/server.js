@@ -52,11 +52,6 @@ async function start() {
   const port = process.env.PORT || 5000;
   await connectDb();
 
-  const autoSeed = String(process.env.AUTO_SEED || '').toLowerCase() === 'true';
-  if (autoSeed) {
-    await seedAll();
-  }
-
   const server = http.createServer(app);
   server.on('error', (err) => {
     if (err && err.code === 'EADDRINUSE') {

@@ -1,23 +1,21 @@
 const mongoose = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server');
-
-let memoryServer; // keep a reference so it is not garbage collected
 
 const connectDb = async () => {
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    console.error('MONGODB_URI is not set. Please configure it in backend/.env');
+    process.exit(1);
+  }
+
+  const dbName = process.env.MONGODB_DB_NAME;
+  if (!dbName) {
+    console.error('MONGODB_DB_NAME is not set. Please add the database name in backend/.env');
+    process.exit(1);
+  }
+
   try {
-    const uri = process.env.MONGODB_URI;
-
-    if (uri) {
-      await mongoose.connect(uri);
-      console.log('Connected to MongoDB');
-      return;
-    }
-
-    // Fallback for local/dev when no Atlas URI is provided
-    memoryServer = await MongoMemoryServer.create();
-    const memoryUri = memoryServer.getUri();
-    await mongoose.connect(memoryUri);
-    console.log('Connected to in-memory MongoDB (mongodb-memory-server)');
+    await mongoose.connect(uri, { dbName });
+    console.log(`Connected to MongoDB Atlas — database: ${dbName}`);
   } catch (err) {
     console.error('Failed to connect to MongoDB:', err.message);
     process.exit(1);
