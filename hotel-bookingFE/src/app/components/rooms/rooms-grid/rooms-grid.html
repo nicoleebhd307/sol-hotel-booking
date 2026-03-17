@@ -1,0 +1,11 @@
+<div class="space-y-6">
+  <!-- Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    @for (room of displayedRooms(); track room.id; let i = $index) {
+      <div class="reveal-up" [style.--animation-delay]="i * 0.1 + 's'">
+        <app-room-card [room]="room" />
+      </div>
+    }
+  </div>
+</div>
+

@@ -1,0 +1,33 @@
+<div class="mb-6 reveal-up">
+
+  <!-- Filter Controls -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-3">
+    <!-- Filter Section -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+      <span class="font-serif text-lg italic text-[#4E4639]">Filter By:</span>
+      <div class="flex flex-wrap gap-2 sm:gap-3">
+        @for (filter of filters; track filter.key) {
+          <div class="relative">
+            <select
+              (change)="onFilterChange(filter.key, $event)"
+              class="px-4 py-2 text-sm text-[#1a1a1a] border border-[#d4a574] rounded-lg appearance-none cursor-pointer hover:bg-[#f9f7f2] transition-colors"
+            >
+              <option value="">{{ filter.label }}</option>
+              @for (option of filter.options; track option) {
+                <option [value]="option">{{ option }}</option>
+              }
+            </select>
+            <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-[#d4a574] pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Results Count -->
+    <span class="text-sm text-[#6b7280]">{{ resultsText }}</span>
+  </div>
+</div>
+
+

@@ -12,9 +12,9 @@ export class HomeContent {
           'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1600&q=80',
         logoUrl: 'assets/images/sol-white.png',
         navLinks: [
-          { label: 'Home', href: '#' },
+          { label: 'Home', href: '/' },
           { label: 'Our Stories', href: '#' },
-          { label: 'Accommodations', href: '#' },
+          { label: 'Accommodations', href: '/rooms' },
         ],
         welcomeEyebrow: 'Welcome to',
         headingLineOne: 'Experience',

@@ -1,0 +1,72 @@
+<article class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300">
+  <!-- Image Container -->
+  <div class="relative overflow-hidden h-48">
+    <img
+      [src]="room().imageUrl"
+      [alt]="room().title"
+      class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+    />
+    <!-- Room Type Badge -->
+    <div class="absolute top-3 right-3 bg-white px-3 py-1 rounded-full text-xs font-medium text-[#1a1a1a]">
+      {{ room().roomType }}
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="p-4 flex flex-col gap-3">
+    <!-- Title -->
+    <h3 class="font-serif text-lg text-[#1a1a1a]">{{ room().title }}</h3>
+
+    <!-- Description -->
+    <p class="text-sm text-[#374151] line-clamp-2">{{ room().description }}</p>
+
+    <!-- Amenities -->
+    <div class="grid grid-cols-2 gap-2 py-2 border-y border-[#e5e7eb]">
+      <div class="flex items-center gap-2 text-xs">
+        <mat-icon class="text-[#d4a574]" [style.font-size]="'16px'" [style.width]="'16px'" [style.height]="'16px'">
+          single_bed
+        </mat-icon>
+        <span>{{ room().beds }} {{ room().beds === 1 ? 'Bed' : 'Beds' }}</span>
+      </div>
+      <div class="flex items-center gap-2 text-xs">
+        <mat-icon class="text-[#d4a574]" [style.font-size]="'16px'" [style.width]="'16px'" [style.height]="'16px'">
+          aspect_ratio
+        </mat-icon>
+        <span>{{ room().sqft }} sqft</span>
+      </div>
+      <div class="flex items-center gap-2 text-xs">
+        <mat-icon class="text-[#d4a574]" [style.font-size]="'16px'" [style.width]="'16px'" [style.height]="'16px'">
+          group
+        </mat-icon>
+        <span>{{ room().guest }} {{ room().guest === 1 ? 'Guest' : 'Guests' }}</span>
+      </div>
+      <div class="flex items-center gap-2 text-xs">
+        <mat-icon class="text-[#d4a574]" [style.font-size]="'16px'" [style.width]="'16px'" [style.height]="'16px'">
+          visibility
+        </mat-icon>
+        <span>{{ room().viewType }}</span>
+      </div>
+    </div>
+
+    <!-- Price Section -->
+    <div class="flex flex-col gap-1">
+      <span class="text-xs text-[#374151] uppercase tracking-wide">FROM</span>
+      <span class="font-serif text-2xl text-[#d4a574]">${{ room().priceFrom }}<span class="text-sm">/night</span></span>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-2 pt-2">
+      <button
+        class="flex-1 rounded-lg border border-[#1a1a1a] py-1.5 px-2 font-serif italic text-[#1a1a1a] text-xs transition-all duration-300 hover:bg-[#1a1a1a] hover:text-white"
+      >
+        View Details
+      </button>
+      <button
+        class="flex-1 rounded-lg bg-[#d4a574] py-1.5 px-2 font-serif italic text-white text-xs transition-all duration-300 hover:bg-[#c49460]"
+      >
+        Book Now
+      </button>
+    </div>
+  </div>
+</article>
+

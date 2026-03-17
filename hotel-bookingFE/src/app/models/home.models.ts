@@ -42,6 +42,32 @@ export interface SocialLink {
   href: string;
 }
 
+export interface RoomAmenity {
+  icon: string;
+  label: string;
+  value: string | number;
+}
+
+export interface RoomCard {
+  id: number;
+  title: string;
+  description: string;
+  imageUrl: string;
+  priceFrom: number;
+  amenities: RoomAmenity[];
+  roomType: string;
+  beds: number;
+  sqft: number;
+  guest: number;
+  viewType: string;
+  featured?: boolean;
+}
+
+export interface FilterOption {
+  label: string;
+  options: { name: string; count?: number }[];
+}
+
 export interface HomePageData {
   hero: {
     backgroundImageUrl: string;
