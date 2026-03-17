@@ -1,5 +1,6 @@
 import { Component, signal, HostListener, inject, NgZone } from '@angular/core';
 import { input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 interface NavLink {
   label: string;
@@ -8,7 +9,7 @@ interface NavLink {
 
 @Component({
   selector: 'app-sticky-navbar',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './sticky-navbar.html',
   styleUrl: './sticky-navbar.css',
   standalone: true,

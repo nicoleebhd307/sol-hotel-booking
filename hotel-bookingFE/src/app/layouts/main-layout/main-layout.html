@@ -5,11 +5,7 @@
 		[reserveLabel]="data().hero.reserveLabel"
 	/>
 
-	<!-- Hero Section Container: relative positioning for floating availability bar -->
-	<div class="relative">
-		<app-hero [data]="data().hero" />
-		<app-availability-bar [fields]="data().availabilityFields" />
-	</div>
+	<app-hero [data]="data().hero" [availabilityFields]="data().availabilityFields" />
 
 	<app-intro [data]="data().intro" />
 	<app-accommodations [cards]="data().accommodations" />

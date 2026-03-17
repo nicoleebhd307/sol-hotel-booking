@@ -12,9 +12,9 @@ export class HomeContent {
           'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1600&q=80',
         logoUrl: 'assets/images/sol-white.png',
         navLinks: [
-          { label: 'Home', href: '#' },
-          { label: 'Our Stories', href: '#' },
-          { label: 'Accommodations', href: '#' },
+          { label: 'Home', href: '/' },
+          { label: 'Our Stories', href: '/stories' },
+          { label: 'Accommodations', href: '/rooms' },
         ],
         welcomeEyebrow: 'Welcome to',
         headingLineOne: 'Experience',
@@ -33,8 +33,7 @@ export class HomeContent {
         { label: 'Room Type', value: 'Ocean Front Lanai', icon: 'keyboard_arrow_down' },
       ],
       intro: {
-        backgroundImageUrl:
-          'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1600&q=80',
+        backgroundImageUrl:'https://plus.unsplash.com/premium_photo-1669863547357-b7d064cedaac?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' ,
         logoUrl: 'assets/images/sol-gold.png',
         heading: 'Sol An Bang Beach Resort & Spa',
         subHeading: 'A Beachfront Hideaway Amidst Pristine Casuarina Forests',
@@ -73,11 +72,27 @@ export class HomeContent {
           'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=900&q=80',
         title: 'The Experience Offers',
         items: [
-          { title: 'Resort' },
-          { title: 'Accommodation', active: true },
-          { title: 'Event & Wedding' },
-          { title: 'Wine & Dine' },
-          { title: 'Wellness' },
+          {
+            title: 'Resort',
+            imageUrl: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=900&q=80',
+          },
+          {
+            title: 'Accommodation',
+            active: true,
+            imageUrl: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=900&q=80',
+          },
+          {
+            title: 'Event & Wedding',
+            imageUrl: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=80',
+          },
+          {
+            title: 'Wine & Dine',
+            imageUrl: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=80',
+          },
+          {
+            title: 'Wellness',
+            imageUrl: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=900&q=80',
+          },
         ],
       },
       testimonials: {

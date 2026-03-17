@@ -3,7 +3,6 @@ import { input } from '@angular/core';
 import { HomePageData } from '../../models/home.models';
 import { StickyNavbar } from '../../components/sticky-navbar/sticky-navbar';
 import { Hero } from '../../components/home/hero/hero';
-import { AvailabilityBar } from '../../components/home/availability-bar/availability-bar';
 import { Intro } from '../../components/home/intro/intro';
 import { Accommodations } from '../../components/home/accommodations/accommodations';
 import { ExperienceOffers } from '../../components/home/experience-offers/experience-offers';
@@ -17,7 +16,6 @@ import { SiteFooter } from '../../components/home/site-footer/site-footer';
   imports: [
     StickyNavbar,
     Hero,
-    AvailabilityBar,
     Intro,
     Accommodations,
     ExperienceOffers,
