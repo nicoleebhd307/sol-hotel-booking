@@ -18,10 +18,12 @@ app.use(express.urlencoded({ extended: true }));
 // Import routes
 const dashboardRoutes = require('./routes/dashboard');
 const authRoutes = require('./routes/auth');
+const bookingRoutes = require('./routes/booking.routes');
 
 // API Routes
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
