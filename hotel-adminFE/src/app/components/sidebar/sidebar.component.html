@@ -30,14 +30,28 @@
     <ul class="flex flex-col gap-1">
       <li *ngFor="let item of menuItems">
         <a
+          *ngIf="item.label === 'Bookings'"
+          routerLink="/bookings"
+          routerLinkActive="bg-gray-100 text-[#c5a059]"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="flex flex-row gap-4 items-center px-4 py-3 rounded-[12px] transition-all duration-200 hover:bg-gray-100 text-[#4e4639]"
+        >
+          <span class="material-symbols-outlined text-[22px]">{{ item.icon }}</span>
+          <span class="text-[14px] leading-5 font-medium" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+            {{ item.label }}
+          </span>
+        </a>
+
+        <a
+          *ngIf="item.label !== 'Bookings'"
           [routerLink]="item.route"
-          routerLinkActive="active-menu-item"
-          [routerLinkActiveOptions]="{ exact: false }"
-          class="flex flex-row gap-4 items-center px-4 py-3 rounded-[12px] transition-all duration-200"
+          routerLinkActive="bg-gray-100 text-[#c5a059]"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="flex flex-row gap-4 items-center px-4 py-3 rounded-[12px] transition-all duration-200 hover:bg-gray-100 text-[#4e4639]"
         >
           <!-- Icon -->
-          <span class="material-symbols-outlined text-[22px] text-[#6a5f4c]">{{ item.icon }}</span>
-          <span class="text-[14px] leading-5 font-medium text-[#4e4639]" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+          <span class="material-symbols-outlined text-[22px]">{{ item.icon }}</span>
+          <span class="text-[14px] leading-5 font-medium" style="font-family: 'Plus Jakarta Sans', sans-serif;">
             {{ item.label }}
           </span>
         </a>

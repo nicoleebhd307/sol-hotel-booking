@@ -1,0 +1,223 @@
+<div class="flex bg-[#fcfaf1] min-h-screen">
+  <div class="fixed left-0 top-0 w-[260px] h-screen overflow-y-auto">
+    <app-sidebar></app-sidebar>
+  </div>
+
+  <div class="flex-1 ml-[260px] flex flex-col overflow-hidden">
+    <app-header-topbar [userInfo]="userInfo"></app-header-topbar>
+
+    <main class="flex-1 overflow-y-auto">
+      <div class="px-5 py-6 max-w-5xl mx-auto w-full space-y-7">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-[9px] uppercase tracking-[1.1px] text-[#978f7d] font-semibold">Management / <span class="text-[#7c6a39]">Bookings</span></p>
+            <h1 class="text-[48px] leading-[1.03] text-[#1f1d16]" style="font-family: 'Playfair Display', serif;">
+              Booking <span class="italic">Management</span>
+            </h1>
+          </div>
+
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 bg-gradient-to-r from-[#836a2a] to-[#a88d47] text-white px-4 h-10 rounded-[11px] shadow-[0_6px_16px_rgba(91,72,30,0.24)] hover:shadow-[0_8px_20px_rgba(91,72,30,0.3)]"
+            (click)="onNewBooking()"
+          >
+            <mat-icon class="text-[18px]">add</mat-icon>
+            <span class="text-[13px] font-semibold">New Booking</span>
+          </button>
+        </div>
+
+        <app-booking-filter (filterChange)="onFilterChange($event)"></app-booking-filter>
+
+        <section class="bg-white rounded-[22px] border border-[rgba(214,205,187,0.7)] overflow-hidden mt-4">
+          <app-booking-table
+            [bookings]="pagedBookings"
+            [loading]="loading"
+            [role]="role"
+            (view)="onViewBooking($event)"
+            (checkIn)="onCheckInBooking($event)"
+            (edit)="onEditBooking($event)"
+            (delete)="onDeleteBooking($event)"
+          ></app-booking-table>
+
+          <div class="px-5 py-3 border-t border-[rgba(214,205,187,0.45)] bg-white">
+            <app-pagination
+              [totalItems]="totalBookings"
+              [pageSize]="pageSize"
+              [currentPage]="currentPage"
+              (pageChange)="onPageChange($event)"
+            ></app-pagination>
+          </div>
+        </section>
+      </div>
+
+      <div
+        *ngIf="selectedBooking || detailLoading"
+        class="fixed top-0 right-0 bottom-0 left-[260px] bg-black/35 z-[70] flex items-center justify-center px-4"
+        (click)="closeBookingDetail()"
+      >
+        <section
+          class="w-full max-w-xl bg-white rounded-[18px] border border-[rgba(214,205,187,0.7)] shadow-xl p-5"
+          (click)="$event.stopPropagation()"
+        >
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <p class="text-[10px] uppercase tracking-[1.1px] text-[#8b836f]">Booking Detail</p>
+              <h3 class="text-[28px] leading-tight text-[#1f1d16]" style="font-family: 'Playfair Display', serif;">Booking Information</h3>
+            </div>
+
+            <button
+              type="button"
+              class="w-8 h-8 inline-flex items-center justify-center rounded-md hover:bg-[#f2efe6]"
+              (click)="closeBookingDetail()"
+            >
+              <mat-icon class="text-[18px] text-[#6f695d]">close</mat-icon>
+            </button>
+          </div>
+
+          <div *ngIf="detailLoading" class="py-8 text-center text-[#7a7468]">Loading booking detail...</div>
+
+          <div *ngIf="selectedBooking" class="grid grid-cols-2 gap-3 text-[13px] text-[#5a5448]">
+            <div>
+              <p class="text-[11px] uppercase text-[#8f8879]">Guest Name</p>
+              <p class="font-semibold text-[#2d2b24] mt-1">{{ selectedBookingView?.guestName || '-' }}</p>
+            </div>
+
+            <div>
+              <p class="text-[11px] uppercase text-[#8f8879]">Phone</p>
+              <p class="font-semibold text-[#2d2b24] mt-1">{{ selectedBookingView?.phone || '-' }}</p>
+            </div>
+
+            <div>
+              <p class="text-[11px] uppercase text-[#8f8879]">Booking ID</p>
+              <p class="font-semibold text-[#2d2b24] mt-1">{{ selectedBooking._id }}</p>
+            </div>
+
+            <div>
+              <p class="text-[11px] uppercase text-[#8f8879]">Customer ID</p>
+              <p class="font-semibold text-[#2d2b24] mt-1">{{ selectedBooking.customer_id }}</p>
+            </div>
+
+            <div>
+              <p class="text-[11px] uppercase text-[#8f8879]">Room ID</p>
+              <p class="font-semibold text-[#2d2b24] mt-1">{{ selectedBooking.rooms[0]?.room_id || '-' }}</p>
+            </div>
+
+            <div>
+              <p class="text-[11px] uppercase text-[#8f8879]">Room Type</p>
+              <p class="font-semibold text-[#2d2b24] mt-1">{{ selectedBookingView?.roomType || '-' }}</p>
+            </div>
+
+            <div>
+              <p class="text-[11px] uppercase text-[#8f8879]">Room Number</p>
+              <p class="font-semibold text-[#2d2b24] mt-1">{{ selectedBookingView?.roomNumber || '-' }}</p>
+            </div>
+
+            <div>
+              <p class="text-[11px] uppercase text-[#8f8879]">Price / Night</p>
+              <p class="font-semibold text-[#2d2b24] mt-1">${{ selectedBooking.rooms[0]?.price_per_night || 0 }}</p>
+            </div>
+
+            <div>
+              <p class="text-[11px] uppercase text-[#8f8879]">Check In</p>
+              <p class="font-semibold text-[#2d2b24] mt-1">{{ selectedBooking.check_in | date: 'MMM d, y' }}</p>
+            </div>
+
+            <div>
+              <p class="text-[11px] uppercase text-[#8f8879]">Check Out</p>
+              <p class="font-semibold text-[#2d2b24] mt-1">{{ selectedBooking.check_out | date: 'MMM d, y' }}</p>
+            </div>
+
+            <div>
+              <p class="text-[11px] uppercase text-[#8f8879]">Guests</p>
+              <p class="font-semibold text-[#2d2b24] mt-1">{{ selectedBooking.guests }}</p>
+            </div>
+
+            <div>
+              <p class="text-[11px] uppercase text-[#8f8879]">Status</p>
+              <p class="font-semibold text-[#2d2b24] mt-1">{{ getSelectedMappedStatus() }}</p>
+            </div>
+
+            <div>
+              <p class="text-[11px] uppercase text-[#8f8879]">Payment Status</p>
+              <p class="font-semibold text-[#2d2b24] mt-1">{{ getSelectedMappedPaymentStatus() }}</p>
+            </div>
+
+            <div>
+              <p class="text-[11px] uppercase text-[#8f8879]">Total Price</p>
+              <p class="font-semibold text-[#2d2b24] mt-1">${{ selectedBooking.totalPrice }}</p>
+            </div>
+
+            <div>
+              <p class="text-[11px] uppercase text-[#8f8879]">Deposit</p>
+              <p class="font-semibold text-[#2d2b24] mt-1">${{ selectedBooking.depositAmount }}</p>
+            </div>
+
+            <div>
+              <p class="text-[11px] uppercase text-[#8f8879]">Extra Charge</p>
+              <p class="font-semibold text-[#2d2b24] mt-1">${{ selectedBooking.extraCharge }}</p>
+            </div>
+
+            <div>
+              <p class="text-[11px] uppercase text-[#8f8879]">Created At</p>
+              <p class="font-semibold text-[#2d2b24] mt-1">{{ selectedBooking.createdAt | date: 'MMM d, y' }}</p>
+            </div>
+
+            <div class="col-span-2">
+              <p class="text-[11px] uppercase text-[#8f8879]">Note</p>
+              <p class="font-semibold text-[#2d2b24] mt-1">{{ selectedBooking.note || 'No note' }}</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div
+        *ngIf="pendingDeleteBooking"
+        class="fixed top-0 right-0 bottom-0 left-[260px] bg-black/40 z-[80] flex items-center justify-center px-4"
+        (click)="cancelDeleteBooking()"
+      >
+        <section
+          class="w-full max-w-md bg-white rounded-[18px] border border-[rgba(214,205,187,0.8)] shadow-xl p-5"
+          (click)="$event.stopPropagation()"
+        >
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 shrink-0 rounded-full bg-[#f8ecec] text-[#a84545] inline-flex items-center justify-center">
+              <mat-icon class="text-[20px]">warning</mat-icon>
+            </div>
+
+            <div>
+              <p class="text-[10px] uppercase tracking-[1.1px] text-[#8b836f]">Delete Booking</p>
+              <h3 class="text-[28px] leading-tight text-[#1f1d16]" style="font-family: 'Playfair Display', serif;">Confirm Deletion</h3>
+            </div>
+          </div>
+
+          <p class="mt-4 text-[14px] text-[#5b5448] leading-relaxed">
+            Are you sure you want to delete booking
+            <span class="font-semibold text-[#2d2b24]">#{{ pendingDeleteBooking.id }}</span> for
+            <span class="font-semibold text-[#2d2b24]">{{ pendingDeleteBooking.guestName }}</span>?
+            This action cannot be undone.
+          </p>
+
+          <div class="mt-6 flex items-center justify-end gap-2.5">
+            <button
+              type="button"
+              class="h-10 px-4 rounded-[10px] border border-[rgba(140,130,110,0.35)] text-[#5e574b] text-[13px] font-semibold hover:bg-[#f4f1e7]"
+              (click)="cancelDeleteBooking()"
+              [disabled]="deleteLoading"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="button"
+              class="h-10 px-4 rounded-[10px] bg-[#a84545] text-white text-[13px] font-semibold hover:bg-[#923a3a] disabled:opacity-60 disabled:cursor-not-allowed"
+              (click)="confirmDeleteBooking()"
+              [disabled]="deleteLoading"
+            >
+              {{ deleteLoading ? 'Deleting...' : 'Delete Booking' }}
+            </button>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>

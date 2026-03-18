@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
 import { DashboardReceptionistComponent } from './pages/dashboard-receptionist/dashboard-receptionist.component';
 import { DashboardManagerComponent } from './pages/dashboard-manager/dashboard-manager.component';
+import { BookingsComponent } from './pages/bookings/bookings.component';
 import { FeaturePlaceholderComponent } from './pages/feature-placeholder/feature-placeholder.component';
 import { AuthenticatedGuard } from './services/authenticated.guard';
 import { ReceptionistGuard } from './services/receptionist.guard';
@@ -29,9 +30,8 @@ export const routes: Routes = [
   },
   {
     path: 'bookings',
-    component: FeaturePlaceholderComponent,
+    component: BookingsComponent,
     canActivate: [AuthenticatedGuard],
-    data: { title: 'Bookings' },
   },
   {
     path: 'rooms',
