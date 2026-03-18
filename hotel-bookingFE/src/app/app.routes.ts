@@ -22,6 +22,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/room-detail/room-detail').then(m => m.RoomDetail),
   },
   {
+    path: 'search-booking',
+    loadComponent: () => import('./components/search-booking/search-booking').then(m => m.SearchBooking),
+  },
+  {
     path: 'find-booking',
     loadComponent: () => import('./pages/find-booking/find-booking').then(m => m.FindBooking),
   },
