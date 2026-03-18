@@ -176,6 +176,9 @@ const BOOKINGS_MOCK = Array.from({ length: 16 }).flatMap((_, batchIndex) =>
   })
 );
 
+const BOOKING_DRAFTS_MOCK = [];
+
 module.exports = {
   BOOKINGS_MOCK,
+  BOOKING_DRAFTS_MOCK,
 };
