@@ -45,3 +45,53 @@ export interface BookingFilterParams {
   dateTo?: string;
   roomCategory?: string;
 }
+
+export interface CreateBookingPayload {
+  guestName: string;
+  phone: string;
+  email: string;
+  identityNumber: string;
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+  roomType: string;
+  totalPrice: number;
+  pricePerNight: number;
+  status: 'confirmed';
+  note?: string;
+}
+
+export interface CreateBookingDraftPayload {
+  draftId?: string;
+  selectedRoomId: string;
+  formValue: {
+    phone: string;
+    fullName: string;
+    email: string;
+    identityNumber: string;
+    checkIn: string;
+    checkOut: string;
+    guests: number;
+    roomType: string;
+    pricePerNight: number;
+    note: string;
+  };
+}
+
+export interface BookingDraft {
+  _id: string;
+  selectedRoomId: string;
+  formValue: {
+    phone: string;
+    fullName: string;
+    email: string;
+    identityNumber: string;
+    checkIn: string;
+    checkOut: string;
+    guests: number;
+    roomType: string;
+    pricePerNight: number;
+    note: string;
+  };
+  updatedAt: string;
+}

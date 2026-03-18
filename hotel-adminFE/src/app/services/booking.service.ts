@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Booking, BookingFilterParams } from '../models/booking.model';
+import { Booking, BookingDraft, BookingFilterParams, CreateBookingDraftPayload, CreateBookingPayload } from '../models/booking.model';
 import { API_CONFIG } from '../config/api.config';
 
 const BOOKING_FALLBACK_MOCK: Booking[] = [
@@ -151,6 +151,35 @@ export class BookingService {
   deleteBooking(id: string): Observable<Booking> {
     return this.http.delete<{ success: boolean; data: Booking }>(`${this.apiUrl}/${id}`).pipe(
       map((response) => response.data)
+    );
+  }
+
+  createBooking(payload: CreateBookingPayload): Observable<Booking> {
+    return this.http.post<unknown>(this.apiUrl, payload).pipe(
+      map((response) => {
+        if (this.isRecord(response) && this.isRecord(response['data'])) {
+          return this.normalizeBooking(response['data'] as Partial<Booking>, 0);
+        }
+        return this.normalizeBooking(this.toApiBooking(response), 0);
+      })
+    );
+  }
+
+  saveBookingDraft(payload: CreateBookingDraftPayload): Observable<BookingDraft> {
+    return this.http.post<{ success: boolean; data: BookingDraft }>(`${this.apiUrl}/drafts`, payload).pipe(
+      map((response) => response.data)
+    );
+  }
+
+  getLatestBookingDraft(): Observable<BookingDraft | null> {
+    return this.http.get<{ success: boolean; data: BookingDraft | null }>(`${this.apiUrl}/drafts/latest`).pipe(
+      map((response) => response.data)
+    );
+  }
+
+  deleteBookingDraft(id: string): Observable<boolean> {
+    return this.http.delete<{ success: boolean }>(`${this.apiUrl}/drafts/${id}`).pipe(
+      map((response) => response.success)
     );
   }
 

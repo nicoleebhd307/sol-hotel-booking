@@ -1,6 +1,7 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ChangeDetectorRef, Component, NgZone, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
 import { BookingFilterComponent } from '../../components/booking-filter/booking-filter.component';
 import { BookingTableComponent } from '../../components/booking-table/booking-table.component';
 import { HeaderTopbarComponent } from '../../components/header-topbar/header-topbar.component';
@@ -45,6 +46,7 @@ export class BookingsComponent implements OnInit {
   };
 
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly appRouter = inject(Router);
 
   constructor(
     private bookingService: BookingService,
@@ -92,7 +94,14 @@ export class BookingsComponent implements OnInit {
   }
 
   onNewBooking(): void {
-    console.log('Create new booking action clicked.');
+    if (this.appRouter) {
+      this.appRouter.navigate(['/bookings/new']);
+      return;
+    }
+
+    if (typeof window !== 'undefined') {
+      window.location.href = '/bookings/new';
+    }
   }
 
   onViewBooking(booking: BookingView): void {
