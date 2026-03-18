@@ -1,11 +1,32 @@
 <div class="bg-white">
   <!-- Hero Image with Overlay -->
-  <div class="relative h-96 overflow-hidden">
-    <img [src]="room().imageUrl" [alt]="room().title" class="w-full h-full object-cover" />
+  <div class="relative overflow-hidden px-4 min-h-[70vh] flex flex-col items-end justify-end pb-20">
+    <img [src]="currentImageUrl()" [alt]="room().title" class="absolute inset-0 w-full h-full object-cover" />
     <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-    <div class="absolute bottom-6 left-6 text-white">
-      <span class="text-sm font-medium opacity-80">{{ room().viewType }}</span>
-      <h1 class="font-serif text-5xl italic">{{ room().roomType }}-Room</h1>
+    
+    <!-- Hero Content - Left aligned at bottom -->
+    <div class="absolute bottom-12 left-12 md:left-16 z-10 text-white max-w-xl">
+      <!-- Subtitle -->
+      <p class="font-serif text-lg md:text-7xl italic opacity-90 mb-2">{{ room().viewType }}</p>
+      <!-- Main Title -->
+      <h1 class="font-serif text-5xl md:text-7xl font-light leading-tight mb-2">{{ room().roomType }} Room</h1>
+      <!-- Location Info -->
+      <div class="flex items-center gap-5 text-sm md:text-base font-light opacity-80">
+        <div class="flex items-center gap-2">
+          <span>Capacity: {{ room().guest }} Guest{{ room().guest > 1 ? 's' : '' }}</span>
+        </div>
+        <div>Floor {{ room().beds }}-{{ room().beds + 3 }}</div>
+      </div>
+    </div>
+
+    <!-- Navigation Buttons - Bottom Right -->
+    <div class="absolute bottom-8 right-8 z-10 flex gap-4">
+      <button type="button" (click)="previousRoom()" class="w-12 h-12 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md flex items-center justify-center text-white transition-all border border-white/40 cursor-pointer">
+        <span class="text-2xl">‹</span>
+      </button>
+      <button type="button" (click)="nextRoom()" class="w-12 h-12 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md flex items-center justify-center text-white transition-all border border-white/40 cursor-pointer">
+        <span class="text-2xl">›</span>
+      </button>
     </div>
   </div>
 
@@ -13,16 +34,38 @@
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 px-6 py-12 mx-auto max-w-6xl">
     <!-- Left: Description -->
     <div class="lg:col-span-2">
-      <h2 class="font-serif text-3xl mb-4">{{ room().title }}</h2>
+      <h2 class="font-serif text-4xl mb-4">{{ room().title }}</h2>
       <p class="text-[#6b7280] text-base leading-relaxed mb-8">{{ room().description }}</p>
+
+      <!-- Room Specs Grid -->
+      <div class="grid grid-cols-4 gap-6 mb-12 py-6 border-y border-[#e5e7eb]">
+        <div>
+          <p class="text-xs uppercase tracking-wider text-[#6b7280] font-medium mb-2">CAPACITY</p>
+          <p class="font-serif text-lg text-[#1a1a1a]">{{ room().guest }} {{ room().guest === 1 ? 'Adult' : 'Adults' }}</p>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-wider text-[#6b7280] font-medium mb-2">BED</p>
+          <p class="font-serif text-lg text-[#1a1a1a]">{{ room().beds === 1 ? 'King' : room().beds === 2 ? 'Double' : 'Twin' }}</p>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-wider text-[#6b7280] font-medium mb-2">SIZE</p>
+          <p class="font-serif text-lg text-[#1a1a1a]">{{ room().sqft }} sq ft</p>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-wider text-[#6b7280] font-medium mb-2">VIEW</p>
+          <p class="font-serif text-lg text-[#1a1a1a]">{{ room().viewType }}</p>
+        </div>
+      </div>
 
       <!-- Amenities Section -->
       <div class="mt-12">
         <h3 class="font-serif text-2xl mb-6">Amenities</h3>
-        <div class="grid grid-cols-2 gap-4">
-          <div class="flex items-center gap-3" *ngFor="let amenity of room().amenities">
-            <mat-icon class="text-[#d4a574]">check_circle</mat-icon>
-            <span class="text-sm">{{ amenity.label || amenity.value }}</span>
+        <div class="grid grid-cols-2 gap-8">
+          <div class="flex items-start gap-4" *ngFor="let amenity of currentRoomType().amenities">
+            <mat-icon class="text-2xl mt-1" style="color: #00687B;">{{ getAmenityIcon(amenity) }}</mat-icon>
+            <div>
+              <p class="text-sm font-medium text-[#1a1a1a]">{{ amenity }}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -30,36 +73,61 @@
 
     <!-- Right: Price/Booking -->
     <div class="bg-[#f9f7f2] rounded-lg p-8 h-fit">
-      <div class="text-right mb-6">
-        <span class="text-xs text-[#6b7280] uppercase tracking-wide">FROM</span>
-        <div class="font-serif text-5xl text-[#d4a574]">${{ room().priceFrom }}</div>
-        <span class="text-sm text-[#6b7280]">Per Night</span>
+      <!-- Price Display -->
+      <div class="mb-8">
+        <p class="text-xs text-[#6b7280] uppercase tracking-wide mb-1">From</p>
+        <div class="flex items-baseline gap-2">
+          <span class="font-serif text-5xl text-[#d4a574]">${{ room().priceFrom }}</span>
+          <span class="text-xs text-[#6b7280] uppercase tracking-wide">Per Night</span>
+        </div>
       </div>
 
-      <!-- Room Details -->
-      <div class="space-y-4 border-t border-b border-[#d4a574] py-4 mb-6">
+      <!-- Check-in / Check-out -->
+      <div class="grid grid-cols-2 gap-4 mb-6 pb-6 border-b border-[#e5e7eb]">
+        <div>
+          <p class="text-xs uppercase tracking-wider text-[#6b7280] font-medium mb-2">Check In</p>
+          <p class="font-serif text-[#1a1a1a]">Oct 24, 2024</p>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-wider text-[#6b7280] font-medium mb-2">Check Out</p>
+          <p class="font-serif text-[#1a1a1a]">Oct 28, 2024</p>
+        </div>
+      </div>
+
+      <!-- Guests -->
+      <div class="mb-6 pb-6 border-b border-[#e5e7eb]">
+        <p class="text-xs uppercase tracking-wider text-[#6b7280] font-medium mb-2">Guests</p>
+        <p class="font-serif text-[#1a1a1a]">{{ room().guest }} {{ room().guest === 1 ? 'Adult' : 'Adults' }}</p>
+      </div>
+
+      <!-- Price Breakdown -->
+      <div class="mb-6 pb-6 border-b border-[#e5e7eb] space-y-2">
         <div class="flex justify-between text-sm">
-          <span class="text-[#6b7280]">Beds:</span>
-          <span>{{ room().beds }} {{ room().beds === 1 ? 'Bed' : 'Beds' }}</span>
+          <span class="text-[#6b7280]">${{ room().priceFrom }} x 4 nights</span>
+          <span class="text-[#1a1a1a]">${{ room().priceFrom * 4 }}</span>
         </div>
         <div class="flex justify-between text-sm">
-          <span class="text-[#6b7280]">Size:</span>
-          <span>{{ room().sqft }} sqft</span>
+          <span class="text-[#6b7280]">Resort Fee</span>
+          <span class="text-[#1a1a1a]">$150</span>
         </div>
-        <div class="flex justify-between text-sm">
-          <span class="text-[#6b7280]">Guests:</span>
-          <span>{{ room().guest }}</span>
-        </div>
-        <div class="flex justify-between text-sm">
-          <span class="text-[#6b7280]">View:</span>
-          <span>{{ room().viewType }}</span>
-        </div>
+      </div>
+
+      <!-- Total -->
+      <div class="flex justify-between mb-6 text-lg">
+        <span class="font-medium text-[#1a1a1a]">Total</span>
+        <span class="font-serif text-[#d4a574]">${{ room().priceFrom * 4 + 150 }}</span>
       </div>
 
       <!-- Booking Button -->
-      <button class="w-full bg-[#d4a574] text-white py-3 rounded-lg font-serif italic hover:bg-[#c49460] transition-colors">
+      <button 
+        class="w-full py-3 rounded-lg font-serif italic text-white text-xl transition-all duration-300 hover:opacity-90 mb-4"
+        style="background: linear-gradient(0deg, rgba(199,158,53,1) 0%, rgba(221,188,108,1) 100%);"
+      >
         Book Now
       </button>
+
+      <!-- Disclaimer -->
+      <p class="text-[10.5px] text-center text-[#6b7280] uppercase tracking-wide">No Charges Applied Until Final Confirmation</p>
     </div>
   </div>
 </div>

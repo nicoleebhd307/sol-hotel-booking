@@ -1,15 +1,14 @@
-<div class="px-6 py-16 mx-auto max-w-6xl">
-  <h2 class="font-serif text-4xl italic text-center mb-12">Stay Guidelines</h2>
+<div class="px-10 py-25 mx-auto max-w-5xl">
+  <h2 class="font-serif text-5xl italic text-center mb-16">Stay Guidelines</h2>
 
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-    <div *ngFor="let guideline of guidelines" class="border border-[#d4a574] rounded-lg p-6">
-      <h3 class="font-serif text-lg uppercase mb-4 text-[#1a1a1a]">{{ guideline.title }}</h3>
-      <ul class="space-y-2">
-        <li *ngFor="let item of guideline.items" class="text-sm text-[#6b7280] flex items-start gap-2">
-          <span class="text-[#d4a574] font-bold">•</span>
-          <span>{{ item }}</span>
-        </li>
-      </ul>
+  <div class="guidelines-container">
+    <div *ngFor="let guideline of guidelines" class="guideline-row">
+      <div class="guideline-title">{{ guideline.title }}</div>
+      <div class="guideline-content">
+        <p *ngFor="let item of guideline.description; let idx = index" 
+           [ngClass]="{'guideline-text-highlight': guideline.title === 'CHECK-IN / OUT' && idx < 2}"
+           class="guideline-text">{{ item }}</p>
+      </div>
     </div>
   </div>
 </div>

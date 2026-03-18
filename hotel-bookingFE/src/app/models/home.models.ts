@@ -82,6 +82,7 @@ export interface RoomType {
   rate_includes: string[];
   service_charge: number;
   vat: boolean;
+  image?: string[];
 }
 
 export interface Room {

@@ -1,11 +1,11 @@
 <div class="px-6 py-16 mx-auto max-w-6xl">
   <h2 class="font-serif text-4xl italic text-center mb-12">A Closer Look</h2>
 
-  <!-- Gallery Grid -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="relative overflow-hidden rounded-lg h-64 group cursor-pointer" *ngFor="let image of images">
-      <img [src]="image" alt="Room detail" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-      <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
+  <!-- Asymmetric Gallery Grid -->
+  <div class="gallery-grid">
+    <div *ngFor="let image of galleryImages" class="gallery-item">
+      <img [src]="image.src" [alt]="image.alt" />
+      <div class="gallery-overlay"></div>
     </div>
   </div>
 </div>

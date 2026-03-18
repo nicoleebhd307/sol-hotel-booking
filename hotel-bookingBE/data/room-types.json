@@ -1,138 +1,196 @@
 [
-  {
-    "_id": "650a1b2c3d4e5f6g7h8i9j0k",
-    "name": "Scenic Ocean View",
-    "area": 45,
-    "price_per_night": 650000,
-    "bed_options": [
-      "1 double bed",
-      "2 single beds"
-    ],
-    "capacity": {
-      "adults": 2,
-      "children": 2
+    {
+        "_id": "69b6db49281523151e4315d2",
+        "name": "Deluxe Executive Suite",
+        "area": 35,
+        "price_per_night": 120,
+        "bed_options": [
+            "1 double bed",
+            "2 single beds"
+        ],
+        "capacity": {
+            "adults": 2,
+            "children": 2
+        },
+        "description": "Admire stunning views of the ocean from our stylish Executive Suite, which features all the latest in modern comforts, including spacious and chic design, separate living space, a free-standing bath tub, as well as a rain shower. Our Executive Suite (on high floors) is ideal for families, groups, or couples looking for more room and amenities.",
+        "amenities": [
+            "40-inch Smart TV",
+            "Air conditioning",
+            "Minibar",
+            "Safe deposit box",
+            "Electric kettle",
+            "Wardrobe",
+            "Indoor slippers",
+            "Telephone",
+            "Hairdryer",
+            "Private bathroom with shower",
+            "24/7 room service",
+            "Complimentary high-speed Wi-Fi"
+        ],
+        "rate_includes": [
+            "Daily breakfast",
+            "Welcome drink",
+            "Complimentary Wi-Fi",
+            "Free bicycle use",
+            "Access to the gym"
+        ],
+        "service_charge": 5,
+        "vat": true,
+        "image": [
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Executive-Suite-1.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Executive-Suite-Overview.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Executive-Suite-Room-Corner.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Executive-Suite-Bathtub.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Suite-Bathtub-detail.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Room-Amenities-3.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/Stella-Maris-Couple-in-Room2.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/Stella-Maris-Woman-in-Room.jpg?fit=1800%2C1200&ssl=1"
+        ],
+        "view": "pool"
     },
-    "description": "Wake up to the rhythmic sounds of waves and a panoramic ocean view of the Pacific.",
-    "amenities": [
-      "King-size bed",
-      "50-inch Smart TV",
-      "Air conditioning",
-      "Minibar",
-      "Safe deposit box",
-      "Electric kettle",
-      "Wardrobe",
-      "Indoor slippers",
-      "Telephone",
-      "Hairdryer",
-      "Private bathroom with rainfall shower",
-      "24/7 room service",
-      "Complimentary high-speed Wi-Fi",
-      "Ocean view balcony"
-    ],
-    "rate_includes": [
-      "Daily breakfast",
-      "Welcome drink",
-      "Complimentary Wi-Fi",
-      "Free bicycle use",
-      "Access to the gym",
-      "Beach access"
-    ],
-    "service_charge": 5,
-    "vat": true
-  },
-  {
-    "_id": "650a1b2c3d4e5f6g7h8i9j0l",
-    "name": "Garden Lanai Suite",
-    "area": 55,
-    "price_per_night": 830000,
-    "bed_options": [
-      "1 king bed",
-      "1 sofa bed"
-    ],
-    "capacity": {
-      "adults": 3,
-      "children": 2
+    {
+        "_id": "69b6dabf281523151e4315d0",
+        "name": "Deluxe Sea View",
+        "area": 35,
+        "price_per_night": 120,
+        "bed_options": [
+            "1 double bed",
+            "2 single beds"
+        ],
+        "capacity": {
+            "adults": 2,
+            "children": 2
+        },
+        "description": "Spacious deluxe room with forest or sea view, featuring a private bathroom and modern comfort for a relaxing stay near An Bang Beach.",
+        "amenities": [
+            "40-inch Smart TV",
+            "Air conditioning",
+            "Minibar",
+            "Safe deposit box",
+            "Electric kettle",
+            "Wardrobe",
+            "Indoor slippers",
+            "Telephone",
+            "Hairdryer",
+            "Private bathroom with shower",
+            "24/7 room service",
+            "Complimentary high-speed Wi-Fi"
+        ],
+        "rate_includes": [
+            "Daily breakfast",
+            "Welcome drink",
+            "Complimentary Wi-Fi",
+            "Free bicycle use",
+            "Access to the gym"
+        ],
+        "service_charge": 5,
+        "vat": true,
+        "image": [
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Deluxe-Ocean-DBL-Overview.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Deluxe-Ocean-DBL-Overview2.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Deluxe-Ocean-DBL-Frontview.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Deluxe-Ocean-DBL-Amenities-corner.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Deluxe-Ocean-TWN-2-1.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Deluxe-Ocean-TWN-3-1.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Deluxe-Ocean-TWN-Overview-1.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Deluxe-Ocean-TWN-Bed-detail-1.jpg?fit=1800%2C1200&ssl=1"
+        ],
+        "view": "sea"
     },
-    "description": "Spacious and beautifully surrounded by lush tropical foliage in our historic lanai.",
-    "amenities": [
-      "King-size bed",
-      "Sofa bed",
-      "55-inch Smart TV",
-      "Air conditioning",
-      "Minibar",
-      "Safe deposit box",
-      "Electric kettle",
-      "Wardrobe",
-      "Indoor slippers",
-      "Bathrobes",
-      "Telephone",
-      "Hairdryer",
-      "Private bathroom with bathtub and shower",
-      "24/7 room service",
-      "Complimentary high-speed Wi-Fi",
-      "Garden view terrace",
-      "Living area"
-    ],
-    "rate_includes": [
-      "Daily breakfast",
-      "Welcome drink",
-      "Complimentary Wi-Fi",
-      "Free bicycle use",
-      "Access to the gym",
-      "Garden access",
-      "Afternoon tea service"
-    ],
-    "service_charge": 5,
-    "vat": true
-  },
-  {
-    "_id": "650a1b2c3d4e5f6g7h8i9j0m",
-    "name": "Beachfront Grand Suite",
-    "area": 75,
-    "price_per_night": 1450000,
-    "bed_options": [
-      "1 king bed",
-      "2 single beds",
-      "1 sofa bed"
-    ],
-    "capacity": {
-      "adults": 4,
-      "children": 3
+    {
+        "_id": "69b6dba7281523151e4315d4",
+        "name": "Deluxe Street View",
+        "area": 35,
+        "price_per_night": 120,
+        "bed_options": [
+            "1 double bed",
+            "2 single beds"
+        ],
+        "capacity": {
+            "adults": 2,
+            "children": 2
+        },
+        "description": "Comfortable deluxe room with street view, modern interior design, and a private bathroom, offering a relaxing stay near An Bang Beach.",
+        "amenities": [
+            "40-inch Smart TV",
+            "Air conditioning",
+            "Minibar",
+            "Safe deposit box",
+            "Electric kettle",
+            "Wardrobe",
+            "Indoor slippers",
+            "Telephone",
+            "Hairdryer",
+            "Private bathroom with shower",
+            "24/7 room service",
+            "Complimentary high-speed Wi-Fi"
+        ],
+        "rate_includes": [
+            "Daily breakfast",
+            "Welcome drink",
+            "Complimentary Wi-Fi",
+            "Free bicycle use",
+            "Access to the gym"
+        ],
+        "service_charge": 5,
+        "vat": true,
+        "image": [
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Suite-1.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Suite-2.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Suite-VIP-Amenities.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Suite-view.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Suite-3.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Suite-4.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Suite-Bathtub-detail.jpg?fit=1800%2C1200&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/06/SMB-Room-Amenities-3.jpg?fit=1800%2C1200&ssl=1"
+        ],
+        "view": "street"
     },
-    "description": "Steps away from the sand offering unparalleled luxury and direct lagoon access.",
-    "amenities": [
-      "King-size bed",
-      "2 single beds",
-      "Sofa bed",
-      "65-inch Smart TV",
-      "Air conditioning",
-      "Luxury minibar",
-      "Safe deposit box",
-      "Electric kettle with premium tea selection",
-      "Wardrobe",
-      "Luxury bathrobes",
-      "Telephone",
-      "Professional hairdryer",
-      "Private bathroom with double bathtub and rainfall shower",
-      "Separate powder room",
-      "24/7 concierge service",
-      "Complimentary high-speed Wi-Fi",
-      "Private beach access",
-      "Panoramic terrace",
-      "Living and dining area"
-    ],
-    "rate_includes": [
-      "Daily breakfast buffet",
-      "Welcome drink",
-      "Complimentary Wi-Fi",
-      "Free bicycle use",
-      "Access to the gym",
-      "Premium beach access",
-      "Daily housekeeping",
-      "Afternoon tea and pastries",
-      "Sunset cocktail"
-    ],
-    "service_charge": 5,
-    "vat": true
-  }
+    {
+        "_id": "69b6dbd6281523151e4315d6",
+        "name": "Superior Room",
+        "area": 25,
+        "price_per_night": 120,
+        "bed_options": [
+            "1 double bed"
+        ],
+        "capacity": {
+            "adults": 2,
+            "children": 1
+        },
+        "description": "Cozy superior room located on the top floor, featuring a private bathroom and modern amenities, ideal for couples or small families staying near An Bang Beach.",
+        "amenities": [
+            "40-inch Smart TV",
+            "Air conditioning",
+            "Minibar",
+            "Safe deposit box",
+            "Electric kettle",
+            "Wardrobe",
+            "Indoor slippers",
+            "Telephone",
+            "Hairdryer",
+            "Private bathroom with shower",
+            "24/7 room service",
+            "Complimentary high-speed Wi-Fi"
+        ],
+        "rate_includes": [
+            "Daily breakfast",
+            "Welcome drink",
+            "Complimentary Wi-Fi",
+            "Free bicycle use",
+            "Access to the gym"
+        ],
+        "service_charge": 5,
+        "vat": true,
+        "image": [
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/04/SMB-Superior-DBL-Bed-coner2-Med.jpg?fit=2500%2C1667&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/04/SMB-Superior-DBL-Overview-Med.jpg?fit=2500%2C1667&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/04/SMB-Superior-TWN-Amenities-corner-Med.jpg?fit=2500%2C1667&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/04/SMB-Superior-TWN-Beds2-Med.jpg?fit=2500%2C1667&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/04/SMB-Superior-TWN-Beds-Med.jpg?fit=2500%2C1667&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/04/SMB-Superior-TWN-Overview-Med.jpg?fit=2500%2C1667&ssl=1",
+            "https://i0.wp.com/stellamarisbeachdanang.com/wp-content/uploads/2019/04/SMB-Bathroom.jpg?fit=2500%2C1667&ssl=1"
+        ],
+        "view": "none"
+    }
 ]

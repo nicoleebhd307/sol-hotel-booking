@@ -9,8 +9,25 @@ import { CommonModule } from '@angular/common';
 })
 export class StayGuidelines {
   readonly guidelines = [
-    { title: 'CHECK-IN / CHECK-OUT', items: ['Check-in: 2:00 PM', 'Check-out: 11:00 AM'] },
-    { title: 'CANCELLATION', items: ['Free cancellation up to 7 days before arrival', 'Non-refundable bookings cannot be modified'] },
-    { title: 'EXTRA GUESTS', items: ['Additional guests: €50 per night', 'Maximum occupancy 2 adults, 1 child per room'] }
+    {
+      title: 'CHECK-IN / OUT',
+      description: [
+        'Check-In: 2:00 PM',
+        'Check-Out: 12:00 AM',
+        'Early check-in and late check-out subject to availability.'
+      ]
+    },
+    {
+      title: 'CANCELLATION',
+      description: [
+        'Cancel up to 72 hours before arrival for a full refund. Cancellations within 72 hours are subject to a one-night room and tax charge.'
+      ]
+    },
+    {
+      title: 'EXTRA GUESTS',
+      description: [
+        'Children under 12 stay free using existing bedding. Extra person charge of $75/night applies for guests 13 and older.'
+      ]
+    }
   ];
 }

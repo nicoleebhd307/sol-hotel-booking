@@ -7,7 +7,7 @@ import { RoomsHero } from '../../components/rooms/rooms-hero/rooms-hero';
 import { RoomsFilterComponent, FilterState } from '../../components/rooms/rooms-filter/rooms-filter';
 import { RoomsGridComponent } from '../../components/rooms/rooms-grid/rooms-grid';
 import { ExperienceSection } from '../../components/rooms/experience-section/experience-section';
-import { CtaBanner } from '../../components/rooms/cta-banner/cta-banner';
+import { CtaBanner } from '../../components/room-detail/cta-banner/cta-banner';
 import { RoomsContent } from '../../services/rooms-content';
 import { HomeContent } from '../../services/home-content';
 
