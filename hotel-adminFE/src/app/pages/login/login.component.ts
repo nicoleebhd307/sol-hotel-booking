@@ -24,6 +24,7 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   isLoading = false;
   errorMessage = '';
+  private returnUrl: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -33,6 +34,16 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeForm();
+    this.resolveReturnUrl();
+  }
+
+  private resolveReturnUrl(): void {
+    const navigation = this.router.getCurrentNavigation();
+    const fromNavigation = navigation?.extras?.state?.['returnUrl'];
+    const fromHistory = history.state?.returnUrl;
+
+    const candidate = typeof fromNavigation === 'string' ? fromNavigation : fromHistory;
+    this.returnUrl = typeof candidate === 'string' && candidate.startsWith('/') ? candidate : null;
   }
 
   /**
@@ -79,6 +90,10 @@ export class LoginComponent implements OnInit {
     this.authService.login(this.loginForm.value).subscribe({
       next: (response) => {
         this.isLoading = false;
+        if (this.returnUrl) {
+          this.router.navigateByUrl(this.returnUrl);
+          return;
+        }
         const destination = response.role === 'manager' ? '/manager-dashboard' : '/dashboard';
         this.router.navigate([destination]);
       },
