@@ -2,7 +2,6 @@ import { Component, inject, AfterViewInit, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { StickyNavbar } from '../../components/sticky-navbar/sticky-navbar';
-import { SiteFooter as HomeFooter } from '../../components/home/site-footer/site-footer';
 import { SiteFooter } from '../../components/rooms/site-footer/site-footer';
 import { RoomsHero } from '../../components/rooms/rooms-hero/rooms-hero';
 import { RoomsFilterComponent } from '../../components/rooms/rooms-filter/rooms-filter';
