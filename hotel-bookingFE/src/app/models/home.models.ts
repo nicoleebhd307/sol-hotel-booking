@@ -21,6 +21,7 @@ export interface AccommodationCard {
 export interface OfferItem {
   title: string;
   active?: boolean;
+  imageUrl?: string;
 }
 
 export interface Testimonial {
@@ -40,6 +41,70 @@ export interface SocialLink {
   label: string;
   icon: string;
   href: string;
+}
+
+export interface RoomAmenity {
+  icon: string;
+  label: string;
+  value: string | number;
+}
+
+export interface RoomCard {
+  id: number;
+  title: string;
+  description: string;
+  imageUrl: string;
+  priceFrom: number;
+  amenities: RoomAmenity[];
+  roomType: string;
+  beds: number;
+  sqft: number;
+  guest: number;
+  viewType: string;
+  featured?: boolean;
+}
+
+// Backend API Models
+export interface Capacity {
+  adults: number;
+  children: number;
+}
+
+export interface RoomType {
+  _id: string;
+  name: string;
+  area: number;
+  price_per_night: number;
+  bed_options: string[];
+  capacity: Capacity;
+  description: string;
+  amenities: string[];
+  rate_includes: string[];
+  service_charge: number;
+  vat: boolean;
+}
+
+export interface Room {
+  _id: string;
+  room_number: string;
+  room_type_id: string;
+  floor: number;
+  status: 'available' | 'booked' | 'maintenance';
+  beach_view: boolean;
+  is_active: boolean;
+  roomType?: RoomType;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+  total?: number;
+}
+
+export interface FilterOption {
+  label: string;
+  options: { name: string; count?: number }[];
 }
 
 export interface HomePageData {

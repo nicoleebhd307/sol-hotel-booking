@@ -1,12 +1,12 @@
 <nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out"
-	[class]="isScrolled() ? 'bg-[#fffbef] shadow-md py-4 md:py-6' : 'bg-transparent py-4 md:py-6'">
+	[class]="isScrolled() ? 'bg-[#ffffff] shadow-md py-4 md:py-6' : 'bg-transparent py-4 md:py-6'">
 	<div class="mx-auto max-w-[1280px] px-8">
 		<div class="flex items-center justify-between relative">
 
 			<!-- Left: Nav Links -->
 			<div class="hidden md:flex items-center gap-10">
 				@for (link of navLinks(); track link.label) {
-					<a [href]="link.href" class="text-sm uppercase tracking-[0.1em] transition-colors duration-300 hover:opacity-70"
+					<a [routerLink]="link.href" class="font-['Plus_Jakarta_Sans',sans-serif] text-sm uppercase tracking-[0.1em] transition-colors duration-300 hover:opacity-70"
 						[class]="isScrolled() ? 'text-[#1a1a1a]' : 'text-white'">{{ link.label }}</a>
 				}
 			</div>
@@ -27,13 +27,21 @@
 					[class]="isScrolled() ? 'text-[#6b7280]' : 'text-white/70'">Beach Resort &amp; Spa</p>
 			</div>
 
-			<!-- Right: Contact + Reserve -->
-			<div class="hidden md:flex items-center gap-6">
-				<a href="#footer" class="text-sm uppercase tracking-[0.1em] transition-colors duration-300 hover:opacity-70"
-					[class]="isScrolled() ? 'text-[#1a1a1a]' : 'text-white'">Contact Us</a>
+			<!-- Right: My Booking (scrolled only) + Contact Us + Reserve -->
+			<div class="hidden md:flex items-center gap-1">
+
+<a routerLink="/find-booking"
+					class="rounded-lg px-4 py-2 font-['Plus_Jakarta_Sans',sans-serif] text-sm uppercase w-[141px] h-10 flex items-center justify-center transition-colors duration-300 hover:opacity-70"
+					[class]="isScrolled() ? 'text-[#1a1a1a]' : 'text-white'"
+											style="letter-spacing:1.7px">My Booking</a>
+				
+				<a href="#footer"
+					class="rounded-lg px-4 py-2 font-['Plus_Jakarta_Sans',sans-serif] text-sm uppercase w-[141px] h-10 flex items-center justify-center transition-colors duration-300 hover:opacity-70"
+					[class]="isScrolled() ? 'text-[#1a1a1a]' : 'text-white'"
+					style="letter-spacing: 2px">Contact Us</a>
 				<a
-					href="#"
-					class="rounded-lg px-8 py-3 font-serif text-sm italic text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+					routerLink="/rooms"
+					class="rounded-lg px-8 py-3 font-['Playfair_Display',serif] text-lg italic text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
 					style="background: linear-gradient(0deg, rgba(199,158,53,1) 0%, rgba(221,188,108,1) 100%)">
 					{{ reserveLabel() }}
 				</a>
@@ -62,7 +70,7 @@
 		<div class="flex flex-col gap-2">
 			@for (link of navLinks(); track link.label) {
 				<a
-					[href]="link.href"
+					[routerLink]="link.href"
 					(click)="closeMenu()"
 					class="rounded-lg px-3 py-2 text-sm uppercase tracking-[0.12em] text-white/90 transition-colors duration-300 hover:bg-white/10"
 				>
@@ -70,9 +78,9 @@
 				</a>
 			}
 			<a
-				href="#"
+				routerLink="/rooms"
 				(click)="closeMenu()"
-				class="mt-2 rounded-lg bg-gradient-to-b from-[#ddbc6c] to-[#c79e35] px-4 py-3 text-center text-sm uppercase tracking-[0.14em] text-white"
+				class="font-['Playfair_Display',serif]  italic  rounded-lg bg-gradient-to-b from-[#ddbc6c] to-[#c79e35] px-4 py-3 text-center text-lg tracking-[0.08em] text-white"
 			>
 				{{ reserveLabel() }}
 			</a>

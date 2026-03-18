@@ -1,11 +1,25 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './pages/home/home';
-import { Rooms } from './pages/rooms/rooms';
-import { RoomDetail } from './pages/room-detail/room-detail';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent },
-  { path: 'rooms', component: Rooms },
-  { path: 'rooms/:id', component: RoomDetail },
+  {
+    path: '',
+    loadComponent: () => import('./pages/home/home').then(m => m.HomeComponent),
+  },
+  {
+    path: 'stories',
+    loadComponent: () => import('./pages/stories/stories').then(m => m.Stories),
+  },
+  {
+    path: 'rooms',
+    loadComponent: () => import('./pages/rooms/rooms').then(m => m.Rooms),
+  },
+  {
+    path: 'rooms/:id',
+    loadComponent: () => import('./pages/room-detail/room-detail').then(m => m.RoomDetail),
+  },
+  {
+    path: 'find-booking',
+    loadComponent: () => import('./pages/find-booking/find-booking').then(m => m.FindBooking),
+  },
   { path: '**', redirectTo: '' },
 ];

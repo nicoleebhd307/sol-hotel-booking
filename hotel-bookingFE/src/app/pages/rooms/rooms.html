@@ -1,1 +1,38 @@
-<p>rooms works!</p>
+<div class="bg-[#f9f7f2] text-[#1a1a1a] h-auto">
+  <!-- Sticky Navbar -->
+  <app-sticky-navbar
+    [navLinks]="navLinks"
+    [logoUrl]="logoUrl"
+    [reserveLabel]="reserveLabel"
+  />
+
+  <!-- Hero Section -->
+  <app-rooms-hero [fields]="availabilityFields" />
+
+  <!-- Filter Bar -->
+  <div class="bg-[#f9f7f2]">
+    <div class="px-4 py-4 mx-auto max-w-7xl">
+      <app-rooms-filter 
+        (filterChange)="onFiltersChange($event)"
+        [resultsCount]="resultCount()"
+        [totalRooms]="totalRooms()"
+      />
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="px-4 pt-0 pb-12 mx-auto max-w-7xl">
+    <!-- Grid Layout -->
+    <app-rooms-grid [rooms]="filteredRooms()" />
+  </div>
+
+  <!-- Experience Section -->
+  <app-experience-section />
+
+  <!-- CTA Banner -->
+  <app-cta-banner />
+
+  <!-- Footer -->
+  <app-site-footer [data]="footerData" />
+</div>
+

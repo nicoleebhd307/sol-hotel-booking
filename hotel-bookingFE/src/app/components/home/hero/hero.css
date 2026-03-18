@@ -3,8 +3,8 @@
 }
 
 .hero-heading {
-  font-size: clamp(2.25rem, 8vw, 4.5rem);
-  line-height: 1.15;
+  font-size: clamp(2rem, 7vw, 4.5rem);
+  line-height: 1.08;
   font-weight: 400;
 }
 
