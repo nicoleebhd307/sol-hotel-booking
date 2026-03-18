@@ -1,10 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, output, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 interface FilterOption {
   label: string;
   key: string;
   options: string[];
+}
+
+export interface FilterState {
+  roomType?: string;
+  priceRange?: string;
+  guests?: string;
+  view?: string;
 }
 
 @Component({
@@ -18,7 +25,7 @@ export class RoomsFilterComponent {
     {
       key: 'roomType',
       label: 'Room Type',
-      options: ['Deluxe Room', 'Suite', 'Penthouse']
+      options: ['Deluxe', 'Suite']
     },
     {
       key: 'priceRange',
@@ -28,25 +35,38 @@ export class RoomsFilterComponent {
     {
       key: 'guests',
       label: 'Guests',
-      options: ['1 Guest', '2 Guests', '3-4 Guests', '5+ Guests']
+      options: ['1-2', '2-3', '3-4', '4+']
     },
     {
       key: 'view',
       label: 'View',
-      options: ['Ocean Front', 'Garden View', 'City View']
+      options: ['Ocean View', 'Garden View', 'Lagoon View']
     }
   ];
 
-  selectedFilters: Map<string, string> = new Map();
-  resultsText = 'Showing 12 of 48 results';
+  readonly resultsCount = input<number>(0);
+  readonly totalRooms = input<number>(0);
+  
+  readonly filterChange = output<FilterState>();
 
-  onFilterChange(key: string, event: Event): void {
+  private selectedFilters: FilterState = {};
+
+  onFilterChange(key: any, event: Event): void {
     const target = event.target as HTMLSelectElement;
     const value = target.value;
+
+    const newFilters: any = { ...this.selectedFilters };
     if (value) {
-      this.selectedFilters.set(key, value);
+      newFilters[key] = value;
     } else {
-      this.selectedFilters.delete(key);
+      delete newFilters[key];
     }
+    this.selectedFilters = newFilters;
+
+    this.filterChange.emit(this.selectedFilters);
+  }
+
+  get resultsText(): string {
+    return `Showing ${this.resultsCount()} of ${this.totalRooms()} results`;
   }
 }

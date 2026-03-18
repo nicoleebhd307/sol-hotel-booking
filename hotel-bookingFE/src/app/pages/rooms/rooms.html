@@ -12,14 +12,18 @@
   <!-- Filter Bar -->
   <div class="bg-[#f9f7f2]">
     <div class="px-4 py-4 mx-auto max-w-7xl">
-      <app-rooms-filter />
+      <app-rooms-filter 
+        (filterChange)="onFiltersChange($event)"
+        [resultsCount]="resultCount()"
+        [totalRooms]="totalRooms()"
+      />
     </div>
   </div>
 
   <!-- Main Content -->
   <div class="px-4 pt-0 pb-12 mx-auto max-w-7xl">
     <!-- Grid Layout -->
-    <app-rooms-grid [rooms]="roomsList" />
+    <app-rooms-grid [rooms]="filteredRooms()" />
   </div>
 
   <!-- Experience Section -->
