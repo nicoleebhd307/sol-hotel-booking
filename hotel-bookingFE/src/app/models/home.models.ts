@@ -21,6 +21,7 @@ export interface AccommodationCard {
 export interface OfferItem {
   title: string;
   active?: boolean;
+  imageUrl?: string;
 }
 
 export interface Testimonial {

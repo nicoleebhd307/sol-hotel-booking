@@ -1,30 +1,37 @@
 <section
 	id="intro"
 	class="relative overflow-hidden py-32 reveal-up"
-	style="background: url('https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1600&q=80') center / cover no-repeat;"
 >
-	<!-- Warm overlay -->
-	<div class="absolute inset-0" style="background: rgba(255,251,239,0.82);"></div>
+	<!-- Background image with warm tint -->
+	<div
+		class="absolute inset-0"
+		[style.background-image]="'url(' + data().backgroundImageUrl + ')'"
+		style="background-size: cover; background-position: center; background-repeat: no-repeat;"
+	></div>
+	<div class="absolute inset-0" style="background: rgba(255,251,239,0.88);"></div>
 
 	<div class="relative mx-auto flex max-w-4xl flex-col items-center text-center px-4">
+		<!-- Logo -->
 		<img
 			[src]="data().logoUrl"
-			alt="Resort logo"
-			class="h-16 w-28 rounded object-cover"
+			alt="Sol An Bang logo"
+			class="h-16 w-[109px] object-cover"
 		/>
 
-		<div class="mt-8 space-y-0">
-			<h2 class="font-sans text-5xl leading-[72px] text-[#1a1a1a]">
-				Sol An Bang Beach Resort &amp; Spa
+		<!-- Heading block -->
+		<div class="mt-8 flex flex-col items-center gap-0 max-w-[882px]">
+			<h2 class="text-5xl leading-[72px] text-[#1a1a1a]" style="font-family: 'Playfair Display', serif; font-weight: 400;">
+				{{ data().heading }}
 			</h2>
-			<p class="font-serif text-5xl leading-[72px] text-[#1a1a1a] italic">
-				– A Beachfront Hideaway Amidst Pristine Casuarina Forests
+			<p class="text-5xl leading-[72px] text-[#1a1a1a] italic" style="font-family: 'Playfair Display', serif; font-weight: 400;">
+				– {{ data().subHeading }}
 			</p>
 		</div>
 
+		<!-- Discover More CTA -->
 		<button
-			class="mt-12 rounded-lg px-8 py-3 font-serif text-lg italic text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
-			style="background: linear-gradient(0deg, rgba(199,158,53,1) 0%, rgba(221,188,108,1) 100%);"
+			class="mt-12 rounded-lg px-8 py-3 text-lg text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg active:scale-95"
+			style="background: linear-gradient(0deg, rgba(199,158,53,1) 0%, rgba(221,188,108,1) 100%); font-family: 'Playfair Display', serif; font-style: italic;"
 		>
 			Discover More
 		</button>

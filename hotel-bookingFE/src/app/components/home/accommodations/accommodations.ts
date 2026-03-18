@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
+import { NgClass } from '@angular/common';
 import { input } from '@angular/core';
 import { AccommodationCard } from '../../../models/home.models';
 
 @Component({
   selector: 'app-accommodations',
-  imports: [MatIconModule],
+  imports: [NgClass],
   templateUrl: './accommodations.html',
   styleUrl: './accommodations.css',
 })
