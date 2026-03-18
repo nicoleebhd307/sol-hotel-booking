@@ -63,6 +63,44 @@ export interface RoomCard {
   featured?: boolean;
 }
 
+// Backend API Models
+export interface Capacity {
+  adults: number;
+  children: number;
+}
+
+export interface RoomType {
+  _id: string;
+  name: string;
+  area: number;
+  price_per_night: number;
+  bed_options: string[];
+  capacity: Capacity;
+  description: string;
+  amenities: string[];
+  rate_includes: string[];
+  service_charge: number;
+  vat: boolean;
+}
+
+export interface Room {
+  _id: string;
+  room_number: string;
+  room_type_id: string;
+  floor: number;
+  status: 'available' | 'booked' | 'maintenance';
+  beach_view: boolean;
+  is_active: boolean;
+  roomType?: RoomType;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+  total?: number;
+}
+
 export interface FilterOption {
   label: string;
   options: { name: string; count?: number }[];
