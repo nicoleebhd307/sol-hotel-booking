@@ -53,6 +53,32 @@ export class RoomsContent {
       guest: 4,
       viewType: 'Ocean Front',
       amenities: []
+    },
+    {
+      id: 4,
+      title: 'Tropical Garden Deluxe',
+      description: 'Surrounded by lush tropical gardens with direct access to the spa facilities and wellness center.',
+      imageUrl: '/assets/images/Scenic Ocean View.png',
+      priceFrom: 750,
+      roomType: 'Deluxe',
+      beds: 2,
+      sqft: 480,
+      guest: 2,
+      viewType: 'Garden View',
+      amenities: []
+    },
+    {
+      id: 5,
+      title: 'Lagoon Escape Suite',
+      description: 'Intimate suite with direct lagoon views and private beach access, perfect for romantic getaways.',
+      imageUrl: '/assets/images/Garden Lanai Suite.png',
+      priceFrom: 950,
+      roomType: 'Suite',
+      beds: 1,
+      sqft: 420,
+      guest: 2,
+      viewType: 'Lagoon View',
+      amenities: []
     }
   ];
 
