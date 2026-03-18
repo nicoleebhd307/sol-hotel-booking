@@ -1,0 +1,7 @@
+<div class="px-6 py-16 mx-auto max-w-6xl">
+  <h2 class="font-serif text-4xl italic text-center mb-12">Related Accommodations</h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <app-room-card *ngFor="let room of relatedRooms()" [room]="room" />
+  </div>
+</div>

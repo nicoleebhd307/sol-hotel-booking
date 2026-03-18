@@ -1,0 +1,65 @@
+<div class="bg-white">
+  <!-- Hero Image with Overlay -->
+  <div class="relative h-96 overflow-hidden">
+    <img [src]="room().imageUrl" [alt]="room().title" class="w-full h-full object-cover" />
+    <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+    <div class="absolute bottom-6 left-6 text-white">
+      <span class="text-sm font-medium opacity-80">{{ room().viewType }}</span>
+      <h1 class="font-serif text-5xl italic">{{ room().roomType }}-Room</h1>
+    </div>
+  </div>
+
+  <!-- Content Layout: 2 columns -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 px-6 py-12 mx-auto max-w-6xl">
+    <!-- Left: Description -->
+    <div class="lg:col-span-2">
+      <h2 class="font-serif text-3xl mb-4">{{ room().title }}</h2>
+      <p class="text-[#6b7280] text-base leading-relaxed mb-8">{{ room().description }}</p>
+
+      <!-- Amenities Section -->
+      <div class="mt-12">
+        <h3 class="font-serif text-2xl mb-6">Amenities</h3>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="flex items-center gap-3" *ngFor="let amenity of room().amenities">
+            <mat-icon class="text-[#d4a574]">check_circle</mat-icon>
+            <span class="text-sm">{{ amenity.label || amenity.value }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Price/Booking -->
+    <div class="bg-[#f9f7f2] rounded-lg p-8 h-fit">
+      <div class="text-right mb-6">
+        <span class="text-xs text-[#6b7280] uppercase tracking-wide">FROM</span>
+        <div class="font-serif text-5xl text-[#d4a574]">${{ room().priceFrom }}</div>
+        <span class="text-sm text-[#6b7280]">Per Night</span>
+      </div>
+
+      <!-- Room Details -->
+      <div class="space-y-4 border-t border-b border-[#d4a574] py-4 mb-6">
+        <div class="flex justify-between text-sm">
+          <span class="text-[#6b7280]">Beds:</span>
+          <span>{{ room().beds }} {{ room().beds === 1 ? 'Bed' : 'Beds' }}</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span class="text-[#6b7280]">Size:</span>
+          <span>{{ room().sqft }} sqft</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span class="text-[#6b7280]">Guests:</span>
+          <span>{{ room().guest }}</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span class="text-[#6b7280]">View:</span>
+          <span>{{ room().viewType }}</span>
+        </div>
+      </div>
+
+      <!-- Booking Button -->
+      <button class="w-full bg-[#d4a574] text-white py-3 rounded-lg font-serif italic hover:bg-[#c49460] transition-colors">
+        Book Now
+      </button>
+    </div>
+  </div>
+</div>

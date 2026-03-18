@@ -1,1 +1,45 @@
-<p>room-detail works!</p>
+<div class="bg-[#f9f7f2] text-[#1a1a1a] min-h-screen">
+  <!-- Sticky Navbar -->
+  <app-sticky-navbar
+    [navLinks]="navLinks"
+    [logoUrl]="logoUrl"
+    [reserveLabel]="reserveLabel"
+  />
+
+  <!-- Hero Section with Details -->
+  <app-room-detail-hero [room]="selectedRoom" />
+
+  <!-- A Closer Look Section -->
+  <app-closer-look />
+
+  <!-- The Sol An Bang Experience Section -->
+  <div class="px-4 py-16 mx-auto max-w-7xl">
+    <h2 class="font-serif text-4xl italic text-center mb-12">The Sol An Bang <span class="font-normal">Experience</span></h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="relative overflow-hidden rounded-lg h-64 group cursor-pointer">
+        <img src="/assets/images/experience-1.jpg" alt="Beach" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
+      </div>
+      <div class="relative overflow-hidden rounded-lg h-64 group cursor-pointer">
+        <img src="/assets/images/experience-2.jpg" alt="Spa" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
+      </div>
+      <div class="relative overflow-hidden rounded-lg h-64 group cursor-pointer">
+        <img src="/assets/images/experience-3.jpg" alt="Wellness" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related Accommodations -->
+  <app-related-rooms [rooms]="rooms" />
+
+  <!-- Stay Guidelines -->
+  <app-stay-guidelines />
+
+  <!-- CTA Banner -->
+  <app-cta-banner />
+
+  <!-- Footer -->
+  <app-site-footer [data]="footerData" />
+</div>
