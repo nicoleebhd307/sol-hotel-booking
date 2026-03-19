@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Room, RoomType } from '../models/home.models';
+import { Room, RoomType, ServiceItem } from '../models/home.models';
 
 @Injectable({
   providedIn: 'root'
@@ -34,6 +34,11 @@ export class ApiService {
     let params = new HttpParams().set('checkIn', checkIn).set('checkOut', checkOut);
     if (roomTypeId) params = params.set('roomTypeId', roomTypeId);
     return this.http.get<{ checkIn: string; checkOut: string; count: number; rooms: Room[] }>(`${this.API_URL}/rooms/available`, { params });
+  }
+
+  // Services
+  getServices(): Observable<ServiceItem[]> {
+    return this.http.get<ServiceItem[]>(`${this.API_URL}/services`);
   }
 
   // Health check

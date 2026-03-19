@@ -101,6 +101,12 @@ export interface Room {
   roomType?: RoomType;
 }
 
+export interface ServiceItem {
+  _id: string;
+  title: string;
+  imageUrl: string;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data: T;

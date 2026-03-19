@@ -1,10 +1,15 @@
-import { Injectable } from '@angular/core';
-import { HomePageData } from '../models/home.models';
+import { Injectable, inject } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { HomePageData, AccommodationCard, RoomType } from '../models/home.models';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HomeContent {
+  private readonly apiService = inject(ApiService);
+
   getHomePageData(): HomePageData {
     return {
       hero: {
@@ -153,5 +158,26 @@ export class HomeContent {
         ],
       },
     };
+  }
+
+  getAccommodationsFromAPI(): Observable<AccommodationCard[]> {
+    return this.apiService.getRoomTypes().pipe(
+      map((roomTypes) => this.mapRoomTypesToAccommodations(roomTypes)),
+      catchError(() => of(this.getHomePageData().accommodations))
+    );
+  }
+
+  private mapRoomTypesToAccommodations(roomTypes: RoomType[]): AccommodationCard[] {
+    return roomTypes.map((rt, index) => {
+      const firstImage = rt.images?.[0] || rt.image?.[0] || '';
+      return {
+        title: rt.name,
+        description: rt.description,
+        imageUrl: firstImage,
+        primaryAction: 'Details',
+        secondaryAction: index === 1 ? 'Book Now' : 'Explore More',
+        featured: index === 1,
+      };
+    });
   }
 }
