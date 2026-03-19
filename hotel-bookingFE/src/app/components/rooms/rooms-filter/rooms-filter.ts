@@ -40,7 +40,7 @@ export class RoomsFilterComponent {
     {
       key: 'view',
       label: 'View',
-      options: ['Ocean View', 'Garden View', 'Lagoon View']
+      options: ['Sea View', 'Street View', 'Ocean View', 'Garden View', 'Lagoon View', 'No View']
     }
   ];
 

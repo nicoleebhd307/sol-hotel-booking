@@ -6,39 +6,45 @@
     [reserveLabel]="reserveLabel"
   />
 
-  <!-- Hero Section with Details -->
-  <app-room-detail-hero [room]="selectedRoom" />
+  @if (selectedRoom(); as room) {
+    <!-- Hero Section with Details -->
+    <app-room-detail-hero [room]="room" [roomType]="selectedRoomType()" />
 
-  <!-- A Closer Look Section -->
-  <app-closer-look />
+    <!-- A Closer Look Section -->
+    <app-closer-look />
 
-  <!-- The Sol An Bang Experience Section -->
-  <div class="px-4 py-16 mx-auto max-w-7xl">
-    <h2 class="font-serif text-4xl italic text-center mb-12">The Sol An Bang <span class="font-normal">Experience</span></h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="relative overflow-hidden rounded-lg h-64 group cursor-pointer">
-        <img src="https://solanbang.com/wp-content/uploads/2025/03/Sol-An-Bang-_-Beach-Bar-1-scaled.jpg" alt="Beach" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
-      </div>
-      <div class="relative overflow-hidden rounded-lg h-64 group cursor-pointer">
-        <img src="https://solanbang.com/wp-content/uploads/2025/05/Sol-Spa-Gym-6.jpg" alt="Spa" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
-      </div>
-      <div class="relative overflow-hidden rounded-lg h-64 group cursor-pointer">
-        <img src="https://solanbang.com/wp-content/uploads/2025/03/Sol-An-Bang-_-Array-of-Breakfast-Options-3-scaled.jpg" alt="Fine dining" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
-      </div>
+    <!-- The Sol An Bang Experience Section -->
+    <div class="px-4 py-16 mx-auto max-w-7xl">
+      <h2 class="font-serif text-4xl italic text-center mb-12">The Sol An Bang <span class="font-normal">Experience</span></h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="relative overflow-hidden rounded-lg h-64 group cursor-pointer">
+          <img src="https://solanbang.com/wp-content/uploads/2025/03/Sol-An-Bang-_-Beach-Bar-1-scaled.jpg" alt="Beach" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
+        </div>
+        <div class="relative overflow-hidden rounded-lg h-64 group cursor-pointer">
+          <img src="https://solanbang.com/wp-content/uploads/2025/05/Sol-Spa-Gym-6.jpg" alt="Spa" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
+        </div>
+        <div class="relative overflow-hidden rounded-lg h-64 group cursor-pointer">
+          <img src="https://solanbang.com/wp-content/uploads/2025/03/Sol-An-Bang-_-Array-of-Breakfast-Options-3-scaled.jpg" alt="Fine dining" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
+        </div>
     </div>
   </div>
 
   <!-- Related Accommodations -->
-  <app-related-rooms [rooms]="rooms" />
+  <app-related-rooms [rooms]="relatedRooms()" />
 
   <!-- Stay Guidelines -->
   <app-stay-guidelines />
 
   <!-- CTA Banner -->
-  <app-cta-banner />
+  
+  } @else if (isLoading()) {
+    <div class="flex items-center justify-center min-h-[50vh]">
+      <p class="font-serif text-xl text-[#6b7280]">Loading room details...</p>
+    </div>
+  }
 
   <!-- Footer -->
   <app-site-footer [data]="footerData" />

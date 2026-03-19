@@ -51,6 +51,7 @@ export interface RoomAmenity {
 
 export interface RoomCard {
   id: number;
+  roomTypeId?: string;
   title: string;
   description: string;
   imageUrl: string;
@@ -58,8 +59,11 @@ export interface RoomCard {
   amenities: RoomAmenity[];
   roomType: string;
   beds: number;
+  bedOptions: string[];
   sqft: number;
   guest: number;
+  capacityAdults: number;
+  capacityChildren: number;
   viewType: string;
   featured?: boolean;
 }
@@ -77,12 +81,14 @@ export interface RoomType {
   price_per_night: number;
   bed_options: string[];
   capacity: Capacity;
+  view?: string;
   description: string;
+  image?: string[];
+  images?: string[];
   amenities: string[];
   rate_includes: string[];
   service_charge: number;
   vat: boolean;
-  image?: string[];
 }
 
 export interface Room {
@@ -94,6 +100,12 @@ export interface Room {
   beach_view: boolean;
   is_active: boolean;
   roomType?: RoomType;
+}
+
+export interface ServiceItem {
+  _id: string;
+  title: string;
+  imageUrl: string;
 }
 
 export interface ApiResponse<T> {

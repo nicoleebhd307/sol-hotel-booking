@@ -8,13 +8,29 @@
       </p>
     </div>
 
-    <!-- Image -->
-    <div class="w-full h-64 md:h-80 overflow-hidden rounded-lg shadow-lg">
-      <img
-        src="/assets/images/golf-course.jpg"
-        alt="Curated Experiences"
-        class="w-full h-full object-cover"
-      />
-    </div>
+    @if (services().length > 0) {
+      <div class="experience-marquee rounded-xl border border-[#e8e2d4] bg-white/70 py-4">
+        <div class="experience-track">
+          @for (item of loopedServices(); track $index) {
+            <article class="experience-card">
+              <img
+                [src]="item.imageUrl"
+                [alt]="item.title"
+                class="experience-image"
+              />
+              <h3 class="experience-title">{{ item.title }}</h3>
+            </article>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="w-full h-64 md:h-80 overflow-hidden rounded-lg shadow-lg">
+        <img
+          src="/assets/images/golf-course.jpg"
+          alt="Curated Experiences"
+          class="w-full h-full object-cover"
+        />
+      </div>
+    }
   </div>
 </section>
