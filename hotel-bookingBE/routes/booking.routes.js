@@ -24,6 +24,23 @@ function nextDraftId() {
   return `DR-${String(max + 1).padStart(4, '0')}`;
 }
 
+function normalizeStatus(status) {
+  if (status === 'completed') {
+    return 'checked_out';
+  }
+  return status;
+}
+
+const VALID_STATUSES = new Set(['pending', 'confirmed', 'checked_in', 'checked_out', 'cancelled']);
+
+const STATUS_TRANSITIONS = {
+  pending: new Set(['confirmed', 'cancelled']),
+  confirmed: new Set(['checked_in', 'cancelled']),
+  checked_in: new Set(['checked_out']),
+  checked_out: new Set([]),
+  cancelled: new Set([]),
+};
+
 router.get('/', (req, res) => {
   res.json(BOOKINGS_MOCK);
 });
@@ -187,6 +204,28 @@ router.patch('/:id', (req, res) => {
   }
 
   const allowedFields = ['status', 'note', 'extraCharge', 'depositAmount', 'totalPrice'];
+
+  if (req.body.status !== undefined) {
+    const currentStatus = normalizeStatus(booking.status);
+    const nextStatus = normalizeStatus(req.body.status);
+
+    if (!VALID_STATUSES.has(nextStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid booking status',
+      });
+    }
+
+    if (currentStatus !== nextStatus && !STATUS_TRANSITIONS[currentStatus]?.has(nextStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid status transition: ${currentStatus} -> ${nextStatus}`,
+      });
+    }
+
+    req.body.status = nextStatus;
+    booking.status = currentStatus;
+  }
 
   allowedFields.forEach((field) => {
     if (req.body[field] !== undefined) {

@@ -121,7 +121,7 @@ const BASE_BOOKINGS = [
     totalPrice: 720,
     depositAmount: 720,
     extraCharge: 0,
-    status: 'completed',
+    status: 'checked_out',
     note: 'Airport transfer included',
     createdAt: '2026-03-06',
   },
