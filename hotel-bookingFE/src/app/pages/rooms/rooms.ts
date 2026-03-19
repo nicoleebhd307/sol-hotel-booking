@@ -1,15 +1,18 @@
-import { Component, inject, AfterViewInit, PLATFORM_ID, signal, computed } from '@angular/core';
+import { Component, inject, AfterViewInit, PLATFORM_ID, signal, computed, OnInit, DestroyRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { StickyNavbar } from '../../components/sticky-navbar/sticky-navbar';
-import { SiteFooter } from '../../components/rooms/site-footer/site-footer';
+
 import { RoomsHero } from '../../components/rooms/rooms-hero/rooms-hero';
 import { RoomsFilterComponent, FilterState } from '../../components/rooms/rooms-filter/rooms-filter';
 import { RoomsGridComponent } from '../../components/rooms/rooms-grid/rooms-grid';
 import { ExperienceSection } from '../../components/rooms/experience-section/experience-section';
-import { CtaBanner } from '../../components/rooms/cta-banner/cta-banner';
 import { RoomsContent } from '../../services/rooms-content';
 import { HomeContent } from '../../services/home-content';
+import { RoomCard } from '../../models/home.models';
+import { SiteFooter } from '../../components/site-footer/site-footer';
+import { BookingCta } from '../../components/home/booking-cta/booking-cta';
 
 @Component({
   selector: 'app-rooms',
@@ -20,19 +23,21 @@ import { HomeContent } from '../../services/home-content';
     RoomsFilterComponent,
     RoomsGridComponent,
     ExperienceSection,
-    CtaBanner,
+    BookingCta,
     SiteFooter
   ],
   templateUrl: './rooms.html',
   styleUrl: './rooms.css',
 })
-export class Rooms implements AfterViewInit {
+export class Rooms implements OnInit, AfterViewInit {
   private readonly roomsContent = inject(RoomsContent);
   private readonly homeContent = inject(HomeContent);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly roomsList = this.roomsContent.getRoomsData();
+  protected readonly roomsList = signal<RoomCard[]>([]);
   protected readonly footerData = this.homeContent.getHomePageData().footer;
+  protected readonly bookingCtaData = this.homeContent.getHomePageData().bookingCta;
   protected readonly navLinks = this.homeContent.getHomePageData().hero.navLinks;
   protected readonly logoUrl = this.homeContent.getHomePageData().hero.logoUrl;
   protected readonly reserveLabel = this.homeContent.getHomePageData().hero.reserveLabel;
@@ -42,11 +47,18 @@ export class Rooms implements AfterViewInit {
 
   protected readonly filteredRooms = computed(() => {
     const activeFilters = this.filters();
-    return this.roomsList.filter(room => this.matchesFilters(room, activeFilters));
+    return this.roomsList().filter(room => this.matchesFilters(room, activeFilters));
   });
 
   protected readonly resultCount = computed(() => this.filteredRooms().length);
-  protected readonly totalRooms = computed(() => this.roomsList.length);
+  protected readonly totalRooms = computed(() => this.roomsList().length);
+
+  ngOnInit(): void {
+    this.roomsContent
+      .getRoomsDataFromAPI()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((rooms) => this.roomsList.set(rooms));
+  }
 
   onFiltersChange(filters: FilterState): void {
     this.filters.set(filters);

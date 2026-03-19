@@ -10,7 +10,10 @@ const RoomTypeSchema = new mongoose.Schema(
       adults: { type: Number, default: 1, min: 0 },
       children: { type: Number, default: 0, min: 0 }
     },
+    view: { type: String, default: 'none', trim: true },
     description: { type: String, default: '' },
+    image: { type: [String], default: [] },
+    images: { type: [String], default: [] },
     amenities: { type: [String], default: [] },
     rate_includes: { type: [String], default: [] },
     service_charge: { type: Number, default: 5, min: 0 },
