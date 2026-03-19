@@ -1,7 +1,7 @@
 export type BookingRole = 'receptionist' | 'manager';
 
 export type PaymentStatus = 'Paid' | 'Partial' | 'Unpaid';
-export type BookingStatus = 'Confirmed' | 'Pending' | 'Cancelled' | 'Completed' | 'Checked In' | 'Checked Out';
+export type BookingStatus = 'Confirmed' | 'Pending' | 'Cancelled' | 'Checked In' | 'Checked Out';
 
 export interface Booking {
   _id: string;

@@ -37,7 +37,6 @@ import { BookingFilterParams } from '../../models/booking.model';
             <option value="Confirmed">Confirmed</option>
             <option value="Pending">Pending</option>
             <option value="Cancelled">Cancelled</option>
-            <option value="Completed">Completed</option>
             <option value="Checked In">Checked In</option>
             <option value="Checked Out">Checked Out</option>
           </select>

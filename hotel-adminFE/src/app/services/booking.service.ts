@@ -231,10 +231,9 @@ export class BookingService {
         return 'Pending';
       case 'cancelled':
         return 'Cancelled';
-      case 'completed':
-        return 'Completed';
       case 'checked_in':
         return 'Checked In';
+      case 'completed':
       case 'checked_out':
         return 'Checked Out';
       default:

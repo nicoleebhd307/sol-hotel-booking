@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { BookingRole, BookingView } from '../../models/booking.model';
+import { BookingRole, BookingStatus, BookingView } from '../../models/booking.model';
 import { BookingRowComponent } from '../booking-row/booking-row.component';
 
 @Component({
@@ -9,7 +9,7 @@ import { BookingRowComponent } from '../booking-row/booking-row.component';
   imports: [CommonModule, BookingRowComponent],
   template: `
     <div class="overflow-x-auto">
-      <table class="w-full min-w-[920px]">
+      <table class="w-full min-w-[1080px]">
         <thead class="bg-[#f6f4ed] text-[#6f6a5e] text-[11px] uppercase tracking-[0.6px] font-semibold">
           <tr>
             <th class="py-4 px-4 text-left">Booking ID</th>
@@ -36,9 +36,9 @@ import { BookingRowComponent } from '../booking-row/booking-row.component';
             *ngFor="let booking of bookings; trackBy: trackByBookingId"
             [booking]="booking"
             [role]="role"
+            [statusUpdating]="statusUpdatingIds.includes(booking.id)"
             (view)="view.emit($event)"
-            (checkIn)="checkIn.emit($event)"
-            (edit)="edit.emit($event)"
+            (statusChange)="statusChange.emit($event)"
             (delete)="delete.emit($event)"
             class="border-b last:border-b-0 border-[rgba(213,204,186,0.42)]"
           ></tr>
@@ -51,10 +51,10 @@ export class BookingTableComponent {
   @Input() bookings: BookingView[] = [];
   @Input() loading = false;
   @Input() role: BookingRole = 'receptionist';
+  @Input() statusUpdatingIds: string[] = [];
 
   @Output() view = new EventEmitter<BookingView>();
-  @Output() checkIn = new EventEmitter<BookingView>();
-  @Output() edit = new EventEmitter<BookingView>();
+  @Output() statusChange = new EventEmitter<{ booking: BookingView; status: BookingStatus }>();
   @Output() delete = new EventEmitter<BookingView>();
 
   trackByBookingId(_: number, booking: BookingView): string {
