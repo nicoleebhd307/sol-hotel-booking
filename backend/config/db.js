@@ -14,7 +14,7 @@ const connectDb = async () => {
   }
 
   try {
-    await mongoose.connect(uri, { dbName });
+    await mongoose.connect(uri);
     console.log(`Connected to MongoDB Atlas — database: ${dbName}`);
   } catch (err) {
     console.error('Failed to connect to MongoDB:', err.message);
