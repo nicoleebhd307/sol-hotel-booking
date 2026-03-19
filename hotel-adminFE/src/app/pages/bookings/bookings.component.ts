@@ -24,6 +24,37 @@ import { BookingService } from '../../services/booking.service';
     PaginationComponent,
   ],
   templateUrl: './bookings.component.html',
+  styles: [
+    `
+      .booking-modal-overlay {
+        animation: bookingOverlayFadeIn 180ms ease-out;
+      }
+
+      .booking-modal-panel {
+        animation: bookingPanelEnter 220ms ease-out;
+      }
+
+      @keyframes bookingOverlayFadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes bookingPanelEnter {
+        from {
+          opacity: 0;
+          transform: translateY(8px) scale(0.985);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+    `,
+  ],
 })
 export class BookingsComponent implements OnInit {
   role: BookingRole = 'receptionist';
@@ -38,6 +69,8 @@ export class BookingsComponent implements OnInit {
   selectedBooking: Booking | null = null;
   selectedBookingView: BookingView | null = null;
   pendingDeleteBooking: BookingView | null = null;
+  pendingCancelStatusChange: { booking: BookingView; status: BookingStatus } | null = null;
+  private statusUpdatingIds = new Set<string>();
 
   userInfo = {
     name: 'Hotel Staff',
@@ -62,6 +95,50 @@ export class BookingsComponent implements OnInit {
 
   get totalBookings(): number {
     return this.allBookings.length;
+  }
+
+  get statusUpdatingList(): string[] {
+    return Array.from(this.statusUpdatingIds);
+  }
+
+  get selectedBookingNights(): number {
+    if (!this.selectedBooking) {
+      return 0;
+    }
+
+    const checkIn = new Date(this.selectedBooking.check_in).getTime();
+    const checkOut = new Date(this.selectedBooking.check_out).getTime();
+    const diff = Math.ceil((checkOut - checkIn) / 86400000);
+
+    return Number.isFinite(diff) && diff > 0 ? diff : 1;
+  }
+
+  get selectedRoomPricePerNight(): number {
+    if (!this.selectedBooking) {
+      return 0;
+    }
+
+    return Number(this.selectedBooking.rooms?.[0]?.price_per_night || 0);
+  }
+
+  get selectedBookingSubtotal(): number {
+    if (!this.selectedBooking) {
+      return 0;
+    }
+
+    const subtotal = this.selectedRoomPricePerNight * this.selectedBookingNights;
+    if (subtotal > 0) {
+      return subtotal;
+    }
+
+    return Math.max(0, Number(this.selectedBooking.totalPrice || 0) - Number(this.selectedBooking.extraCharge || 0));
+  }
+
+  get cancelStatusChangeLoading(): boolean {
+    if (!this.pendingCancelStatusChange) {
+      return false;
+    }
+    return this.statusUpdatingIds.has(this.pendingCancelStatusChange.booking.id);
   }
 
   loadBookings(): void {
@@ -127,7 +204,12 @@ export class BookingsComponent implements OnInit {
   }
 
   onCheckInBooking(booking: BookingView): void {
-    this.bookingService.updateBooking(booking.id, { status: 'checked_in' }).subscribe({
+    const nextStatus = this.getReceptionistNextStatus(booking.status);
+    if (!nextStatus) {
+      return;
+    }
+
+    this.bookingService.updateBooking(booking.id, { status: nextStatus }).subscribe({
       next: () => {
         this.loadBookings();
         if (this.selectedBooking?._id === booking.id) {
@@ -138,12 +220,72 @@ export class BookingsComponent implements OnInit {
   }
 
   onEditBooking(booking: BookingView): void {
-    this.bookingService.updateBooking(booking.id, { status: 'completed' }).subscribe({
+    const nextStatus = this.getManagerNextStatus(booking.status);
+    if (!nextStatus) {
+      return;
+    }
+
+    this.bookingService.updateBooking(booking.id, { status: nextStatus }).subscribe({
       next: () => {
         this.loadBookings();
         if (this.selectedBooking?._id === booking.id) {
           this.onViewBooking(booking);
         }
+      },
+    });
+  }
+
+  onStatusChange(event: { booking: BookingView; status: BookingStatus }): void {
+    if (event.status === 'Cancelled') {
+      this.pendingCancelStatusChange = event;
+      return;
+    }
+
+    this.submitStatusChange(event);
+  }
+
+  cancelStatusChange(): void {
+    if (this.cancelStatusChangeLoading) {
+      return;
+    }
+
+    this.pendingCancelStatusChange = null;
+  }
+
+  confirmStatusChange(): void {
+    if (!this.pendingCancelStatusChange || this.cancelStatusChangeLoading) {
+      return;
+    }
+
+    const event = this.pendingCancelStatusChange;
+    this.submitStatusChange(event, () => {
+      this.pendingCancelStatusChange = null;
+    });
+  }
+
+  private submitStatusChange(event: { booking: BookingView; status: BookingStatus }, onSuccess?: () => void): void {
+    const bookingId = event.booking.id;
+    const nextStatus = this.toApiStatus(event.status);
+
+    if (!nextStatus || this.statusUpdatingIds.has(bookingId)) {
+      return;
+    }
+
+    this.statusUpdatingIds.add(bookingId);
+
+    this.bookingService.updateBooking(bookingId, { status: nextStatus }).subscribe({
+      next: () => {
+        this.statusUpdatingIds.delete(bookingId);
+        if (onSuccess) {
+          onSuccess();
+        }
+        this.loadBookings();
+        if (this.selectedBooking?._id === bookingId) {
+          this.onViewBooking(event.booking);
+        }
+      },
+      error: () => {
+        this.statusUpdatingIds.delete(bookingId);
       },
     });
   }
@@ -271,15 +413,54 @@ export class BookingsComponent implements OnInit {
         return 'Pending';
       case 'cancelled':
         return 'Cancelled';
-      case 'completed':
-        return 'Completed';
       case 'checked_in':
         return 'Checked In';
+      case 'completed':
       case 'checked_out':
         return 'Checked Out';
       default:
         return 'Pending';
     }
+  }
+
+  private toApiStatus(status: BookingStatus): string {
+    switch (status) {
+      case 'Pending':
+        return 'pending';
+      case 'Confirmed':
+        return 'confirmed';
+      case 'Cancelled':
+        return 'cancelled';
+      case 'Checked In':
+        return 'checked_in';
+      case 'Checked Out':
+        return 'checked_out';
+      default:
+        return 'pending';
+    }
+  }
+
+  private getReceptionistNextStatus(status: BookingStatus): string | null {
+    if (status === 'Confirmed') {
+      return 'checked_in';
+    }
+    if (status === 'Checked In') {
+      return 'checked_out';
+    }
+    return null;
+  }
+
+  private getManagerNextStatus(status: BookingStatus): string | null {
+    if (status === 'Pending') {
+      return 'confirmed';
+    }
+    if (status === 'Confirmed') {
+      return 'checked_in';
+    }
+    if (status === 'Checked In') {
+      return 'checked_out';
+    }
+    return null;
   }
 
   private mapRoomType(roomId: string): string {
