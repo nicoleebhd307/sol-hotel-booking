@@ -1,0 +1,37 @@
+<div class="bg-[#f9f7f2] text-[#1a1a1a] h-auto flex flex-col min-h-screen">
+  <!-- Sticky Navbar -->
+  <app-sticky-navbar
+    [navLinks]="navLinks"
+    [logoUrl]="logoUrl"
+    [reserveLabel]="reserveLabel"
+  />
+
+  <!-- Booking Detail Content -->
+  <div class="flex-1 py-12 px-4">
+    <div class="max-w-4xl mx-auto">
+      <!-- Back Button -->
+      <button
+        (click)="goBack()"
+        class="mb-8 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
+      >
+        ← Back to Search
+      </button>
+
+      <!-- Placeholder Content -->
+      <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+        <h1 class="font-serif text-3xl mb-4">Booking Details</h1>
+        <p class="text-gray-600 mb-6">
+          Booking details will be displayed here after a successful search.
+        </p>
+        <div class="bg-blue-50 rounded-lg p-6 border border-blue-200">
+          <p class="text-gray-700">
+            This page will show complete booking information including guest details, stay dates, pricing, and management options.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <app-site-footer [data]="footerData" />
+</div>

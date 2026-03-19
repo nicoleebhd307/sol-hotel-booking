@@ -42,6 +42,15 @@ export class ApiService {
     return this.http.get<ApiResponse<Room>>(`${this.API_URL}/rooms/${id}`);
   }
 
+  // Bookings
+  searchBookingById(bookingId: string): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.API_URL}/bookings/search/${bookingId}`);
+  }
+
+  getBookingById(id: string): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.API_URL}/bookings/${id}`);
+  }
+
   // Health check
   healthCheck(): Observable<any> {
     return this.http.get(`${this.API_URL}/health`);

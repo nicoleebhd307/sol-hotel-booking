@@ -26,8 +26,8 @@ export const routes: Routes = [
     loadComponent: () => import('./components/search-booking/search-booking').then(m => m.SearchBooking),
   },
   {
-    path: 'find-booking',
-    loadComponent: () => import('./pages/find-booking/find-booking').then(m => m.FindBooking),
+    path: 'booking/:id',
+    loadComponent: () => import('./pages/booking-detail/booking-detail').then(m => m.BookingDetail),
   },
   { path: '**', redirectTo: '' },
 ];
