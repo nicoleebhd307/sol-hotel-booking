@@ -33,6 +33,7 @@ export class SidebarComponent {
       { label: 'Rooms', icon: 'hotel', route: '/rooms' },
       { label: 'Room Calendar', icon: 'calendar_month', route: '/calendar' },
       { label: 'Customers', icon: 'groups', route: '/customers' },
+      { label: 'Refunds', icon: 'payments', route: '/refunds' },
       { label: 'Reports', icon: 'monitoring', route: '/reports' },
     ];
   }

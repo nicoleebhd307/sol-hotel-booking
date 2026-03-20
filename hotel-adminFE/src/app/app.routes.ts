@@ -4,6 +4,10 @@ import { DashboardReceptionistComponent } from './pages/dashboard-receptionist/d
 import { DashboardManagerComponent } from './pages/dashboard-manager/dashboard-manager.component';
 import { BookingsComponent } from './pages/bookings/bookings.component';
 import { CreateBookingComponent } from './pages/bookings/create-booking/create-booking.component';
+import { RoomsComponent } from './pages/rooms/rooms.component';
+import { RefundsComponent } from './pages/refunds/refunds.component';
+import { CustomersComponent } from './pages/customers/customers.component';
+import { ReportsComponent } from './pages/reports/reports.component';
 import { FeaturePlaceholderComponent } from './pages/feature-placeholder/feature-placeholder.component';
 import { AuthenticatedGuard } from './services/authenticated.guard';
 import { ReceptionistGuard } from './services/receptionist.guard';
@@ -41,9 +45,8 @@ export const routes: Routes = [
   },
   {
     path: 'rooms',
-    component: FeaturePlaceholderComponent,
+    component: RoomsComponent,
     canActivate: [AuthenticatedGuard],
-    data: { title: 'Rooms' },
   },
   {
     path: 'calendar',
@@ -53,15 +56,18 @@ export const routes: Routes = [
   },
   {
     path: 'customers',
-    component: FeaturePlaceholderComponent,
+    component: CustomersComponent,
     canActivate: [AuthenticatedGuard],
-    data: { title: 'Customers' },
   },
   {
     path: 'reports',
-    component: FeaturePlaceholderComponent,
+    component: ReportsComponent,
     canActivate: [AuthenticatedGuard],
-    data: { title: 'Reports' },
+  },
+  {
+    path: 'refunds',
+    component: RefundsComponent,
+    canActivate: [AuthenticatedGuard],
   },
   {
     path: '**',
