@@ -203,7 +203,20 @@ router.patch('/:id', (req, res) => {
     });
   }
 
-  const allowedFields = ['status', 'note', 'extraCharge', 'depositAmount', 'totalPrice'];
+  const allowedFields = [
+    'status',
+    'note',
+    'extraCharge',
+    'depositAmount',
+    'totalPrice',
+    'guest_name',
+    'guest_phone',
+    'check_in',
+    'check_out',
+    'guests',
+    'room_type',
+    'room_number',
+  ];
 
   if (req.body.status !== undefined) {
     const currentStatus = normalizeStatus(booking.status);

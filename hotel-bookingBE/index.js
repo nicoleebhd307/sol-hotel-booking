@@ -19,11 +19,17 @@ app.use(express.urlencoded({ extended: true }));
 const dashboardRoutes = require('./routes/dashboard');
 const authRoutes = require('./routes/auth');
 const bookingRoutes = require('./routes/booking.routes');
+const roomRoutes = require('./routes/rooms.routes');
+const adminBookingRoutes = require('./routes/admin-booking.routes');
+const customerRoutes = require('./routes/customers.routes');
 
 // API Routes
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/rooms', roomRoutes);
+app.use('/api/admin', adminBookingRoutes);
+app.use('/api/customers', customerRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
