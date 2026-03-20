@@ -4,29 +4,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StickyNavbar } from '../sticky-navbar/sticky-navbar';
-import { SiteFooter } from '../rooms/site-footer/site-footer';
+import { SiteFooter } from '../site-footer/site-footer';
 import { HomeContent } from '../../services/home-content';
 import { ApiService } from '../../services/api.service';
-
-export interface BookingDetail {
-  _id: string;
-  bookingId: string;
-  roomType: string;
-  roomNumber: string;
-  guest: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-  };
-  checkInDate: string;
-  checkOutDate: string;
-  nights: number;
-  pricePerNight: number;
-  totalPrice: number;
-  status: string;
-  specialRequests?: string;
-}
+import { BookingData } from '../../models/home.models';
 
 @Component({
   selector: 'app-search-booking',
@@ -46,45 +27,47 @@ export class SearchBooking implements AfterViewInit {
   protected readonly reserveLabel = this.homeContent.getHomePageData().hero.reserveLabel;
   protected readonly footerData = this.homeContent.getHomePageData().footer;
 
-  protected readonly bookingId = signal<string>('');
-  protected readonly foundBooking = signal<BookingDetail | null>(null);
+  protected readonly searchQuery = signal<string>('');
+  protected readonly searchResults = signal<BookingData[]>([]);
   protected readonly errorMessage = signal<string>('');
   protected readonly isLoading = signal<boolean>(false);
 
   onSearchBooking(event: any) {
     event.preventDefault();
     this.errorMessage.set('');
-    const id = this.bookingId().trim();
+    this.searchResults.set([]);
+    const query = this.searchQuery().trim();
     
-    if (!id) {
-      this.errorMessage.set('Please enter a booking ID');
+    if (!query) {
+      this.errorMessage.set('Please enter a Booking ID');
       return;
     }
 
     this.isLoading.set(true);
 
-    this.apiService.searchBookingById(id).subscribe({
-      next: (response) => {
+    this.apiService.searchBookings(query).subscribe({
+      next: (bookings) => {
         this.isLoading.set(false);
-        if (response.success && response.data) {
-          this.foundBooking.set(response.data);
-          // Navigate to booking detail page after short delay
-          setTimeout(() => {
-            this.router.navigate(['/booking', response.data._id]);
-          }, 500);
+        if (bookings.length > 0) {
+          this.router.navigate(['/booking', bookings[0]._id]);
+        } else {
+          this.errorMessage.set(`No booking found with ID: ${query}`);
         }
       },
-      error: (error) => {
+      error: () => {
         this.isLoading.set(false);
-        this.foundBooking.set(null);
-        this.errorMessage.set(`No booking found with ID: ${id}`);
+        this.errorMessage.set(`No booking found with ID: ${query}`);
       }
     });
   }
 
+  viewBooking(id: string): void {
+    this.router.navigate(['/booking', id]);
+  }
+
   clearSearch() {
-    this.bookingId.set('');
-    this.foundBooking.set(null);
+    this.searchQuery.set('');
+    this.searchResults.set([]);
     this.errorMessage.set('');
   }
 

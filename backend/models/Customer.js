@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const CustomerSchema = new mongoose.Schema(
   {
+    _id: { type: mongoose.Schema.Types.Mixed },
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, trim: true, lowercase: true, index: true },
     phone: { type: String, trim: true },

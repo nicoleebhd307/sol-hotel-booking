@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const BookingRoomSchema = new mongoose.Schema(
   {
-    room_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Room', required: true, index: true },
+    room_id: { type: mongoose.Schema.Types.Mixed, ref: 'Room', required: true, index: true },
     price_per_night: { type: Number, required: true, min: 0 }
   },
   { _id: false }
@@ -10,7 +10,8 @@ const BookingRoomSchema = new mongoose.Schema(
 
 const BookingSchema = new mongoose.Schema(
   {
-    customer_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true, index: true },
+    _id: { type: mongoose.Schema.Types.Mixed },
+    customer_id: { type: mongoose.Schema.Types.Mixed, ref: 'Customer', required: true, index: true },
     rooms: { type: [BookingRoomSchema], required: true, default: [] },
     check_in: { type: Date, required: true, index: true },
     check_out: { type: Date, required: true, index: true },

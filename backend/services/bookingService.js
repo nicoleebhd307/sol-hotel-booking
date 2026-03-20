@@ -154,14 +154,38 @@ async function createBooking({ customer, roomIds, checkIn, checkOut, guests, not
     .lean();
 }
 
+function buildIdConditions(id) {
+  const conditions = [{ _id: id }];
+  if (mongoose.isValidObjectId(id)) {
+    conditions.push({ _id: new mongoose.Types.ObjectId(id) });
+  }
+  return { $or: conditions };
+}
+
+async function searchBookings(query) {
+  const trimmed = (query || '').trim();
+  if (!trimmed) {
+    const err = new Error('Search query is required');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const booking = await Booking.findOne(buildIdConditions(trimmed))
+    .populate('customer_id')
+    .populate({ path: 'rooms.room_id', populate: { path: 'room_type_id' } })
+    .lean();
+
+  return booking ? [booking] : [];
+}
+
 async function getBookingById(bookingId) {
-  if (!mongoose.isValidObjectId(bookingId)) {
+  if (!bookingId || !String(bookingId).trim()) {
     const err = new Error('Invalid booking id');
     err.statusCode = 400;
     throw err;
   }
 
-  const booking = await Booking.findById(bookingId)
+  const booking = await Booking.findOne(buildIdConditions(String(bookingId).trim()))
     .populate('customer_id')
     .populate({ path: 'rooms.room_id', populate: { path: 'room_type_id' } })
     .lean();
@@ -355,6 +379,7 @@ module.exports = {
   expireStalePendingBookings,
   createBooking,
   createManualBooking,
+  searchBookings,
   getBookingById,
   assertGuestCanAccess,
   cancelPendingWithoutRefund,

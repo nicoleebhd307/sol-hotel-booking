@@ -1,6 +1,16 @@
 const bookingService = require('../services/bookingService');
 const refundService = require('../services/refundService');
 
+async function searchBookings(req, res, next) {
+  try {
+    const { query } = req.params;
+    const bookings = await bookingService.searchBookings(query);
+    return res.json(bookings);
+  } catch (err) {
+    return next(err);
+  }
+}
+
 async function createBooking(req, res, next) {
   try {
     const { customer, roomIds, check_in, check_out, guests, note } = req.body || {};
@@ -55,6 +65,7 @@ async function cancelBooking(req, res, next) {
 }
 
 module.exports = {
+  searchBookings,
   createBooking,
   getBooking,
   cancelBooking

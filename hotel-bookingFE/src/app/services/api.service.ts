@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Room, RoomType, ServiceItem } from '../models/home.models';
+import { Room, RoomType, ServiceItem, BookingData } from '../models/home.models';
 
 @Injectable({
   providedIn: 'root'
@@ -42,12 +42,12 @@ export class ApiService {
   }
 
   // Bookings
-  searchBookingById(bookingId: string): Observable<ApiResponse<any>> {
-    return this.http.get<ApiResponse<any>>(`${this.API_URL}/bookings/search/${bookingId}`);
+  searchBookings(query: string): Observable<BookingData[]> {
+    return this.http.get<BookingData[]>(`${this.API_URL}/bookings/search/${encodeURIComponent(query)}`);
   }
 
-  getBookingById(id: string): Observable<ApiResponse<any>> {
-    return this.http.get<ApiResponse<any>>(`${this.API_URL}/bookings/${id}`);
+  getBookingById(id: string): Observable<{ booking: BookingData; payment: any }> {
+    return this.http.get<{ booking: BookingData; payment: any }>(`${this.API_URL}/bookings/${id}`);
   }
 
   // Health check

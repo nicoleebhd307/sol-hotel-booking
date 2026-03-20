@@ -108,6 +108,39 @@ export interface ServiceItem {
   imageUrl: string;
 }
 
+export interface BookingRoom {
+  room_id: {
+    _id: string;
+    room_number: string;
+    floor: number;
+    room_type_id: RoomType;
+  };
+  price_per_night: number;
+}
+
+export interface BookingData {
+  _id: string;
+  customer_id: {
+    _id: string;
+    name: string;
+    email: string;
+    phone: string;
+    nationality?: string;
+  };
+  rooms: BookingRoom[];
+  check_in: string;
+  check_out: string;
+  guests: { adults: number; children: number };
+  totalPrice: number;
+  depositAmount: number;
+  extraCharge: number;
+  status: string;
+  note: string;
+  refund_status: string;
+  cancelledAt?: string;
+  createdAt: string;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
