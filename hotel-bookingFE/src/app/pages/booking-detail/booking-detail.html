@@ -1,166 +1,66 @@
-<div class="bg-[#f9f7f2] text-[#1a1a1a] h-auto flex flex-col min-h-screen">
+<div class="bg-[#f9f7f2] text-[#1d1c13] min-h-screen flex flex-col font-sans">
   <!-- Sticky Navbar -->
-  <app-sticky-navbar
-    [navLinks]="navLinks"
-    [logoUrl]="logoUrl"
-    [reserveLabel]="reserveLabel"
-  />
+  <app-sticky-navbar [navLinks]="navLinks" [logoUrl]="logoUrl" [reserveLabel]="reserveLabel" />
 
-  <!-- Booking Detail Content -->
-  <div class="flex-1 py-12 px-4">
-    <div class="max-w-4xl mx-auto">
-      <!-- Back Button -->
-      <button
-        (click)="goBack()"
-        class="mb-8 inline-flex items-center gap-2 px-5 py-2 border border-[#1a1a1a] rounded-lg font-serif italic text-sm text-[#1a1a1a] transition-all duration-300 hover:bg-[#1a1a1a] hover:text-white"
-      >
-        ← Back to Search
-      </button>
-
-      <!-- Loading -->
-      @if (isLoading()) {
-        <div class="bg-white rounded-xl shadow-lg p-12 text-center">
-          <p class="font-serif text-xl text-[#6b7280]">Loading booking details...</p>
-        </div>
-      }
-
-      <!-- Error -->
-      @if (errorMessage()) {
-        <div class="bg-white rounded-xl shadow-lg p-12 text-center">
-          <p class="font-serif text-xl text-red-500 mb-4">{{ errorMessage() }}</p>
-          <button (click)="goBack()" class="px-6 py-2 rounded-lg font-serif italic text-white transition-all hover:opacity-90"
-            style="background: linear-gradient(0deg, rgba(199,158,53,1) 0%, rgba(221,188,108,1) 100%);">
-            Search Again
-          </button>
-        </div>
-      }
-
-      <!-- Booking Data -->
-      @if (booking(); as b) {
-        <!-- Header -->
-        <div class="bg-white rounded-xl shadow-lg p-8 mb-6">
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-            <div>
-              <p class="text-xs uppercase tracking-widest text-[#6b7280] font-medium mb-1">Booking Reference</p>
-              <h1 class="font-serif text-3xl">{{ b._id }}</h1>
-            </div>
-            <span class="self-start px-4 py-2 rounded-full text-sm font-medium uppercase tracking-wide"
-              [ngClass]="{
-                'bg-green-100 text-green-800': b.status === 'confirmed',
-                'bg-yellow-100 text-yellow-800': b.status === 'pending',
-                'bg-red-100 text-red-800': b.status === 'cancelled',
-                'bg-blue-100 text-blue-800': b.status === 'checked_in' || b.status === 'checked_out' || b.status === 'completed'
-              }">
-              {{ b.status }}
-            </span>
-          </div>
-          <p class="text-xs text-[#6b7280]">Booked on {{ b.createdAt | date:'MMMM d, y, h:mm a' }}</p>
-        </div>
-
-        <!-- Guest & Stay Info -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <!-- Guest Info -->
-          <div class="bg-white rounded-xl shadow-lg p-8">
-            <h2 class="font-serif text-xl mb-6 pb-4 border-b border-[#e5e7eb]">Guest Information</h2>
-            <div class="space-y-4">
-              <div>
-                <p class="text-xs uppercase tracking-widest text-[#6b7280] font-medium mb-1">Name</p>
-                <p class="font-serif text-lg">{{ b.customer_id?.name }}</p>
-              </div>
-              <div>
-                <p class="text-xs uppercase tracking-widest text-[#6b7280] font-medium mb-1">Email</p>
-                <p>{{ b.customer_id?.email }}</p>
-              </div>
-              <div>
-                <p class="text-xs uppercase tracking-widest text-[#6b7280] font-medium mb-1">Phone</p>
-                <p>{{ b.customer_id?.phone || 'N/A' }}</p>
-              </div>
-              @if (b.customer_id?.nationality) {
-                <div>
-                  <p class="text-xs uppercase tracking-widest text-[#6b7280] font-medium mb-1">Nationality</p>
-                  <p>{{ b.customer_id.nationality }}</p>
-                </div>
-              }
-            </div>
-          </div>
-
-          <!-- Stay Details -->
-          <div class="bg-white rounded-xl shadow-lg p-8">
-            <h2 class="font-serif text-xl mb-6 pb-4 border-b border-[#e5e7eb]">Stay Details</h2>
-            <div class="space-y-4">
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <p class="text-xs uppercase tracking-widest text-[#6b7280] font-medium mb-1">Check In</p>
-                  <p class="font-serif text-lg">{{ b.check_in | date:'MMM d, y' }}</p>
-                </div>
-                <div>
-                  <p class="text-xs uppercase tracking-widest text-[#6b7280] font-medium mb-1">Check Out</p>
-                  <p class="font-serif text-lg">{{ b.check_out | date:'MMM d, y' }}</p>
-                </div>
-              </div>
-              <div>
-                <p class="text-xs uppercase tracking-widest text-[#6b7280] font-medium mb-1">Duration</p>
-                <p>{{ getNights() }} night{{ getNights() > 1 ? 's' : '' }}</p>
-              </div>
-              <div>
-                <p class="text-xs uppercase tracking-widest text-[#6b7280] font-medium mb-1">Guests</p>
-                <p>{{ b.guests.adults }} Adult{{ b.guests.adults > 1 ? 's' : '' }}{{ b.guests.children > 0 ? ', ' + b.guests.children + ' Children' : '' }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Rooms -->
-        <div class="bg-white rounded-xl shadow-lg p-8 mb-6">
-          <h2 class="font-serif text-xl mb-6 pb-4 border-b border-[#e5e7eb]">Room{{ b.rooms.length > 1 ? 's' : '' }}</h2>
-          <div class="space-y-4">
-            @for (room of b.rooms; track room.room_id?._id) {
-              <div class="flex justify-between items-center py-3 border-b border-[#f3f4f6] last:border-0">
-                <div>
-                  <p class="font-serif text-lg">{{ room.room_id?.room_type_id?.name || 'Room' }}</p>
-                  <p class="text-sm text-[#6b7280]">Room {{ room.room_id?.room_number }} · Floor {{ room.room_id?.floor }}</p>
-                </div>
-                <p class="font-serif text-lg text-[#d4a574]">${{ room.price_per_night }}<span class="text-sm text-[#6b7280]">/night</span></p>
-              </div>
-            }
-          </div>
-        </div>
-
-        <!-- Pricing -->
-        <div class="bg-white rounded-xl shadow-lg p-8 mb-6">
-          <h2 class="font-serif text-xl mb-6 pb-4 border-b border-[#e5e7eb]">Pricing Summary</h2>
-          <div class="space-y-3">
-            <div class="flex justify-between text-sm">
-              <span class="text-[#6b7280]">Total Price</span>
-              <span class="font-medium">${{ b.totalPrice | number:'1.2-2' }}</span>
-            </div>
-            <div class="flex justify-between text-sm">
-              <span class="text-[#6b7280]">Deposit Required</span>
-              <span class="font-medium">${{ b.depositAmount | number:'1.2-2' }}</span>
-            </div>
-            @if (b.extraCharge > 0) {
-              <div class="flex justify-between text-sm">
-                <span class="text-[#6b7280]">Extra Charges</span>
-                <span class="font-medium">${{ b.extraCharge | number:'1.2-2' }}</span>
-              </div>
-            }
-            <div class="flex justify-between pt-3 border-t border-[#e5e7eb] text-lg">
-              <span class="font-medium">Grand Total</span>
-              <span class="font-serif text-[#d4a574]">${{ b.totalPrice + b.extraCharge | number:'1.2-2' }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Note -->
-        @if (b.note) {
-          <div class="bg-white rounded-xl shadow-lg p-8 mb-6">
-            <h2 class="font-serif text-xl mb-4 pb-4 border-b border-[#e5e7eb]">Notes</h2>
-            <p class="text-[#374151]">{{ b.note }}</p>
-          </div>
-        }
-      }
+  <!-- Loading State -->
+  @if (isLoading()) {
+  <div class="flex-1 flex items-center justify-center py-32">
+    <div class="text-center">
+      <div class="w-12 h-12 border-4 border-[#c5a059] border-t-transparent rounded-full animate-spin mx-auto mb-6">
+      </div>
+      <p class="text-[#4e4639] text-lg font-sans">Loading booking details...</p>
     </div>
   </div>
+  }
+
+  <!-- Error State -->
+  @else if (errorMessage()) {
+  <div class="flex-1 flex items-center justify-center py-32">
+    <div class="text-center max-w-md px-4">
+      <div class="text-6xl mb-6">🔍</div>
+      <p class="text-[#4e4639] text-lg mb-8 font-sans">{{ errorMessage() }}</p>
+      <button (click)="backToSearch()"
+        class="px-8 py-3 font-sans font-semibold text-sm uppercase tracking-widest text-white rounded-xl transition-all hover:opacity-90"
+        style="background: linear-gradient(98.44deg, #775a19 0%, #c5a059 100%);">
+        ← Search Again
+      </button>
+    </div>
+  </div>
+  }
+
+  <!-- Booking Detail Content -->
+  @else if (booking()) {
+
+  <app-booking-confirmation-hero [bookingId]="booking()!._id" />
+
+  <!-- ─── Main Content Grid (overlaps hero) ──────────────── -->
+  <div class="relative z-10 -mt-24 md:-mt-28 px-4 md:px-6 pb-10 mx-auto max-w-[1200px] w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <!-- Left column: 2/3 -->
+      <div class="lg:col-span-2 flex flex-col gap-8">
+        <app-booking-details-card
+          [booking]="booking()!"
+          [statusClass]="statusClass"
+          [guestsLabel]="guestsLabel"
+          [inclusions]="inclusions" />
+        <app-booking-inclusions />
+      </div>
+
+      <!-- Right column: 1/3 -->
+      <div class="flex flex-col gap-8">
+        <app-manage-booking-panel
+          [booking]="booking()!"
+          [payment]="payment()"
+          [nights]="nights"
+          [nightsTotal]="nightsTotal"
+          (downloadPDF)="onDownloadPDF()"
+          (cancelBooking)="onCancelBooking()" />
+      </div><!-- end right -->
+    </div><!-- end grid -->
+  </div>
+
+  }<!-- end @else if booking() -->
 
   <!-- Footer -->
   <app-site-footer [data]="footerData" />

@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { StickyNavbar } from '../../components/sticky-navbar/sticky-navbar';
-import { SiteFooter } from '../../components/rooms/site-footer/site-footer';
 import { HomeContent } from '../../services/home-content';
+import { ApiService } from '../../services/api.service';
+import { SiteFooter } from '../../components/site-footer/site-footer';
 
 @Component({
   selector: 'app-cancel-booking',
@@ -12,14 +13,19 @@ import { HomeContent } from '../../services/home-content';
   templateUrl: './cancel-booking.html',
   styleUrl: './cancel-booking.css',
 })
-export class CancelBooking {
+export class CancelBooking implements OnInit {
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly homeContent = inject(HomeContent);
+  private readonly apiService = inject(ApiService);
 
   protected readonly navLinks = this.homeContent.getHomePageData().hero.navLinks;
   protected readonly logoUrl = this.homeContent.getHomePageData().hero.logoUrl;
   protected readonly reserveLabel = this.homeContent.getHomePageData().hero.reserveLabel;
   protected readonly footerData = this.homeContent.getHomePageData().footer;
+
+  protected bookingId = signal<string>('');
+  protected readonly isCancelling = signal<boolean>(false);
 
   protected readonly cancellationPolicy = [
     'Free cancellation up to 14 days before check-in',
@@ -28,13 +34,38 @@ export class CancelBooking {
     'You will receive notification confirmation via email'
   ];
 
-  onKeepBooking() {
-    this.router.navigate(['/booking-confirmation']);
+  ngOnInit(): void {
+    const id = this.route.snapshot.queryParamMap.get('bookingId');
+    if (id) this.bookingId.set(id);
   }
 
-  onConfirmCancellation() {
-    alert('Booking cancelled successfully. Please check your email for refund details.');
-    this.router.navigate(['/']);
+  onKeepBooking(): void {
+    const id = this.bookingId();
+    if (id) {
+      this.router.navigate(['/booking', id]);
+    } else {
+      this.router.navigate(['/search-booking']);
+    }
+  }
+
+  onConfirmCancellation(): void {
+    const id = this.bookingId();
+    if (!id) {
+      this.router.navigate(['/search-booking']);
+      return;
+    }
+    this.isCancelling.set(true);
+    this.apiService.cancelBooking(id).subscribe({
+      next: () => {
+        this.isCancelling.set(false);
+        alert('Booking cancelled successfully. Please check your email for refund details.');
+        this.router.navigate(['/search-booking']);
+      },
+      error: () => {
+        this.isCancelling.set(false);
+        alert('Failed to cancel booking. Please contact our support team.');
+      }
+    });
   }
 }
 

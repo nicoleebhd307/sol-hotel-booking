@@ -50,6 +50,10 @@ export class ApiService {
     return this.http.get<{ booking: BookingData; payment: any }>(`${this.API_URL}/bookings/${id}`);
   }
 
+  cancelBooking(id: string): Observable<any> {
+    return this.http.post(`${this.API_URL}/bookings/${id}/cancel`, {});
+  }
+
   // Health check
   healthCheck(): Observable<{ status: string; uptime: number }> {
     return this.http.get<{ status: string; uptime: number }>(`http://localhost:5000/health`);

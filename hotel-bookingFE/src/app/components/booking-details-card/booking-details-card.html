@@ -1,55 +1,60 @@
-<div class="bg-white rounded-lg shadow overflow-hidden">
-  <!-- Card Header with Room Info & Status -->
-  <div class="p-6 border-b border-slate-200">
-    <div class="flex justify-between items-center mb-6">
-      <div>
-        <h2 class="font-serif text-2xl text-slate-800">{{ booking.roomName }}</h2>
-        <p class="text-slate-600 text-sm flex items-center gap-1">📍 {{ booking.location }}</p>
-      </div>
-      <span [ngClass]="booking.statusColor" class="px-4 py-2 rounded text-xs font-semibold uppercase whitespace-nowrap flex-shrink-0">
-        Status: {{ booking.status }}
-      </span>
+<div class="bg-white rounded-lg overflow-hidden"
+  style="box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.05); border: 1px solid rgba(209,197,180,0.15);">
+  <!-- Card Header -->
+  <div class="px-12 pt-10 pb-8 flex flex-row items-center justify-between gap-4"
+    style="border-bottom: 1px solid rgba(209,197,180,0.30);">
+    <div class="flex flex-col gap-1">
+      <h2 class="font-serif text-2xl text-[#1d1c13] font-normal leading-8">
+        {{ booking().rooms?.[0]?.room_id?.room_type_id?.name || 'Room' }}
+      </h2>
     </div>
+    <!-- Status badge -->
+    <span class="flex-shrink-0 px-4 py-2 rounded font-sans font-semibold text-xs uppercase"
+      [ngClass]="statusClass()" style="letter-spacing: 1.2px;">
+      Status: {{ booking().status | uppercase }}
+    </span>
   </div>
 
-  <!-- Card Body - 2 Columns -->
-  <div class="p-8">
-    <div class="grid grid-cols-2 gap-16">
-      <!-- Left Column: Check-in & Check-out -->
-      <div class="space-y-10 border-r border-slate-200 pr-8">
-        <!-- Check-in -->
-        <div>
-          <p class="text-slate-600 text-xs uppercase tracking-widest font-semibold mb-3">Check-in</p>
-          <p class="font-serif text-xl text-slate-900 font-light">{{ booking.checkInDate }}</p>
-          <p class="text-slate-600 text-sm mt-2">{{ booking.checkInTime }}</p>
+  <!-- Card Body -->
+  <div class="px-12 py-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-12">
+      <!-- Check-in / Check-out -->
+      <div class="flex flex-col gap-6 sm:border-r sm:pr-12" style="border-color: rgba(209,197,180,0.30);">
+        <div class="flex flex-col gap-1">
+          <p class="font-sans font-semibold text-[#4e4639] uppercase text-[10px] leading-[15px]"
+            style="letter-spacing: 1px;">Check-in</p>
+          <p class="font-sans font-medium text-[#1d1c13] text-lg leading-7">{{ booking().check_in | date:'MMMM d, y' }}</p>
+          <p class="font-sans text-[#4e4639] text-sm leading-5">From 3:00 PM</p>
         </div>
-        
-        <!-- Check-out -->
-        <div>
-          <p class="text-slate-600 text-xs uppercase tracking-widest font-semibold mb-3">Check-out</p>
-          <p class="font-serif text-xl text-slate-900 font-light">{{ booking.checkOutDate }}</p>
-          <p class="text-slate-600 text-sm mt-2">{{ booking.checkOutTime }}</p>
+        <div class="flex flex-col gap-1">
+          <p class="font-sans font-semibold text-[#4e4639] uppercase text-[10px] leading-[15px]"
+            style="letter-spacing: 1px;">Check-out</p>
+          <p class="font-sans font-medium text-[#1d1c13] text-lg leading-7">{{ booking().check_out | date:'MMMM d, y' }}</p>
+          <p class="font-sans text-[#4e4639] text-sm leading-5">Until 12:00 PM</p>
         </div>
       </div>
 
-      <!-- Right Column: Guests & Inclusions -->
-      <div class="space-y-10 pl-8">
-        <!-- Guests -->
-        <div>
-          <p class="text-slate-600 text-xs uppercase tracking-widest font-semibold mb-3">Guests</p>
-          <p class="font-serif text-xl text-slate-900 font-light">{{ booking.guests }}</p>
+      <!-- Guests & Inclusions -->
+      <div class="flex flex-col gap-6 sm:pl-0">
+        <div class="flex flex-col gap-1">
+          <p class="font-sans font-semibold text-[#4e4639] uppercase text-[10px] leading-[15px]"
+            style="letter-spacing: 1px;">Guests</p>
+          <p class="font-sans font-medium text-[#1d1c13] text-lg leading-7">{{ guestsLabel() }}</p>
         </div>
-
-        <!-- Inclusions -->
-        <div>
-          <p class="text-slate-600 text-xs uppercase tracking-widest font-semibold mb-3">Inclusions</p>
-          <ul class="space-y-2">
-            <li *ngFor="let inclusion of booking.inclusions" class="flex items-start gap-2 text-slate-700 text-sm">
-              <span class="text-slate-400">•</span>
-              <span>{{ inclusion }}</span>
-            </li>
-          </ul>
+        @if (inclusions().length > 0) {
+        <div class="flex flex-col gap-1">
+          <p class="font-sans font-semibold text-[#4e4639] uppercase text-[10px] leading-[15px]"
+            style="letter-spacing: 1px;">Inclusions</p>
+          <div class="flex flex-col gap-[3.5px] mt-1">
+            @for (item of inclusions(); track item) {
+            <div class="flex items-center gap-2">
+              <span class="w-1 h-1 rounded-full flex-shrink-0 bg-[#775a19]"></span>
+              <span class="font-sans text-[#4e4639] text-sm leading-5">{{ item }}</span>
+            </div>
+            }
+          </div>
         </div>
+        }
       </div>
     </div>
   </div>

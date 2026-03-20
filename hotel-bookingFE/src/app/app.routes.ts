@@ -30,10 +30,6 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/booking-detail/booking-detail').then(m => m.BookingDetail),
   },
   {
-    path: 'booking-confirmation',
-    loadComponent: () => import('./pages/booking-confirmation/booking-confirmation').then(m => m.BookingConfirmation),
-  },
-  {
     path: 'cancel-booking',
     loadComponent: () => import('./pages/cancel-booking/cancel-booking').then(m => m.CancelBooking),
   },

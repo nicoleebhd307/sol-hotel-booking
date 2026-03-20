@@ -1,58 +1,103 @@
-<div class="space-y-0">
-  <!-- Header with Teal Background -->
-  <div class="bg-stone-500 text-white px-6 py-4 rounded-t-lg">
-    <h3 class="text-sm font-semibold uppercase tracking-widest">Manage Booking</h3>
-  </div>
+<div class="flex flex-col gap-6">
 
-  <!-- Action Buttons Section -->
-  <div class="bg-white rounded-b-lg shadow p-6 space-y-3 mb-6">
-    <button 
-      (click)="onDownloadPDF()"
-      class="w-full px-4 py-3 bg-stone-600 text-white font-semibold italic rounded hover:bg-stone-700 transition-all text-sm"
-    >
-      ⬇ Download Confirmation (PDF)
+<!-- Manage Booking Panel (frosted glass) -->
+<div class="rounded-lg p-8 flex flex-col gap-6 relative"
+  style="background: rgba(231,226,212,0.40); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.40);">
+  <!-- Shadow overlay -->
+  <div class="rounded-lg absolute inset-0 pointer-events-none"
+    style="background: rgba(255,255,255,0.00); box-shadow: 0px 8px 10px -6px rgba(0,0,0,0.10), 0px 20px 25px -5px rgba(0,0,0,0.10);">
+  </div>
+  <p class="font-sans font-semibold text-[#4e4639] text-sm uppercase leading-5 relative z-10"
+    style="letter-spacing: 1.4px;">
+    Manage Booking
+  </p>
+
+  <div class="flex flex-col gap-4 relative z-10">
+    <!-- Download PDF -->
+    <button (click)="onDownloadPDF()"
+      class="w-full flex items-center justify-center gap-2 py-4 rounded-xl font-serif font-medium italic text-lg text-white transition-opacity hover:opacity-90"
+      style="background: linear-gradient(98.44deg, #775a19 0%, #c5a059 100%); box-shadow: 0px 10px 15px -3px rgba(119,90,25,0.20), 0px 4px 6px -4px rgba(119,90,25,0.20);">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+        <path
+          d="M5.33333 8L2 4.66667L2.93333 3.7L4.66667 5.43333V0H6V5.43333L7.73333 3.7L8.66667 4.66667L5.33333 8ZM1.33333 10.6667C0.966667 10.6667 0.652778 10.5361 0.391667 10.275C0.130556 10.0139 0 9.7 0 9.33333V7.33333H1.33333V9.33333H9.33333V7.33333H10.6667V9.33333C10.6667 9.7 10.5361 10.0139 10.275 10.275C10.0139 10.5361 9.7 10.6667 9.33333 10.6667H1.33333Z"
+          fill="white" />
+      </svg>
+      Download Confirmation (PDF)
     </button>
-    <button 
-      (click)="onCancelBooking()"
-      class="w-full px-4 py-3 border-2 border-slate-400 text-slate-800 font-serif italic rounded hover:bg-stone-50 transition-all text-sm"
-    >
+
+    <!-- Cancel Booking -->
+    <button (click)="onCancelBooking()"
+      class="w-full flex items-center justify-center py-4 rounded-xl bg-white font-serif font-medium italic text-lg text-black transition-colors hover:bg-gray-50"
+      style="border: 0.5px solid black;">
       Cancel Booking
     </button>
   </div>
 
-  <!-- Confirmation Message -->
-  <div class="bg-stone-100 rounded-lg p-4 mb-6 text-center text-xs text-slate-700">
-    <p>A confirmation email has been sent to your registered address.</p>
+  <!-- Confirmation note -->
+  <div style="border-top: 1px solid rgba(209,197,180,0.20);" class="pt-8 relative z-10">
+    <p class="font-sans text-[#4e4639] text-xs leading-4 text-center">
+      A confirmation email has been sent to your registered address.
+    </p>
   </div>
+</div>
 
-  <!-- Payment Summary Card -->
-  <div class="bg-white rounded-lg shadow p-6 space-y-4">
-    <h4 class="text-xs font-semibold text-slate-700 uppercase tracking-widest">Payment Summary</h4>
-    <div class="space-y-2 text-sm">
-      <div class="flex justify-between text-slate-700">
-        <span>{{ paymentSummary.nights }} Nights</span>
-        <span class="text-right">{{ paymentSummary.currency }}{{ paymentSummary.subtotal | number:'1.2-2' }}</span>
-      </div>
-      <div class="flex justify-between text-slate-700">
-        <span>Service Charge & Taxes</span>
-        <span class="text-right">{{ paymentSummary.currency }}{{ paymentSummary.serviceCharge | number:'1.2-2' }}</span>
-      </div>
-      <div class="flex justify-between text-slate-700">
-        <span>Eco-Sustainability Fee</span>
-        <span class="text-right">{{ paymentSummary.currency }}{{ paymentSummary.ecoFee | number:'1.2-2' }}</span>
-      </div>
-      <div class="border-t border-slate-200 pt-2 flex justify-between font-serif text-slate-800 text-lg">
-        <span>Total Amount</span>
-        <span class="text-right">{{ paymentSummary.currency }}{{ paymentSummary.total | number:'1.2-2' }}</span>
-      </div>
+<!-- Payment Summary Card -->
+<div class="bg-[#fffcf1] rounded-lg p-8 flex flex-col gap-6" style="border: 1px solid rgba(209,197,180,0.15);">
+  <p class="font-sans font-semibold text-[#4e4639] text-sm uppercase leading-5" style="letter-spacing: 1.4px;">
+    Payment Summary
+  </p>
+
+  <div class="flex flex-col gap-4">
+    <!-- Nights -->
+    <div class="flex items-center justify-between">
+      <span class="font-sans text-[#4e4639] text-sm leading-5">{{ nights() }} Night{{ nights() !== 1 ? 's' : '' }}</span>
+      <span class="font-sans text-[#1d1c13] text-sm leading-5">${{ nightsTotal() | number:'1.2-2' }}</span>
     </div>
 
-    <!-- Payment Method -->
-    <div class="pt-4 border-t border-slate-200 text-xs space-y-1">
-      <p class="text-slate-700">{{ paymentMethod.type }} •••• {{ paymentMethod.last4 }}</p>
-      <p class="text-slate-500">Processed {{ paymentMethod.processedDate }}</p>
+    @if (booking().extraCharge > 0) {
+    <div class="flex items-center justify-between">
+      <span class="font-sans text-[#4e4639] text-sm leading-5">Service Charge &amp; Taxes</span>
+      <span class="font-sans text-[#1d1c13] text-sm leading-5">${{ booking().extraCharge | number:'1.2-2' }}</span>
+    </div>
+    }
+
+    <!-- Total -->
+    <div class="flex items-end justify-between pt-4" style="border-top: 1px solid rgba(209,197,180,0.30);">
+      <div class="flex flex-col gap-0">
+        <span class="font-sans font-semibold text-[#4e4639] text-[10px] uppercase leading-[15px]"
+          style="letter-spacing: 1px;">Total Amount</span>
+        <span class="font-serif text-[#775a19] text-2xl leading-8 font-normal">${{ booking().totalPrice | number:'1.2-2' }}</span>
+      </div>
+      @if (payment()) {
+      <div class="flex flex-col items-end gap-0">
+        <span class="font-sans font-semibold text-[#775a19] text-[10px] uppercase leading-[15px]"
+          style="letter-spacing: 1px;">
+          {{ payment().method || 'Visa' }} •••• {{ payment().last4 || '****' }}
+        </span>
+        <span class="font-sans text-[#4e4639] text-xs leading-4">
+          Processed {{ payment().createdAt | date:'MM/dd/yy' }}
+        </span>
+      </div>
+      }
     </div>
   </div>
 </div>
 
+<!-- Need Assistance -->
+<div class="flex items-center gap-4 p-4">
+  <div class="w-12 h-12 bg-[#ede8d9] rounded-xl flex items-center justify-center flex-shrink-0">
+    <svg width="20" height="18" viewBox="0 0 20 18" fill="none">
+      <path
+        d="M9 18V16H17V8.9C17 6.95 16.3208 5.29583 14.9625 3.9375C13.6042 2.57917 11.95 1.9 10 1.9C8.05 1.9 6.39583 2.57917 5.0375 3.9375C3.67917 5.29583 3 6.95 3 8.9V15H2C1.45 15 0.979167 14.8042 0.5875 14.4125C0.195833 14.0208 0 13.55 0 13V11C0 10.65 0.0875 10.3208 0.2625 10.0125C0.4375 9.70417 0.683333 9.45833 1 9.275L1.075 7.95C1.20833 6.81667 1.5375 5.76667 2.0625 4.8C2.5875 3.83333 3.24583 2.99167 4.0375 2.275C4.82917 1.55833 5.7375 1 6.7625 0.6C7.7875 0.2 8.86667 0 10 0C11.1333 0 12.2083 0.2 13.225 0.6C14.2417 1 15.15 1.55417 15.95 2.2625C16.75 2.97083 17.4083 3.80833 17.925 4.775C18.4417 5.74167 18.775 6.79167 18.925 7.925L19 9.225C19.3167 9.375 19.5625 9.6 19.7375 9.9C19.9125 10.2 20 10.5167 20 10.85V13.15C20 13.4833 19.9125 13.8 19.7375 14.1C19.5625 14.4 19.3167 14.625 19 14.775V16C19 16.55 18.8042 17.0208 18.4125 17.4125C18.0208 17.8042 17.55 18 17 18H9ZM7 11C6.71667 11 6.47917 10.9042 6.2875 10.7125C6.09583 10.5208 6 10.2833 6 10C6 9.71667 6.09583 9.47917 6.2875 9.2875C6.47917 9.09583 6.71667 9 7 9C7.28333 9 7.52083 9.09583 7.7125 9.2875C7.90417 9.47917 8 9.71667 8 10C8 10.2833 7.90417 10.5208 7.7125 10.7125C7.52083 10.9042 7.28333 11 7 11ZM13 11C12.7167 11 12.4792 10.9042 12.2875 10.7125C12.0958 10.5208 12 10.2833 12 10C12 9.71667 12.0958 9.47917 12.2875 9.2875C12.4792 9.09583 12.7167 9 13 9C13.2833 9 13.5208 9.09583 13.7125 9.2875C13.9042 9.47917 14 9.71667 14 10C14 10.2833 13.9042 10.5208 13.7125 10.7125C13.5208 10.9042 13.2833 11 13 11ZM4.025 9.45C3.90833 7.68333 4.44167 6.16667 5.625 4.9C6.80833 3.63333 8.28333 3 10.05 3C11.5333 3 12.8375 3.47083 13.9625 4.4125C15.0875 5.35417 15.7667 6.55833 16 8.025C14.4833 8.00833 13.0875 7.6 11.8125 6.8C10.5375 6 9.55833 4.91667 8.875 3.55C8.60833 4.88333 8.04583 6.07083 7.1875 7.1125C6.32917 8.15417 5.275 8.93333 4.025 9.45Z"
+        fill="#775A19" />
+    </svg>
+  </div>
+  <div class="flex flex-col gap-0">
+    <p class="font-sans font-semibold text-[#4e4639] text-xs uppercase leading-4"
+      style="letter-spacing: 1.2px;">Need Assistance?</p>
+    <p class="font-sans font-medium text-[#4e4639] text-sm leading-5">Your Concierge is available 24/7</p>
+  </div>
+</div>
+
+</div>
 

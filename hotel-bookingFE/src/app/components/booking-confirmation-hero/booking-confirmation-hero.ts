@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -9,6 +9,6 @@ import { CommonModule } from '@angular/common';
   styleUrl: './booking-confirmation-hero.css',
 })
 export class BookingConfirmationHero {
-  protected readonly bookingId = 'BK001';
+  readonly bookingId = input<string>('');
 }
 
