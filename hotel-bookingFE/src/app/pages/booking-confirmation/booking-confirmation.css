@@ -1,0 +1,16 @@
+:host {
+  display: block;
+}
+
+/* Page layout and spacing */
+div {
+  transition: all 0.3s ease-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  ::ng-deep .px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
