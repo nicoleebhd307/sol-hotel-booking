@@ -63,24 +63,63 @@ async function assertRoomsAvailable({ roomIds, checkIn, checkOut }) {
   }
 }
 
-async function calculateBookingPricing({ roomDocs, checkIn, checkOut }) {
+async function calculateBookingPricing({ roomDocs, checkIn, checkOut, guests }) {
   const nights = diffNights(checkIn, checkOut);
 
+  const chargeableAdults = Math.max(1, Number(guests?.adults || 1));
+  const requestedChildren = Math.max(0, Number(guests?.children || 0));
+  const totalIncludedAdults = roomDocs.reduce(
+    (sum, room) => sum + Math.max(1, Number(room?.room_type_id?.capacity?.adults || 1)),
+    0
+  );
+  const totalIncludedChildren = roomDocs.reduce(
+    (sum, room) => sum + Math.max(0, Number(room?.room_type_id?.capacity?.children || 0)),
+    0
+  );
+  const maxAllowedAdults = totalIncludedAdults * 2;
+  const maxAllowedChildren = totalIncludedChildren * 2;
+
+  if (chargeableAdults > maxAllowedAdults) {
+    const err = new Error(`Adults exceeds policy limit. Maximum allowed is ${maxAllowedAdults}`);
+    err.statusCode = 400;
+    throw err;
+  }
+
+  if (requestedChildren > maxAllowedChildren) {
+    const err = new Error(`Children exceeds policy limit. Maximum allowed is ${maxAllowedChildren}`);
+    err.statusCode = 400;
+    throw err;
+  }
+
+  let remainingExtraAdults = Math.max(0, chargeableAdults - totalIncludedAdults);
   let total = 0;
+  let extraChargeTotal = 0;
   const roomSnapshots = [];
 
   for (const room of roomDocs) {
     const roomType = room.room_type_id;
+    if (!roomType || !Number.isFinite(Number(roomType.price_per_night))) {
+      const err = new Error('Room configuration is invalid. Please contact support.');
+      err.statusCode = 400;
+      throw err;
+    }
     const pricePerNight = roomType.price_per_night;
+    const includedAdults = Number(roomType?.capacity?.adults || 1);
+    const extraAdults = Math.min(remainingExtraAdults, includedAdults);
+    remainingExtraAdults -= extraAdults;
 
     const base = calculateRoomTotal({ nights, pricePerNight });
+    const uncappedExtraGuestCharge = Math.round(extraAdults * pricePerNight * 0.5 * nights);
+    const maxExtraGuestCharge = Math.round(base * 0.7);
+    const extraGuestCharge = Math.min(uncappedExtraGuestCharge, maxExtraGuestCharge);
     const taxes = calculateTaxesAndFees({
-      baseAmount: base,
+      baseAmount: base + extraGuestCharge,
       serviceCharge: roomType.service_charge,
       vat: roomType.vat
     });
 
-    total += base + taxes.serviceChargeAmount + taxes.vatAmount;
+    total += base + extraGuestCharge + taxes.serviceChargeAmount + taxes.vatAmount;
+    extraChargeTotal += extraGuestCharge;
 
     roomSnapshots.push({
       room_id: room._id,
@@ -94,6 +133,7 @@ async function calculateBookingPricing({ roomDocs, checkIn, checkOut }) {
   return {
     nights,
     totalPrice: total,
+    extraCharge: extraChargeTotal,
     depositAmount,
     roomSnapshots
   };
@@ -106,8 +146,33 @@ async function createBooking({ customer, roomIds, checkIn, checkOut, guests, not
     throw err;
   }
 
-  const inDate = toDate(checkIn, 'check_in');
-  const outDate = toDate(checkOut, 'check_out');
+  const normalizedRoomIds = roomIds
+    .map((id) => String(id || '').trim())
+    .filter(Boolean);
+
+  if (normalizedRoomIds.length === 0 || normalizedRoomIds.length !== roomIds.length) {
+    const err = new Error('roomIds contains invalid values');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  if (normalizedRoomIds.some((id) => !mongoose.isValidObjectId(id))) {
+    const err = new Error('roomIds must be valid ids');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  let inDate;
+  let outDate;
+  try {
+    inDate = toDate(checkIn, 'check_in');
+    outDate = toDate(checkOut, 'check_out');
+    diffNights(inDate, outDate);
+  } catch (error) {
+    const err = new Error(error.message || 'Invalid check-in/check-out dates');
+    err.statusCode = 400;
+    throw err;
+  }
 
   const now = new Date();
   const holdExpiresAt = getHoldExpiresAt(now);
@@ -115,20 +180,20 @@ async function createBooking({ customer, roomIds, checkIn, checkOut, guests, not
   const customerDoc = await createOrReuseCustomer(customer);
 
   const rooms = await Room.find({
-    _id: { $in: roomIds },
+    _id: { $in: normalizedRoomIds },
     is_active: true,
     status: 'available'
   }).populate('room_type_id');
 
-  if (rooms.length !== roomIds.length) {
+  if (rooms.length !== normalizedRoomIds.length) {
     const err = new Error('One or more rooms are invalid or not available');
     err.statusCode = 400;
     throw err;
   }
 
-  await assertRoomsAvailable({ roomIds, checkIn: inDate, checkOut: outDate });
+  await assertRoomsAvailable({ roomIds: normalizedRoomIds, checkIn: inDate, checkOut: outDate });
 
-  const pricing = await calculateBookingPricing({ roomDocs: rooms, checkIn: inDate, checkOut: outDate });
+  const pricing = await calculateBookingPricing({ roomDocs: rooms, checkIn: inDate, checkOut: outDate, guests });
 
   const booking = await Booking.create({
     customer_id: customerDoc._id,
@@ -141,7 +206,7 @@ async function createBooking({ customer, roomIds, checkIn, checkOut, guests, not
     },
     totalPrice: pricing.totalPrice,
     depositAmount: pricing.depositAmount,
-    extraCharge: 0,
+    extraCharge: pricing.extraCharge,
     status: 'pending',
     note: note || '',
     holdExpiresAt,

@@ -20,4 +20,25 @@ export class RoomCardComponent {
       this.router.navigate(['/rooms', roomTypeId]);
     }
   }
+
+  bookNow(): void {
+    const roomTypeId = this.room().roomTypeId;
+    if (!roomTypeId) return;
+
+    const today = new Date();
+    const checkIn = new Date(today);
+    checkIn.setDate(today.getDate() + 1);
+    const checkOut = new Date(checkIn);
+    checkOut.setDate(checkIn.getDate() + 1);
+
+    this.router.navigate(['/booking-create'], {
+      queryParams: {
+        roomTypeId,
+        checkIn: checkIn.toISOString().slice(0, 10),
+        checkOut: checkOut.toISOString().slice(0, 10),
+        adults: 2,
+        children: 0
+      }
+    });
+  }
 }

@@ -30,6 +30,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/booking-detail/booking-detail').then(m => m.BookingDetail),
   },
   {
+    path: 'booking-create',
+    loadComponent: () => import('./pages/booking-create/booking-create').then(m => m.BookingCreate),
+  },
+  {
     path: 'cancel-booking',
     loadComponent: () => import('./pages/cancel-booking/cancel-booking').then(m => m.CancelBooking),
   },

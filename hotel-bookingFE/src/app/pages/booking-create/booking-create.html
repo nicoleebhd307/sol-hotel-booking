@@ -1,0 +1,56 @@
+<div class="min-h-screen bg-[#fffcf1]">
+  <app-sticky-navbar [navLinks]="navLinks" [logoUrl]="logoUrl" [reserveLabel]="reserveLabel" [alwaysSolid]="true" />
+
+  <div class="px-6 md:px-12 pt-96 md:pt-32 pb-32 max-w-[1280px] mx-auto">
+    <app-booking-create-hero />
+
+    <div class="flex flex-col lg:flex-row gap-8 xl:gap-10 items-start">
+      <app-booking-create-steps
+        class="w-full lg:flex-[0_0_64%] xl:flex-[0_0_66%]"
+        [currentStep]="currentStep()"
+        [errorMsg]="errorMsg()"
+        [isNewCustomer]="isNewCustomer()"
+        [isPhoneLoading]="isPhoneLoading()"
+        [isBookingLoading]="isBookingLoading()"
+        [isPaymentLoading]="isPaymentLoading()"
+        [policyAccepted]="policyAccepted()"
+        [selectedPaymentMethod]="selectedPaymentMethod()"
+        [phoneForm]="phoneForm"
+        [guestForm]="guestForm"
+        [cardForm]="cardForm"
+        [depositAmount]="depositAmount"
+        (phoneContinue)="onPhoneContinue()"
+        (guestContinue)="onGuestContinue()"
+        (togglePolicy)="togglePolicy()"
+        (confirmPolicy)="onConfirmPolicy()"
+        (payDeposit)="onPayDeposit()"
+        (selectPaymentMethod)="setPaymentMethod($event)"
+      />
+
+      <app-booking-create-summary
+        class="w-full lg:flex-[0_0_36%] xl:flex-[0_0_34%]"
+        [roomImageUrl]="roomImageUrl"
+        [roomView]="roomView"
+        [roomName]="roomName"
+        [checkIn]="checkIn"
+        [checkOut]="checkOut"
+        [nights]="nights"
+        [maxAdultsAllowed]="maxAdultsAllowed"
+        [adults]="adults"
+        [guestsLabel]="guestsLabel"
+        [isBookingInfoLocked]="isBookingInfoLocked"
+        [roomRate]="roomRate"
+        [extraGuestCharge]="extraGuestCharge"
+        [taxesAndFees]="taxesAndFees"
+        [totalAmount]="totalAmount"
+        [depositAmount]="depositAmount"
+        (checkInChange)="onCheckInChange($event)"
+        (checkOutChange)="onCheckOutChange($event)"
+        (adultsChange)="onAdultsChange($event)"
+      />
+
+    </div>
+  </div>
+
+  <app-site-footer [data]="footerData" />
+</div>

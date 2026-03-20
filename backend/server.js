@@ -13,6 +13,7 @@ const bookingRoutes = require('./routes/bookingRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
+const customerRoutes = require('./routes/customerRoutes');
 
 const bookingService = require('./services/bookingService');
 
@@ -32,6 +33,7 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/services', serviceRoutes);
+app.use('/api/customers', customerRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });

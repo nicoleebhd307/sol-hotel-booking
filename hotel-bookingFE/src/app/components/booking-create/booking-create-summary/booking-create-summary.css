@@ -1,0 +1,36 @@
+:host {
+  --booking-gold: #c5a059;
+  --booking-beige-border: rgba(209, 197, 180, 0.7);
+  --booking-beige-border-disabled: rgba(209, 197, 180, 0.45);
+}
+
+.booking-date-input {
+  accent-color: var(--booking-gold);
+  border-bottom-color: var(--booking-beige-border);
+  transition: border-color 180ms ease;
+  color-scheme: light;
+}
+
+.booking-date-input:focus {
+  border-bottom-color: var(--booking-gold);
+}
+
+.booking-date-input:disabled {
+  border-bottom-color: var(--booking-beige-border-disabled);
+}
+
+.booking-date-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  transition: filter 180ms ease;
+  filter: invert(38%) sepia(11%) saturate(637%) hue-rotate(8deg) brightness(92%) contrast(90%);
+}
+
+.booking-date-input:hover:not(:disabled)::-webkit-calendar-picker-indicator,
+.booking-date-input:focus::-webkit-calendar-picker-indicator {
+  filter: invert(63%) sepia(29%) saturate(488%) hue-rotate(2deg) brightness(94%) contrast(88%);
+}
+
+.booking-date-input:disabled::-webkit-calendar-picker-indicator {
+  cursor: not-allowed;
+  opacity: 0.45;
+}

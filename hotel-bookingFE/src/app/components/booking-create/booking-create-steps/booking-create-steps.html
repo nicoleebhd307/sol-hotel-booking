@@ -1,0 +1,390 @@
+<div class="flex-1 flex flex-col gap-6 min-w-0">
+  @if (errorMsg()) {
+    <div class="bg-red-50 border border-red-200 rounded-xl px-5 py-4 text-red-700 font-sans text-sm">
+      {{ errorMsg() }}
+    </div>
+  }
+
+  @if (isStepActive(1)) {
+    <div class="bg-white/70 rounded-2xl border border-[rgba(197,160,89,0.20)] p-8 flex flex-col gap-10 backdrop-blur-sm"
+         style="box-shadow: 0px 10px 30px -10px rgba(197,160,89,0.3);">
+      <div class="flex items-center gap-4">
+        <span class="font-serif italic text-5xl text-[#c5a059] leading-none">01</span>
+        <h2 class="font-serif text-[#1a1a1a] text-3xl font-normal">Enter your phone number</h2>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-4 items-end">
+        <div class="flex flex-col gap-2 flex-1">
+          <label class="font-sans text-xs font-semibold text-[#1a1a1a] uppercase tracking-[1.4px]">Mobile Number</label>
+          <div class="flex gap-2">
+            <div class="bg-[rgba(255,251,239,0.30)] border border-[rgba(209,197,180,0.30)] rounded-lg px-4 py-3.5 w-24 font-sans text-[#1d1c13] text-base shrink-0">
+              +84
+            </div>
+            <input
+              [formControl]="phoneControl"
+              type="tel"
+              placeholder="901 234 567"
+              class="flex-1 bg-[rgba(255,251,239,0.30)] border border-[rgba(209,197,180,0.30)] rounded-lg px-4 py-3.5 font-sans text-[#1d1c13] text-base outline-none focus:border-[#c5a059] transition-colors placeholder:text-[#9ca3af]"
+              [class.border-red-400]="phoneControl.invalid && phoneControl.touched"
+            />
+          </div>
+          @if (phoneControl.invalid && phoneControl.touched) {
+            <p class="font-sans text-xs text-red-500">Please enter a valid phone number (9-11 digits).</p>
+          }
+        </div>
+
+        <button
+          (click)="phoneContinue.emit()"
+          [disabled]="isPhoneLoading()"
+          class="rounded-2xl px-8 py-4 font-serif italic text-white text-lg shrink-0 transition-opacity hover:opacity-90 disabled:opacity-50"
+          style="background: linear-gradient(0deg, #c79e35 0%, #ddbC6c 100%);">
+          @if (isPhoneLoading()) {
+            <span class="flex items-center gap-2">
+              <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+              Checking...
+            </span>
+          } @else {
+            Continue
+          }
+        </button>
+      </div>
+    </div>
+  } @else {
+    <div class="bg-[#f8f3e4] rounded-tr-lg rounded-br-lg rounded-tl-lg rounded-bl-lg px-6 py-5 flex items-center gap-4 opacity-75">
+      <span class="font-serif italic text-[#4e4639] text-4xl leading-none">01</span>
+      <span class="font-serif italic text-[#1a1a1a] text-xl">Phone Verified</span>
+      <div class="flex-1 h-px bg-[rgba(209,197,180,0.30)]"></div>
+      @if (isStepCompleted(1)) {
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M5.33459 11.3038L0 5.9692L1.0692 4.9L5.33459 9.16538L14.5 0L15.5692 1.0692L5.33459 11.3038Z" fill="#1D1C13"/></svg>
+      }
+    </div>
+  }
+
+  @if (isStepActive(2)) {
+    <div class="bg-white/70 rounded-2xl border border-[rgba(197,160,89,0.20)] p-8 flex flex-col gap-10 backdrop-blur-sm"
+         style="box-shadow: 0px 10px 30px -10px rgba(197,160,89,0.3);">
+      <div class="flex items-center gap-4">
+        <span class="font-serif italic text-5xl text-[#c5a059] leading-none">02</span>
+        <div>
+          <h2 class="font-serif text-[#1a1a1a] text-3xl font-normal">Guest Information</h2>
+          @if (!isNewCustomer()) {
+            <p class="font-sans text-sm text-[#775a19] mt-1">
+              We found your profile - details have been filled in for you.
+            </p>
+          }
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div class="flex flex-col gap-2">
+          <label class="font-sans text-xs font-semibold text-[#1a1a1a] uppercase tracking-[1.4px]">Full Name</label>
+          <input
+            [formControl]="guestNameControl"
+            type="text"
+            placeholder="Johnathan Doe"
+            class="bg-[rgba(255,251,239,0.30)] border border-[rgba(209,197,180,0.30)] rounded-lg px-4 py-3.5 font-sans text-[#1d1c13] text-base outline-none focus:border-[#c5a059] transition-colors placeholder:text-[#9ca3af]"
+            [class.border-red-400]="guestNameControl.invalid && guestNameControl.touched"
+          />
+          @if (guestNameControl.invalid && guestNameControl.touched) {
+            <p class="font-sans text-xs text-red-500">Full name is required (min. 2 characters).</p>
+          }
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label class="font-sans text-xs font-semibold text-[#1a1a1a] uppercase tracking-[1.4px]">Email Address</label>
+          <input
+            [formControl]="guestEmailControl"
+            type="email"
+            placeholder="j.doe@example.com"
+            class="bg-[rgba(255,251,239,0.30)] border border-[rgba(209,197,180,0.30)] rounded-lg px-4 py-3.5 font-sans text-[#1d1c13] text-base outline-none focus:border-[#c5a059] transition-colors placeholder:text-[#9ca3af]"
+            [class.border-red-400]="guestEmailControl.invalid && guestEmailControl.touched"
+          />
+          @if (guestEmailControl.invalid && guestEmailControl.touched) {
+            <p class="font-sans text-xs text-red-500">Please enter a valid email address.</p>
+          }
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label class="font-sans text-xs font-semibold text-[#1a1a1a] uppercase tracking-[1.4px]">ID / Passport Number</label>
+          <input
+            [formControl]="guestIdentityControl"
+            type="text"
+            placeholder="P12345678"
+            class="bg-[rgba(255,251,239,0.30)] border border-[rgba(209,197,180,0.30)] rounded-lg px-4 py-3.5 font-sans text-[#1d1c13] text-base outline-none focus:border-[#c5a059] transition-colors placeholder:text-[#9ca3af]"
+            [class.border-red-400]="guestIdentityControl.invalid && guestIdentityControl.touched"
+          />
+          @if (guestIdentityControl.invalid && guestIdentityControl.touched) {
+            <p class="font-sans text-xs text-red-500">ID/Passport number is required.</p>
+          }
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label class="font-sans text-xs font-semibold text-[#1a1a1a] uppercase tracking-[1.4px]">Contact Phone</label>
+          <input
+            [formControl]="guestPhoneControl"
+            type="tel"
+            class="bg-[rgba(209,197,180,0.15)] border border-[rgba(209,197,180,0.30)] rounded-lg px-4 py-3.5 font-sans text-[#4e4639] text-base outline-none cursor-not-allowed"
+          />
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 pb-2">
+        <button
+          (click)="togglePolicy.emit()"
+          class="w-10 h-5 rounded-xl relative shrink-0 transition-colors"
+          [class]="policyAccepted() ? 'bg-[#c5a059]' : 'bg-[#e7e2d4]'">
+          <span class="absolute top-0 left-0 h-5 w-5 rounded-xl border-2 transition-transform"
+                [class]="policyAccepted() ? 'translate-x-5 border-[#c5a059] bg-white' : 'translate-x-0 border-[#d1c5b4] bg-white'">
+          </span>
+        </button>
+        <p class="font-sans text-sm text-[#1a1a1a] leading-5">
+          Update my information for future stays
+        </p>
+      </div>
+
+      <button
+        (click)="guestContinue.emit()"
+        class="w-full py-5 rounded-2xl font-serif italic text-white text-lg transition-opacity hover:opacity-90"
+        style="background: linear-gradient(0deg, #c79e35 0%, #ddbc6c 100%);">
+        Continue to Policies
+      </button>
+    </div>
+  } @else if (isStepCompleted(2)) {
+    <div class="bg-[#f8f3e4] rounded-lg px-6 py-5 flex items-center gap-4 opacity-75">
+      <span class="font-serif italic text-[#4e4639] text-4xl leading-none">02</span>
+      <span class="font-serif italic text-[#1a1a1a] text-xl">Guest Details</span>
+      <div class="flex-1 h-px bg-[rgba(209,197,180,0.30)]"></div>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M5.33459 11.3038L0 5.9692L1.0692 4.9L5.33459 9.16538L14.5 0L15.5692 1.0692L5.33459 11.3038Z" fill="#1D1C13"/></svg>
+    </div>
+  } @else if (isStepLocked(2)) {
+    <div class="bg-[#f8f3e4] rounded-lg px-6 py-5 flex items-center justify-between opacity-60">
+      <div class="flex items-center gap-4">
+        <span class="font-serif italic text-[#4e4639] text-4xl leading-none">02</span>
+        <span class="font-serif italic text-[#1a1a1a] text-xl">Guest Information</span>
+      </div>
+      <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M6 7.4L0 1.4L1.4 0L6 4.6L10.6 0L12 1.4L6 7.4Z" fill="#7F7667"/></svg>
+    </div>
+  }
+
+  @if (isStepActive(3)) {
+    <div class="bg-white/70 rounded-2xl border border-[rgba(197,160,89,0.20)] p-8 flex flex-col gap-8 backdrop-blur-sm"
+         style="box-shadow: 0px 10px 30px -10px rgba(197,160,89,0.3);">
+      <div class="flex items-center gap-4">
+        <span class="font-serif italic text-5xl text-[#c5a059] leading-none">03</span>
+        <h2 class="font-serif text-[#1a1a1a] text-3xl font-normal">Review &amp; Policies</h2>
+      </div>
+
+      <div class="bg-[rgba(245,240,228,0.6)] rounded-xl p-6 flex flex-col gap-4 font-sans text-sm text-[#4e4639] leading-6">
+        <p class="font-semibold text-[#1a1a1a] text-base">Hotel Policies</p>
+        <ul class="list-disc pl-5 flex flex-col gap-2">
+          <li><strong>Cancellation:</strong> Cancellations within 7 days before check-in are non-refundable.</li>
+          <li><strong>Cancellation:</strong> Cancellations made more than 7 days before check-in receive a 50% refund of deposit.</li>
+          <li><strong>Check-in:</strong> From 14:00. Early check-in subject to availability.</li>
+          <li><strong>Check-out:</strong> By 12:00. Late check-out may incur additional charges.</li>
+          <li><strong>Deposit:</strong> A 20% deposit is required to confirm your booking. The remaining balance is payable at check-in.</li>
+          <li><strong>Extra Guest Charge:</strong> Children under 14 stay free. Guests aged 14+ (and adults) exceeding the included occupancy are charged 50% of room rate per extra guest.</li>
+          <li><strong>No-show:</strong> No-shows will forfeit the deposit.</li>
+          <li><strong>Pets:</strong> Not permitted on the property.</li>
+          <li><strong>Smoking:</strong> Strictly prohibited in all rooms and indoor areas.</li>
+        </ul>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button
+          (click)="togglePolicy.emit()"
+          class="w-10 h-5 rounded-xl relative shrink-0 transition-colors"
+          [class]="policyAccepted() ? 'bg-[#c5a059]' : 'bg-[#e7e2d4]'">
+          <span class="absolute top-0 left-0 h-5 w-5 rounded-xl border-2 transition-transform"
+                [class]="policyAccepted() ? 'translate-x-5 border-[#c5a059] bg-white' : 'translate-x-0 border-[#d1c5b4] bg-white'">
+          </span>
+        </button>
+        <p class="font-sans text-sm text-[#1a1a1a] leading-5">
+          I have read and agree to the hotel's policies, terms, and cancellation conditions.
+        </p>
+      </div>
+
+      @if (errorMsg()) {
+        <p class="font-sans text-sm text-red-500">{{ errorMsg() }}</p>
+      }
+
+      <button
+        (click)="confirmPolicy.emit()"
+        [disabled]="isBookingLoading()"
+        class="w-full py-5 rounded-2xl font-serif italic text-white text-lg transition-opacity hover:opacity-90 disabled:opacity-50"
+        style="background: linear-gradient(0deg, #c79e35 0%, #ddbc6c 100%);">
+        @if (isBookingLoading()) {
+          <span class="flex items-center justify-center gap-2">
+            <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            Reserving your room...
+          </span>
+        } @else {
+          Confirm &amp; Reserve Room
+        }
+      </button>
+    </div>
+  } @else if (isStepCompleted(3)) {
+    <div class="bg-[#f8f3e4] rounded-lg px-6 py-5 flex items-center gap-4 opacity-75">
+      <span class="font-serif italic text-[#4e4639] text-4xl leading-none">03</span>
+      <span class="font-serif italic text-[#1a1a1a] text-xl">Policies &amp; Terms</span>
+      <div class="flex-1 h-px bg-[rgba(209,197,180,0.30)]"></div>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M5.33459 11.3038L0 5.9692L1.0692 4.9L5.33459 9.16538L14.5 0L15.5692 1.0692L5.33459 11.3038Z" fill="#1D1C13"/></svg>
+    </div>
+  } @else {
+    <div class="bg-[#f8f3e4] rounded-lg px-6 py-5 flex items-center justify-between opacity-60">
+      <div class="flex items-center gap-4">
+        <span class="font-serif italic text-[#4e4639] text-4xl leading-none">03</span>
+        <span class="font-serif italic text-[#1a1a1a] text-xl">Review &amp; Policies</span>
+      </div>
+      <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M6 7.4L0 1.4L1.4 0L6 4.6L10.6 0L12 1.4L6 7.4Z" fill="#7F7667"/></svg>
+    </div>
+  }
+
+  @if (isStepActive(4)) {
+    <div class="bg-white/70 rounded-2xl border border-[rgba(197,160,89,0.20)] p-8 flex flex-col gap-8 backdrop-blur-sm"
+         style="box-shadow: 0px 10px 30px -10px rgba(197,160,89,0.3);">
+
+      <div class="flex items-center gap-6">
+        <span class="font-serif italic text-5xl text-[#c5a059] leading-none">04</span>
+        <h2 class="font-serif text-[#1a1a1a] text-3xl font-normal">Confirm &amp; Pay Deposit</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <button
+          (click)="selectPaymentMethod.emit('card')"
+          class="flex items-center gap-3 p-4 rounded-2xl border transition-all"
+          [class]="selectedPaymentMethod() === 'card' ? 'bg-white border-[#c5a059] shadow-sm' : 'bg-white/40 border-transparent hover:bg-white/60'">
+          <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0"
+               [class]="selectedPaymentMethod() === 'card' ? 'border-[#c5a059]' : 'border-[#d1d5db]'">
+            @if (selectedPaymentMethod() === 'card') {
+              <div class="w-2.5 h-2.5 rounded-full bg-[#c5a059]"></div>
+            }
+          </div>
+          <svg class="w-4 h-4 text-[#9ca3af]" viewBox="0 0 16 13" fill="none"><path d="M15.8333 1.5064V10.9935C15.8333 11.4145 15.6874 11.7708 15.3958 12.0624C15.1041 12.3541 14.7478 12.4999 14.3269 12.4999H1.5064C1.08546 12.4999 0.72916 12.3541 0.437496 12.0624C0.145832 11.7708 0 11.4145 0 10.9935V1.5064C0 1.08546 0.145832 0.72916 0.437496 0.437496C0.72916 0.145832 1.08546 0 1.5064 0H14.3269C14.7478 0 15.1041 0.145832 15.3958 0.437496C15.6874 0.72916 15.8333 1.08546 15.8333 1.5064ZM1.24997 3.2532H14.5833V1.5064C14.5833 1.44229 14.5566 1.38353 14.5032 1.3301C14.4497 1.27668 14.391 1.24997 14.3269 1.24997H1.5064C1.44229 1.24997 1.38353 1.27668 1.3301 1.3301C1.27668 1.38353 1.24997 1.44229 1.24997 1.5064V3.2532ZM1.24997 5.91341V10.9935C1.24997 11.0576 1.27668 11.1164 1.3301 11.1698C1.38353 11.2233 1.44229 11.25 1.5064 11.25H14.3269C14.391 11.25 14.4497 11.2233 14.5032 11.1698C14.5566 11.1164 14.5833 11.0576 14.5833 10.9935V5.91341H1.24997Z" fill="#9CA3AF"/></svg>
+          <span class="font-sans text-sm font-medium text-[#1a1a1a]">Credit / Debit Card</span>
+        </button>
+
+        <button
+          (click)="selectPaymentMethod.emit('momo')"
+          class="flex items-center gap-3 p-4 rounded-2xl border transition-all"
+          [class]="selectedPaymentMethod() === 'momo' ? 'bg-white border-[#c5a059] shadow-sm' : 'bg-white/40 border-transparent hover:bg-white/60'">
+          <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0"
+               [class]="selectedPaymentMethod() === 'momo' ? 'border-[#c5a059]' : 'border-[#d1d5db]'">
+            @if (selectedPaymentMethod() === 'momo') {
+              <div class="w-2.5 h-2.5 rounded-full bg-[#c5a059]"></div>
+            }
+          </div>
+          <div class="bg-[#a50064] rounded w-7 h-7 flex items-center justify-center shrink-0">
+            <span class="text-white font-bold text-[8px] tracking-tight">MoMo</span>
+          </div>
+          <span class="font-sans text-sm font-medium text-[#1a1a1a]">MoMo Wallet</span>
+        </button>
+
+        <button
+          (click)="selectPaymentMethod.emit('vnpay')"
+          class="flex items-center gap-3 p-4 rounded-2xl border transition-all"
+          [class]="selectedPaymentMethod() === 'vnpay' ? 'bg-white border-[#c5a059] shadow-sm' : 'bg-white/40 border-transparent hover:bg-white/60'">
+          <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0"
+               [class]="selectedPaymentMethod() === 'vnpay' ? 'border-[#c5a059]' : 'border-[#d1d5db]'">
+            @if (selectedPaymentMethod() === 'vnpay') {
+              <div class="w-2.5 h-2.5 rounded-full bg-[#c5a059]"></div>
+            }
+          </div>
+          <div class="bg-[#005baa] rounded w-7 h-7 flex items-center justify-center shrink-0">
+            <span class="text-white font-bold text-[7px] tracking-tight">VNPAY</span>
+          </div>
+          <span class="font-sans text-sm font-medium text-[#1a1a1a]">VNPay QR</span>
+        </button>
+      </div>
+
+      @if (selectedPaymentMethod() === 'card') {
+        <div class="bg-white/70 rounded-2xl border border-[rgba(197,160,89,0.20)] p-8 flex flex-col gap-6 backdrop-blur-sm">
+          <div class="grid grid-cols-1 gap-6">
+            <div class="flex flex-col gap-2">
+              <label class="font-sans text-[9px] font-semibold text-[#9ca3af] uppercase tracking-[0.9px]">Cardholder Name</label>
+              <input
+                [formControl]="cardholderControl"
+                type="text"
+                placeholder="ALEXANDER SANDS"
+                class="border-b border-[#e5e7eb] py-2.5 font-sans text-sm text-[#1d1c13] uppercase tracking-[1.4px] outline-none focus:border-[#c5a059] bg-transparent transition-colors placeholder:text-[#d1d5db]"
+                [class.border-red-400]="cardholderControl.invalid && cardholderControl.touched"
+              />
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label class="font-sans text-[9px] font-semibold text-[#9ca3af] uppercase tracking-[0.9px]">Card Number</label>
+              <input
+                [formControl]="cardNumberControl"
+                type="text"
+                placeholder="0000 0000 0000 0000"
+                maxlength="16"
+                class="border-b border-[#e5e7eb] py-2.5 font-sans text-sm text-[#6b7280] tracking-[2.8px] outline-none focus:border-[#c5a059] bg-transparent transition-colors placeholder:text-[#d1d5db]"
+                [class.border-red-400]="cardNumberControl.invalid && cardNumberControl.touched"
+              />
+            </div>
+
+            <div class="grid grid-cols-2 gap-6">
+              <div class="flex flex-col gap-2">
+                <label class="font-sans text-[9px] font-semibold text-[#9ca3af] uppercase tracking-[0.9px]">Expiry Date</label>
+                <input
+                  [formControl]="expiryControl"
+                  type="text"
+                  placeholder="MM / YY"
+                  class="border-b border-[#e5e7eb] py-2.5 font-sans text-sm text-[#6b7280] outline-none focus:border-[#c5a059] bg-transparent transition-colors placeholder:text-[#d1d5db]"
+                  [class.border-red-400]="expiryControl.invalid && expiryControl.touched"
+                />
+              </div>
+
+              <div class="flex flex-col gap-2">
+                <label class="font-sans text-[9px] font-semibold text-[#9ca3af] uppercase tracking-[0.9px]">CVV</label>
+                <input
+                  [formControl]="cvvControl"
+                  type="password"
+                  placeholder="***"
+                  maxlength="4"
+                  class="border-b border-[#e5e7eb] py-2.5 font-sans text-sm text-[#6b7280] outline-none focus:border-[#c5a059] bg-transparent transition-colors placeholder:text-[#d1d5db]"
+                  [class.border-red-400]="cvvControl.invalid && cvvControl.touched"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (selectedPaymentMethod() === 'momo' || selectedPaymentMethod() === 'vnpay') {
+        <div class="bg-[rgba(245,240,228,0.6)] rounded-xl p-6 text-center font-sans text-sm text-[#4e4639]">
+          <p class="font-semibold mb-2">
+            {{ selectedPaymentMethod() === 'momo' ? 'MoMo Wallet' : 'VNPay QR' }} - Simulated
+          </p>
+          <p>Click "Pay Deposit" to simulate a successful payment. Full {{ selectedPaymentMethod() === 'momo' ? 'MoMo' : 'VNPay' }} integration coming soon.</p>
+        </div>
+      }
+
+      @if (errorMsg()) {
+        <p class="font-sans text-sm text-red-500">{{ errorMsg() }}</p>
+      }
+
+      <button
+        (click)="payDeposit.emit()"
+        [disabled]="isPaymentLoading()"
+        class="w-full py-5 rounded-2xl font-serif italic text-white text-xl transition-opacity hover:opacity-90 disabled:opacity-50"
+        style="background: linear-gradient(98.44deg, #775a19 0%, #c5a059 100%); box-shadow: 0px 10px 30px -10px rgba(197,160,89,0.4);">
+        @if (isPaymentLoading()) {
+          <span class="flex items-center justify-center gap-2">
+            <svg class="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            Processing payment...
+          </span>
+        } @else {
+          Pay Deposit - {{ formatCurrency(depositAmount()) }}
+        }
+      </button>
+    </div>
+  } @else if (!isStepActive(4) && !isStepCompleted(4)) {
+    <div class="bg-[#f8f3e4] rounded-lg px-6 py-5 flex items-center justify-between opacity-60">
+      <div class="flex items-center gap-4">
+        <span class="font-serif italic text-[#4e4639] text-4xl leading-none">04</span>
+        <span class="font-serif italic text-[#1a1a1a] text-xl">Confirm &amp; Pay Deposit</span>
+      </div>
+      <svg width="16" height="21" viewBox="0 0 16 21" fill="none"><path d="M2 21C1.45 21 0.979167 20.8042 0.5875 20.4125C0.195833 20.0208 0 19.55 0 19V9C0 8.45 0.195833 7.97917 0.5875 7.5875C0.979167 7.19583 1.45 7 2 7H3V5C3 3.61667 3.4875 2.4375 4.4625 1.4625C5.4375 0.4875 6.61667 0 8 0C9.38333 0 10.5625 0.4875 11.5375 1.4625C12.5125 2.4375 13 3.61667 13 5V7H14C14.55 7 15.0208 7.19583 15.4125 7.5875C15.8042 7.97917 16 8.45 16 9V19C16 19.55 15.8042 20.0208 15.4125 20.4125C15.0208 20.8042 14.55 21 14 21H2ZM8 16C8.55 16 9.02083 15.8042 9.4125 15.4125C9.80417 15.0208 10 14.55 10 14C10 13.45 9.80417 12.9792 9.4125 12.5875C9.02083 12.1958 8.55 12 8 12C7.45 12 6.97917 12.1958 6.5875 12.5875C6.19583 12.9792 6 13.45 6 14C6 14.55 6.19583 15.0208 6.5875 15.4125C6.97917 15.8042 7.45 16 8 16ZM5 7H11V5C11 4.16667 10.7083 3.45833 10.125 2.875C9.54167 2.29167 8.83333 2 8 2C7.16667 2 6.45833 2.29167 5.875 2.875C5.29167 3.45833 5 4.16667 5 5V7Z" fill="#7F7667"/></svg>
+    </div>
+  }
+</div>

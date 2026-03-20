@@ -54,6 +54,29 @@ export class ApiService {
     return this.http.post(`${this.API_URL}/bookings/${id}/cancel`, {});
   }
 
+  getRoomById(id: string): Observable<Room> {
+    return this.http.get<Room>(`${this.API_URL}/rooms/${id}`);
+  }
+
+  lookupCustomerByPhone(phone: string): Observable<any> {
+    return this.http.get<any>(`${this.API_URL}/customers/lookup`, { params: { phone } });
+  }
+
+  createBooking(data: {
+    customer: { name: string; email: string; phone: string; identityId?: string };
+    roomIds: string[];
+    check_in: string;
+    check_out: string;
+    guests: { adults: number; children: number };
+    note?: string;
+  }): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/bookings`, data);
+  }
+
+  payDeposit(bookingId: string, paymentMethod: string): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/payments/deposit`, { bookingId, paymentMethod });
+  }
+
   // Health check
   healthCheck(): Observable<{ status: string; uptime: number }> {
     return this.http.get<{ status: string; uptime: number }>(`http://localhost:5000/health`);

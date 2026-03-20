@@ -13,7 +13,7 @@ export class StayGuidelines {
       title: 'CHECK-IN / OUT',
       description: [
         'Check-In: 2:00 PM',
-        'Check-Out: 12:00 AM',
+        'Check-Out: 12:00 PM',
         'Early check-in and late check-out subject to availability.'
       ]
     },
@@ -26,7 +26,7 @@ export class StayGuidelines {
     {
       title: 'EXTRA GUESTS',
       description: [
-        'Children under 12 stay free using existing bedding. Extra person charge of $75/night applies for guests 13 and older.'
+        'Children under 14 stay free. Guests aged 14+ (and adults) exceeding included occupancy are charged 50% of room rate per extra guest.'
       ]
     }
   ];

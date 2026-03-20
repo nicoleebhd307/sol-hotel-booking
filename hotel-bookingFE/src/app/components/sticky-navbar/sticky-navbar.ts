@@ -21,10 +21,15 @@ export class StickyNavbar {
   readonly navLinks = input.required<NavLink[]>();
   readonly logoUrl = input.required<string>();
   readonly reserveLabel = input<string>('Reserve now');
+  readonly alwaysSolid = input<boolean>(false);
 
   protected isScrolled = signal(false);
   protected isMenuOpen = signal(false);
   private ngZone = inject(NgZone);
+
+  protected isSolid(): boolean {
+    return this.alwaysSolid() || this.isScrolled();
+  }
 
   onWindowScroll() {
     const scrollTop = window.scrollY;

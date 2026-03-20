@@ -17,11 +17,8 @@ function getEnvNumber(key, fallback) {
 function calculateRefundAmount({ depositAmount, daysBeforeCheckIn }) {
   const refundPercent = getEnvNumber('CANCEL_REFUND_PERCENT', 50);
   const refundBeforeDays = getEnvNumber('CANCEL_REFUND_BEFORE_DAYS', 7);
-  const noRefundWithinDays = getEnvNumber('CANCEL_NO_REFUND_WITHIN_DAYS', 3);
 
-  if (daysBeforeCheckIn <= noRefundWithinDays) return 0;
-  if (daysBeforeCheckIn > refundBeforeDays) return Math.round((depositAmount * refundPercent) / 100);
-
+  if (daysBeforeCheckIn <= refundBeforeDays) return 0;
   return Math.round((depositAmount * refundPercent) / 100);
 }
 

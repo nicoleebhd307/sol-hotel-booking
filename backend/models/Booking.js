@@ -10,7 +10,7 @@ const BookingRoomSchema = new mongoose.Schema(
 
 const BookingSchema = new mongoose.Schema(
   {
-    _id: { type: mongoose.Schema.Types.Mixed },
+    _id: { type: mongoose.Schema.Types.Mixed, default: () => new mongoose.Types.ObjectId() },
     customer_id: { type: mongoose.Schema.Types.Mixed, ref: 'Customer', required: true, index: true },
     rooms: { type: [BookingRoomSchema], required: true, default: [] },
     check_in: { type: Date, required: true, index: true },

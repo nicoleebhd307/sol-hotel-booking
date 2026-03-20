@@ -8,7 +8,7 @@
 
   @if (selectedRoom(); as room) {
     <!-- Hero Section with Details -->
-    <app-room-detail-hero [room]="room" [roomType]="selectedRoomType()" />
+    <app-room-detail-hero [room]="room" [roomType]="selectedRoomType()" (bookNow)="onBookNow()" />
 
     <!-- A Closer Look Section -->
     <app-closer-look />

@@ -72,9 +72,24 @@ async function getAvailableRooms(req, res, next) {
   }
 }
 
+async function getRoomById(req, res, next) {
+  try {
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ message: 'Invalid room id' });
+    }
+    const room = await Room.findById(id).populate('room_type_id').lean();
+    if (!room) return res.status(404).json({ message: 'Room not found' });
+    return res.json(room);
+  } catch (err) {
+    return next(err);
+  }
+}
+
 module.exports = {
   listRoomTypes,
   getRoomType,
   listRooms,
-  getAvailableRooms
+  getAvailableRooms,
+  getRoomById
 };

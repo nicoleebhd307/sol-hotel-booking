@@ -1,6 +1,6 @@
 import { Component, inject, AfterViewInit, PLATFORM_ID, signal, OnInit } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { RoomsContent } from '../../services/rooms-content';
 import { HomeContent } from '../../services/home-content';
@@ -30,6 +30,7 @@ import { BookingCta } from '../../components/home/booking-cta/booking-cta';
 })
 export class RoomDetail implements OnInit, AfterViewInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly apiService = inject(ApiService);
   private readonly roomsContent = inject(RoomsContent);
   private readonly homeContent = inject(HomeContent);
@@ -116,5 +117,26 @@ export class RoomDetail implements OnInit, AfterViewInit {
     );
 
     revealElements.forEach((element) => observer.observe(element));
+  }
+
+  onBookNow(): void {
+    const roomTypeId = this.route.snapshot.paramMap.get('id');
+    if (!roomTypeId) return;
+
+    const today = new Date();
+    const checkIn = new Date(today);
+    checkIn.setDate(today.getDate() + 1);
+    const checkOut = new Date(checkIn);
+    checkOut.setDate(checkIn.getDate() + 1);
+
+    this.router.navigate(['/booking-create'], {
+      queryParams: {
+        roomTypeId,
+        checkIn: checkIn.toISOString().slice(0, 10),
+        checkOut: checkOut.toISOString().slice(0, 10),
+        adults: 2,
+        children: 0
+      }
+    });
   }
 }

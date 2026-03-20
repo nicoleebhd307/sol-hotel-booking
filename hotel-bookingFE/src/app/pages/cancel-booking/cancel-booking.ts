@@ -28,9 +28,8 @@ export class CancelBooking implements OnInit {
   protected readonly isCancelling = signal<boolean>(false);
 
   protected readonly cancellationPolicy = [
-    'Free cancellation up to 14 days before check-in',
-    'If cancelled 7-13 days before, 50% refund applies',
-    'Cancellations within 7 days forfeit the full payment',
+    'Cancellations within 7 days before check-in are non-refundable',
+    'Cancellations made more than 7 days before check-in receive a 50% refund of deposit',
     'You will receive notification confirmation via email'
   ];
 

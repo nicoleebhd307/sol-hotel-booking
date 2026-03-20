@@ -1,5 +1,5 @@
 <nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out"
-	[class]="isScrolled() ? 'bg-[#ffffff] shadow-md py-4 md:py-6' : 'bg-transparent py-4 md:py-6'">
+	[class]="isSolid() ? 'bg-[#ffffff] shadow-md py-4 md:py-6' : 'bg-transparent py-4 md:py-6'">
 	<div class="mx-auto max-w-[1280px] px-8">
 		<div class="flex items-center justify-between relative">
 
@@ -7,7 +7,7 @@
 			<div class="hidden md:flex items-center gap-10">
 				@for (link of navLinks(); track link.label) {
 					<a [routerLink]="link.href" class="font-['Plus_Jakarta_Sans',sans-serif] text-sm uppercase tracking-[0.1em] transition-colors duration-300 hover:opacity-70"
-						[class]="isScrolled() ? 'text-[#1a1a1a]' : 'text-white'">{{ link.label }}</a>
+						[class]="isSolid() ? 'text-[#1a1a1a]' : 'text-white'">{{ link.label }}</a>
 				}
 			</div>
 
@@ -16,15 +16,15 @@
 				class="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-0.5 transition-all duration-300">
 				<div class="h-7 flex items-center justify-center">
 					<img
-						[src]="isScrolled() ? 'assets/images/sol-gold.png' : logoUrl()"
+						[src]="isSolid() ? 'assets/images/sol-gold.png' : logoUrl()"
 						alt="Sol An Bang logo"
 						class="h-7 w-auto object-contain transition-all duration-500"
 					/>
 				</div>
 				<p class="text-xl uppercase font-serif tracking-[0.35em] leading-tight transition-colors duration-300"
-					[class]="isScrolled() ? 'text-[#1a1a1a]' : 'text-white'">Sol An Bang</p>
+					[class]="isSolid() ? 'text-[#1a1a1a]' : 'text-white'">Sol An Bang</p>
 				<p class="text-[10px] uppercase tracking-[0.25em] transition-colors duration-300"
-					[class]="isScrolled() ? 'text-[#6b7280]' : 'text-white/70'">Beach Resort &amp; Spa</p>
+					[class]="isSolid() ? 'text-[#6b7280]' : 'text-white/70'">Beach Resort &amp; Spa</p>
 			</div>
 
 			<!-- Right: My Booking (scrolled only) + Contact Us + Reserve -->
@@ -32,12 +32,12 @@
 
 <a routerLink="/search-booking"
 					class="rounded-lg px-4 py-2 font-['Plus_Jakarta_Sans',sans-serif] text-sm uppercase w-[141px] h-10 flex items-center justify-center transition-colors duration-300 hover:opacity-70"
-					[class]="isScrolled() ? 'text-[#1a1a1a]' : 'text-white'"
+					[class]="isSolid() ? 'text-[#1a1a1a]' : 'text-white'"
 											style="letter-spacing:1.7px">My Booking</a>
 				
 				<a href="#footer"
 					class="rounded-lg px-4 py-2 font-['Plus_Jakarta_Sans',sans-serif] text-sm uppercase w-[141px] h-10 flex items-center justify-center transition-colors duration-300 hover:opacity-70"
-					[class]="isScrolled() ? 'text-[#1a1a1a]' : 'text-white'"
+					[class]="isSolid() ? 'text-[#1a1a1a]' : 'text-white'"
 					style="letter-spacing: 2px">Contact Us</a>
 				<a
 					routerLink="/rooms"
@@ -50,7 +50,7 @@
 			<button
 				type="button"
 				class="md:hidden relative z-20 rounded-md p-2 transition-colors duration-300"
-				[class]="isScrolled() ? 'text-[#1a1a1a] bg-black/5' : 'text-white bg-white/10'"
+				[class]="isSolid() ? 'text-[#1a1a1a] bg-black/5' : 'text-white bg-white/10'"
 				(click)="toggleMenu()"
 				aria-label="Toggle navigation"
 			>

@@ -1,4 +1,4 @@
-import { Component, input, computed, signal } from '@angular/core';
+import { Component, input, computed, signal, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { RoomCard, RoomType } from '../../../models/home.models';
@@ -12,6 +12,7 @@ import { RoomCard, RoomType } from '../../../models/home.models';
 export class RoomDetailHero {
   readonly room = input.required<RoomCard>();
   readonly roomType = input<RoomType | null>(null);
+  readonly bookNow = output<void>();
 
   protected readonly currentImageIndex = signal(0);
 
@@ -63,5 +64,9 @@ export class RoomDetailHero {
     if (amenityLower.includes('bed') || amenityLower.includes('tv')) return 'single_bed';
 
     return 'check_circle';
+  }
+
+  onBookNow(): void {
+    this.bookNow.emit();
   }
 }
