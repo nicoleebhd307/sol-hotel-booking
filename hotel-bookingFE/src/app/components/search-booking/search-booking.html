@@ -1,0 +1,77 @@
+<div class="bg-[#f9f7f2] text-[#1a1a1a] h-auto flex flex-col min-h-screen">
+  <!-- Sticky Navbar -->
+  <app-sticky-navbar
+    [navLinks]="navLinks"
+    [logoUrl]="logoUrl"
+    [reserveLabel]="reserveLabel"
+  />
+
+  <!-- Search Booking Content -->
+  <div class="flex-1 flex items-center justify-center">
+    <!-- Search Form View -->
+    <div class="relative h-screen flex items-center justify-center overflow-hidden w-full">
+      <!-- Background Video/Image -->
+      <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1600&q=80');"></div>
+      <div class="absolute inset-0 bg-black/30"></div>
+
+      <!-- Content Container -->
+      <div class="relative z-15 max-w-md w-full mx-4 reveal-scale">
+        <div class="bg-white/10 backdrop-blur-xs rounded-xl p-6 text-center border border-white/20">
+          <!-- Guest Portal Label -->
+          <span class="inline-block px-4 py-2 bg-white/20 rounded-full text-[10px] uppercase tracking-widest text-white font-medium mb-6 reveal-up">Guest Portal</span>
+
+          <!-- Heading -->
+          <h1 class="font-serif text-4xl md:text-5xl text-white mb-2 reveal-up">
+            Find Your
+            <span class="italic block">Reservation</span>
+          </h1>
+
+          <!-- Description -->
+          <p class="text-white/80 text-xs md:text-sm mb-8 leading-relaxed reveal-up">
+            Please enter your unique booking reference to access your itinerary and management tools.
+          </p>
+
+          <!-- Form -->
+          <div class="space-y-4 mb-8 text-left reveal-up">
+            <div>
+              <label class="block text-xs uppercase tracking-widest text-white/70 font-medium mb-2">Booking ID</label>
+              <input
+                type="text"
+                placeholder="e.g. BK001"
+                [(ngModel)]="bookingId"
+                [disabled]="isLoading()"
+                class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/50 focus:outline-none focus:border-white/50 focus:bg-white/30 transition-all disabled:opacity-50"
+              />
+              <p class="text-white/60 text-xs mt-2">Your ID is located in your confirmation email.</p>
+            </div>
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="errorMessage()" class="mb-6 p-4 bg-red-500/30 border border-red-500/50 rounded-lg reveal-up">
+            <p class="text-red-200 text-sm">{{ errorMessage() }}</p>
+          </div>
+
+          <!-- Search Button -->
+          <button
+            (click)="onSearchBooking($event)"
+            [disabled]="isLoading()"
+            class="w-full py-3 rounded-lg text-white font-serif italic text-lg mb-6 transition-all duration-300 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed reveal-up"
+            style="background: linear-gradient(0deg, rgba(199,158,53,1) 0%, rgba(221,188,108,1) 100%);"
+          >
+            {{ isLoading() ? 'Searching...' : 'Search Reservation' }}
+          </button>
+
+          <!-- Help Links -->
+          <div class="flex gap-4 justify-center text-sm reveal-up">
+            <a href="#" class="text-white/70 hover:text-white transition-colors uppercase tracking-wide text-xs font-medium">Help Center</a>
+            <span class="text-white/30">|</span>
+            <a href="#" class="text-white/70 hover:text-white transition-colors uppercase tracking-wide text-xs font-medium">Contact Us</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <app-site-footer [data]="footerData" />
+</div>

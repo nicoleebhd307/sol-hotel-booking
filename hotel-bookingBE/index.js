@@ -13,13 +13,16 @@ app.use(express.json());
 // Load mock data
 const roomTypesPath = path.join(__dirname, 'data', 'room-types.json');
 const roomsPath = path.join(__dirname, 'data', 'rooms.json');
+const bookingsPath = path.join(__dirname, 'data', 'bookings.json');
 
 let roomTypes = [];
 let rooms = [];
+let bookings = [];
 
 try {
   roomTypes = JSON.parse(fs.readFileSync(roomTypesPath, 'utf-8'));
   rooms = JSON.parse(fs.readFileSync(roomsPath, 'utf-8'));
+  bookings = JSON.parse(fs.readFileSync(bookingsPath, 'utf-8'));
 } catch (error) {
   console.error('Error loading mock data:', error);
 }
@@ -126,6 +129,41 @@ app.get('/api/rooms/:id', (req, res) => {
   });
 });
 
+// Search booking by ID
+app.get('/api/bookings/search/:bookingId', (req, res) => {
+  const bookingId = req.params.bookingId.toUpperCase();
+  const booking = bookings.find(b => b.bookingId.toUpperCase() === bookingId);
+  
+  if (!booking) {
+    return res.status(404).json({
+      success: false,
+      message: `No booking found with ID: ${req.params.bookingId}`
+    });
+  }
+
+  res.json({
+    success: true,
+    data: booking
+  });
+});
+
+// Get booking by ID
+app.get('/api/bookings/:id', (req, res) => {
+  const booking = bookings.find(b => b._id === req.params.id);
+  
+  if (!booking) {
+    return res.status(404).json({
+      success: false,
+      message: 'Booking not found'
+    });
+  }
+
+  res.json({
+    success: true,
+    data: booking
+  });
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({
@@ -148,4 +186,5 @@ app.listen(PORT, () => {
   console.log(`Backend API running on http://localhost:${PORT}`);
   console.log(`Room types loaded: ${roomTypes.length}`);
   console.log(`Rooms loaded: ${rooms.length}`);
+  console.log(`Bookings loaded: ${bookings.length}`);
 });
