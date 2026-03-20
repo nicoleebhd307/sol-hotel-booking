@@ -8,7 +8,7 @@ import { BookingRowComponent } from '../booking-row/booking-row.component';
   standalone: true,
   imports: [CommonModule, BookingRowComponent],
   template: `
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto" style="font-family: 'Plus Jakarta Sans', sans-serif;">
       <table class="w-full min-w-[1080px]">
         <thead class="bg-[#f6f4ed] text-[#6f6a5e] text-[11px] uppercase tracking-[0.6px] font-semibold">
           <tr>

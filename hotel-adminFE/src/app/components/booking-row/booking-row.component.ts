@@ -35,7 +35,7 @@ import { BookingRole, BookingStatus, BookingView } from '../../models/booking.mo
     </td>
 
     <td class="py-3 px-4 align-top">
-      <span class="inline-flex px-3.5 py-1 rounded-full text-[13px] font-semibold uppercase" [ngClass]="paymentClass">
+      <span class="inline-flex px-3.5 py-1 rounded-full text-[11px] font-semibold uppercase" [ngClass]="paymentClass">
         {{ booking.paymentStatus }}
       </span>
     </td>

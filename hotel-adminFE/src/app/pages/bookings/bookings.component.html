@@ -7,7 +7,7 @@
     <app-header-topbar [userInfo]="userInfo"></app-header-topbar>
 
     <main class="flex-1 overflow-y-auto">
-      <div class="px-8 py-8 max-w-[1280px] mx-auto w-full space-y-7">
+      <div class="px-8 py-8 max-w-[1280px] mx-auto w-full space-y-7" style="font-family: 'Plus Jakarta Sans', sans-serif;">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-[9px] uppercase tracking-[1.1px] text-[#978f7d] font-semibold">Management / <span class="text-[#7c6a39]">Bookings</span></p>
@@ -67,13 +67,44 @@
               </h3>
             </div>
 
-            <button
-              type="button"
-              class="w-9 h-9 inline-flex items-center justify-center rounded-md hover:bg-[#f2efe6]"
-              (click)="closeBookingDetail()"
-            >
-              <mat-icon class="text-[18px] text-[#6f695d]">close</mat-icon>
-            </button>
+            <div class="flex items-center gap-2">
+              <button
+                *ngIf="selectedBooking && !isEditingDetail"
+                type="button"
+                class="h-10 px-4 rounded-[10px] border border-[rgba(140,130,110,0.35)] text-[#5e574b] text-[13px] font-semibold hover:bg-[#f4f1e7]"
+                (click)="startEditDetail()"
+              >
+                Edit
+              </button>
+
+              <button
+                *ngIf="selectedBooking && isEditingDetail"
+                type="button"
+                class="h-10 px-4 rounded-[10px] border border-[rgba(140,130,110,0.35)] text-[#5e574b] text-[13px] font-semibold hover:bg-[#f4f1e7]"
+                [disabled]="savingEdit"
+                (click)="cancelEditDetail()"
+              >
+                Cancel
+              </button>
+
+              <button
+                *ngIf="selectedBooking && isEditingDetail"
+                type="button"
+                class="h-10 px-4 rounded-[10px] bg-[#7d6a2c] text-white text-[13px] font-semibold hover:bg-[#6e5d27] disabled:opacity-60 disabled:cursor-not-allowed"
+                [disabled]="savingEdit"
+                (click)="saveEditDetail()"
+              >
+                {{ savingEdit ? 'Saving...' : 'Save' }}
+              </button>
+
+              <button
+                type="button"
+                class="w-9 h-9 inline-flex items-center justify-center rounded-md hover:bg-[#f2efe6]"
+                (click)="closeBookingDetail()"
+              >
+                <mat-icon class="text-[18px] text-[#6f695d]">close</mat-icon>
+              </button>
+            </div>
           </div>
 
           <div *ngIf="detailLoading" class="py-12 text-center text-[#7a7468]">Loading booking detail...</div>
@@ -91,12 +122,30 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-[13px]">
                   <div>
                     <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Guest Name</p>
-                    <p class="mt-1 text-[15px] text-[#1d1c13] font-semibold">{{ selectedBookingView?.guestName || '-' }}</p>
+                    <ng-container *ngIf="isEditingDetail; else guestNameView">
+                      <input
+                        type="text"
+                        [(ngModel)]="editForm.guestName"
+                        class="mt-1 h-10 w-full rounded-[10px] border border-[rgba(189,179,158,0.75)] px-3 text-[14px] font-medium text-[#1d1c13] focus:outline-none focus:border-[#a88d47]"
+                      />
+                    </ng-container>
+                    <ng-template #guestNameView>
+                      <p class="mt-1 text-[15px] text-[#1d1c13] font-semibold">{{ selectedBookingView?.guestName || '-' }}</p>
+                    </ng-template>
                   </div>
 
                   <div>
                     <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Phone Number</p>
-                    <p class="mt-1 text-[15px] text-[#1d1c13] font-semibold">{{ selectedBookingView?.phone || '-' }}</p>
+                    <ng-container *ngIf="isEditingDetail; else phoneView">
+                      <input
+                        type="text"
+                        [(ngModel)]="editForm.guestPhone"
+                        class="mt-1 h-10 w-full rounded-[10px] border border-[rgba(189,179,158,0.75)] px-3 text-[14px] font-medium text-[#1d1c13] focus:outline-none focus:border-[#a88d47]"
+                      />
+                    </ng-container>
+                    <ng-template #phoneView>
+                      <p class="mt-1 text-[15px] text-[#1d1c13] font-semibold">{{ selectedBookingView?.phone || '-' }}</p>
+                    </ng-template>
                   </div>
 
                   <div>
@@ -122,27 +171,73 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-[13px]">
                   <div>
                     <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Check-in</p>
-                    <p class="mt-1 text-[14px] text-[#2d2b24] font-semibold">{{ selectedBooking.check_in | date: 'MMM d, y' }}</p>
+                    <ng-container *ngIf="isEditingDetail; else checkInView">
+                      <input
+                        type="date"
+                        [(ngModel)]="editForm.checkIn"
+                        class="mt-1 h-10 w-full rounded-[10px] border border-[rgba(189,179,158,0.75)] px-3 text-[14px] font-medium text-[#1d1c13] focus:outline-none focus:border-[#a88d47]"
+                      />
+                    </ng-container>
+                    <ng-template #checkInView>
+                      <p class="mt-1 text-[14px] text-[#2d2b24] font-semibold">{{ selectedBooking.check_in | date: 'MMM d, y' }}</p>
+                    </ng-template>
                   </div>
 
                   <div>
                     <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Check-out</p>
-                    <p class="mt-1 text-[14px] text-[#2d2b24] font-semibold">{{ selectedBooking.check_out | date: 'MMM d, y' }}</p>
+                    <ng-container *ngIf="isEditingDetail; else checkOutView">
+                      <input
+                        type="date"
+                        [(ngModel)]="editForm.checkOut"
+                        class="mt-1 h-10 w-full rounded-[10px] border border-[rgba(189,179,158,0.75)] px-3 text-[14px] font-medium text-[#1d1c13] focus:outline-none focus:border-[#a88d47]"
+                      />
+                    </ng-container>
+                    <ng-template #checkOutView>
+                      <p class="mt-1 text-[14px] text-[#2d2b24] font-semibold">{{ selectedBooking.check_out | date: 'MMM d, y' }}</p>
+                    </ng-template>
                   </div>
 
                   <div>
                     <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Guests</p>
-                    <p class="mt-1 text-[14px] text-[#2d2b24] font-semibold">{{ selectedBooking.guests }}</p>
+                    <ng-container *ngIf="isEditingDetail; else guestsView">
+                      <input
+                        type="number"
+                        min="1"
+                        [(ngModel)]="editForm.guests"
+                        class="mt-1 h-10 w-full rounded-[10px] border border-[rgba(189,179,158,0.75)] px-3 text-[14px] font-medium text-[#1d1c13] focus:outline-none focus:border-[#a88d47]"
+                      />
+                    </ng-container>
+                    <ng-template #guestsView>
+                      <p class="mt-1 text-[14px] text-[#2d2b24] font-semibold">{{ selectedBooking.guests }}</p>
+                    </ng-template>
                   </div>
 
                   <div>
                     <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Room Type</p>
-                    <p class="mt-1 text-[14px] text-[#2d2b24] font-semibold">{{ selectedBookingView?.roomType || '-' }}</p>
+                    <ng-container *ngIf="isEditingDetail; else roomTypeView">
+                      <input
+                        type="text"
+                        [(ngModel)]="editForm.roomType"
+                        class="mt-1 h-10 w-full rounded-[10px] border border-[rgba(189,179,158,0.75)] px-3 text-[14px] font-medium text-[#1d1c13] focus:outline-none focus:border-[#a88d47]"
+                      />
+                    </ng-container>
+                    <ng-template #roomTypeView>
+                      <p class="mt-1 text-[14px] text-[#2d2b24] font-semibold">{{ selectedBookingView?.roomType || '-' }}</p>
+                    </ng-template>
                   </div>
 
                   <div>
                     <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Room Number</p>
-                    <p class="mt-1 text-[14px] text-[#2d2b24] font-semibold">{{ selectedBookingView?.roomNumber || '-' }}</p>
+                    <ng-container *ngIf="isEditingDetail; else roomNumberView">
+                      <input
+                        type="text"
+                        [(ngModel)]="editForm.roomNumber"
+                        class="mt-1 h-10 w-full rounded-[10px] border border-[rgba(189,179,158,0.75)] px-3 text-[14px] font-medium text-[#1d1c13] focus:outline-none focus:border-[#a88d47]"
+                      />
+                    </ng-container>
+                    <ng-template #roomNumberView>
+                      <p class="mt-1 text-[14px] text-[#2d2b24] font-semibold">{{ selectedBookingView?.roomNumber || '-' }}</p>
+                    </ng-template>
                   </div>
 
                   <div>
@@ -154,7 +249,16 @@
 
               <div class="bg-white border border-[rgba(209,197,180,0.25)] rounded-2xl p-5 shadow-[0_4px_24px_rgba(29,28,19,0.03)]">
                 <label class="block text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253] mb-2">Note</label>
-                <p class="text-[14px] text-[#2d2b24] leading-relaxed">{{ selectedBooking.note || 'No note' }}</p>
+                <ng-container *ngIf="isEditingDetail; else noteView">
+                  <textarea
+                    rows="3"
+                    [(ngModel)]="editForm.note"
+                    class="w-full rounded-[12px] border border-[rgba(189,179,158,0.75)] px-3 py-2 text-[14px] text-[#2d2b24] leading-relaxed resize-y focus:outline-none focus:border-[#a88d47]"
+                  ></textarea>
+                </ng-container>
+                <ng-template #noteView>
+                  <p class="text-[14px] text-[#2d2b24] leading-relaxed">{{ selectedBooking.note || 'No note' }}</p>
+                </ng-template>
               </div>
             </section>
 

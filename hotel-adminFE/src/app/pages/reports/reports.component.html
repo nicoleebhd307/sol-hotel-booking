@@ -1,0 +1,203 @@
+<div class="flex bg-[#fcfaf1] min-h-screen">
+  <div class="fixed left-0 top-0 w-[260px] h-screen overflow-y-auto">
+    <app-sidebar></app-sidebar>
+  </div>
+
+  <div class="flex-1 ml-[260px] flex flex-col overflow-hidden">
+    <app-header-topbar [userInfo]="userInfo"></app-header-topbar>
+
+    <main class="flex-1 overflow-y-auto">
+      <div class="px-8 py-8 max-w-[1280px] mx-auto w-full space-y-7" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-[9px] uppercase tracking-[1.1px] text-[#978f7d] font-semibold">Management / <span class="text-[#7c6a39]">Reports</span></p>
+            <h1 class="text-[48px] leading-[1.03] text-[#1f1d16]" style="font-family: 'Playfair Display', serif;">
+              Reports <span class="italic">Dashboard</span>
+            </h1>
+          </div>
+        </div>
+
+        <section class="bg-[rgba(232,227,215,0.75)] rounded-[22px] border border-[rgba(214,205,187,0.7)] px-6 py-5">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-end">
+            <div class="lg:col-span-6">
+              <label class="block text-[10px] font-bold uppercase tracking-[1.1px] text-[#4e4639] mb-2">Selection Month</label>
+              <div class="relative">
+                <mat-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-[#5f574a] text-[20px] pointer-events-none">calendar_month</mat-icon>
+                <select
+                  [(ngModel)]="selectedMonth"
+                  (ngModelChange)="onMonthChange($event)"
+                  class="w-full h-12 rounded-[14px] bg-white border border-[rgba(189,179,158,0.75)] pl-12 pr-10 text-[13px] font-medium text-[#2d2b24] appearance-none focus:outline-none focus:border-[#a88d47]"
+                >
+                  @for (month of months; track month.value) {
+                    <option [ngValue]="month.value">{{ month.label }}</option>
+                  }
+                </select>
+                <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-[#5f574a] text-[20px] pointer-events-none">expand_more</mat-icon>
+              </div>
+            </div>
+
+            <div class="lg:col-span-6">
+              <label class="block text-[10px] font-bold uppercase tracking-[1.1px] text-[#4e4639] mb-2">Fiscal Year</label>
+              <div class="relative">
+                <mat-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-[#5f574a] text-[20px] pointer-events-none">event</mat-icon>
+                <select
+                  [(ngModel)]="selectedYear"
+                  (ngModelChange)="onYearChange($event)"
+                  class="w-full h-12 rounded-[14px] bg-white border border-[rgba(189,179,158,0.75)] pl-12 pr-10 text-[13px] font-medium text-[#2d2b24] appearance-none focus:outline-none focus:border-[#a88d47]"
+                >
+                  @for (year of years; track year) {
+                    <option [ngValue]="year">{{ year }}</option>
+                  }
+                </select>
+                <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-[#5f574a] text-[20px] pointer-events-none">expand_more</mat-icon>
+              </div>
+            </div>
+
+          </div>
+
+          <p *ngIf="errorMessage" class="mt-3 text-[13px] text-[#a84545] font-semibold">{{ errorMessage }}</p>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          <app-dashboard-card *ngFor="let card of kpiCards" [data]="card"></app-dashboard-card>
+        </section>
+
+        <section class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+          <article class="xl:col-span-8 bg-white rounded-[22px] border border-[rgba(214,205,187,0.7)] p-6 overflow-hidden">
+            <div class="flex items-center justify-between mb-5">
+              <div>
+                <h2 class="text-[34px] leading-[1.05] text-[#1d1c13]" style="font-family: 'Playfair Display', serif;">Daily Revenue Trends</h2>
+                <p class="text-[13px] text-[#5f574a]">Performance metrics for the current month</p>
+              </div>
+
+              <span class="inline-flex items-center gap-2 text-[12px] text-[#2d2b24] font-semibold">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#2b2f88]"></span>
+                Net Revenue
+              </span>
+            </div>
+
+            <div class="overflow-x-auto">
+              <svg [attr.viewBox]="'0 0 ' + revenueChartWidth + ' ' + revenueChartHeight" class="w-full h-[250px] min-w-[640px]">
+                <line
+                  *ngFor="let y of revenueGuideLines"
+                  x1="0"
+                  [attr.y1]="y"
+                  [attr.x2]="revenueChartWidth"
+                  [attr.y2]="y"
+                  stroke="#eee8d8"
+                  stroke-width="1"
+                ></line>
+
+                <line x1="0" y1="0" x2="0" [attr.y2]="revenueChartPlotHeight" stroke="#e6dfcf" stroke-width="1"></line>
+                <line x1="0" [attr.y1]="revenueChartPlotHeight" [attr.x2]="revenueChartWidth" [attr.y2]="revenueChartPlotHeight" stroke="#dcd3c0" stroke-width="1"></line>
+
+                <g *ngFor="let bar of revenueBars">
+                  <rect
+                    [attr.x]="bar.x"
+                    [attr.y]="bar.y"
+                    [attr.width]="bar.width"
+                    [attr.height]="bar.height"
+                    rx="10"
+                    [attr.fill]="bar.color"
+                  ></rect>
+
+                  <text
+                    *ngIf="bar.showLabel"
+                    [attr.x]="bar.x + (bar.width / 2)"
+                    [attr.y]="revenueChartHeight - 8"
+                    text-anchor="middle"
+                    font-size="10"
+                    fill="#6f695d"
+                  >
+                    {{ bar.label }}
+                  </text>
+                </g>
+              </svg>
+            </div>
+          </article>
+
+          <article class="xl:col-span-4 bg-white rounded-[22px] border border-[rgba(214,205,187,0.7)] p-6">
+            <h2 class="text-[34px] leading-[1.05] text-[#1d1c13]" style="font-family: 'Playfair Display', serif;">Booking Status</h2>
+            <p class="text-[13px] text-[#5f574a]">Volume distribution</p>
+
+            <div class="flex justify-center py-4">
+              <svg viewBox="0 0 220 220" class="w-[220px] h-[220px]">
+                <g transform="translate(110,110)">
+                  <circle r="74" fill="none" stroke="#efe8d5" stroke-width="18"></circle>
+                  <circle
+                    *ngFor="let segment of donutSegments"
+                    r="74"
+                    fill="none"
+                    [attr.stroke]="segment.color"
+                    stroke-width="18"
+                    [attr.stroke-dasharray]="segment.dash"
+                    [attr.stroke-dashoffset]="segment.offset"
+                    transform="rotate(-90)"
+                  ></circle>
+                </g>
+
+                <text x="110" y="102" text-anchor="middle" font-size="38" fill="#2b2f88" font-weight="700">
+                  {{ totalStatusCount }}
+                </text>
+                <text x="110" y="125" text-anchor="middle" font-size="12" fill="#6f695d" font-weight="600">TOTAL</text>
+              </svg>
+            </div>
+
+            <div class="space-y-2 text-[13px]">
+              <div *ngFor="let item of statusLegend" class="flex items-center justify-between">
+                <div class="flex items-center gap-2 text-[#2d2b24]">
+                  <span class="w-2.5 h-2.5 rounded-full" [style.background-color]="item.color"></span>
+                  <span>{{ item.label }}</span>
+                </div>
+                <span class="font-semibold text-[#4e4639]">{{ item.ratio }}%</span>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="bg-white rounded-[22px] border border-[rgba(214,205,187,0.7)] overflow-hidden">
+          <div class="px-5 py-4 bg-[#f6f4ed] border-b border-[rgba(214,205,187,0.7)] flex items-center justify-between">
+            <h3 class="text-[30px] leading-[1.05] text-[#1d1c13]" style="font-family: 'Playfair Display', serif;">Recent Activity</h3>
+            <span class="text-[12px] text-[#6f695d]">{{ reportsData?.recentBookings?.length || 0 }} records</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-left">
+              <thead class="bg-[#f6f4ed] text-[#6f6a5e] text-[11px] uppercase tracking-[0.6px] font-semibold border-b border-[rgba(214,205,187,0.7)]">
+                <tr>
+                  <th class="px-5 py-4">Booking ID</th>
+                  <th class="px-5 py-4">Customer Name</th>
+                  <th class="px-5 py-4">Total Amount</th>
+                  <th class="px-5 py-4">Status</th>
+                  <th class="px-5 py-4">Created At</th>
+                </tr>
+              </thead>
+
+              <tbody class="bg-white">
+                <tr *ngIf="loading">
+                  <td colspan="5" class="px-5 py-10 text-center text-[13px] text-[#7a7468]">Loading report rows...</td>
+                </tr>
+
+                <tr *ngIf="!loading && (reportsData?.recentBookings?.length || 0) === 0">
+                  <td colspan="5" class="px-5 py-10 text-center text-[13px] text-[#7a7468]">No activity found for selected period.</td>
+                </tr>
+
+                <tr *ngFor="let booking of reportsData?.recentBookings" class="border-b border-[rgba(214,205,187,0.45)] hover:bg-[rgba(252,248,238,0.58)]">
+                  <td class="px-5 py-4 text-[13px] font-semibold text-[#2d2b24]">#{{ booking.bookingId }}</td>
+                  <td class="px-5 py-4 text-[13px] text-[#2d2b24] font-semibold">{{ booking.customerName }}</td>
+                  <td class="px-5 py-4 text-[13px] text-[#2d2b24] font-semibold">${{ booking.totalAmount | number: '1.2-2' }}</td>
+                  <td class="px-5 py-4">
+                    <span class="inline-flex items-center px-2.5 h-7 rounded-full text-[11px] font-semibold uppercase" [ngClass]="getStatusClass(booking.status)">
+                      {{ formatStatus(booking.status) }}
+                    </span>
+                  </td>
+                  <td class="px-5 py-4 text-[13px] text-[#6a6254]">{{ formatDate(booking.createdAt) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>

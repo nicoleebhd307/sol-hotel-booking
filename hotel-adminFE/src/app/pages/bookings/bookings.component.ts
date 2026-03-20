@@ -1,7 +1,9 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ChangeDetectorRef, Component, NgZone, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
+import { finalize, timeout } from 'rxjs';
 import { BookingFilterComponent } from '../../components/booking-filter/booking-filter.component';
 import { BookingTableComponent } from '../../components/booking-table/booking-table.component';
 import { HeaderTopbarComponent } from '../../components/header-topbar/header-topbar.component';
@@ -16,6 +18,7 @@ import { BookingService } from '../../services/booking.service';
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatIconModule,
     SidebarComponent,
     HeaderTopbarComponent,
@@ -68,6 +71,18 @@ export class BookingsComponent implements OnInit {
   pagedBookings: BookingView[] = [];
   selectedBooking: Booking | null = null;
   selectedBookingView: BookingView | null = null;
+  isEditingDetail = false;
+  savingEdit = false;
+  editForm = {
+    guestName: '',
+    guestPhone: '',
+    checkIn: '',
+    checkOut: '',
+    guests: 1,
+    roomType: '',
+    roomNumber: '',
+    note: '',
+  };
   pendingDeleteBooking: BookingView | null = null;
   pendingCancelStatusChange: { booking: BookingView; status: BookingStatus } | null = null;
   private statusUpdatingIds = new Set<string>();
@@ -184,12 +199,14 @@ export class BookingsComponent implements OnInit {
   onViewBooking(booking: BookingView): void {
     this.detailLoading = true;
     this.selectedBooking = null;
+    this.isEditingDetail = false;
 
     this.bookingService.getBookingById(booking.id).subscribe({
       next: (detail) => {
         this.ngZone.run(() => {
           this.selectedBooking = detail;
           this.selectedBookingView = this.mapToViewBooking(detail);
+          this.syncEditFormFromSelectedBooking();
           this.detailLoading = false;
           this.cdr.detectChanges();
         });
@@ -326,9 +343,102 @@ export class BookingsComponent implements OnInit {
   }
 
   closeBookingDetail(): void {
+    this.isEditingDetail = false;
+    this.savingEdit = false;
     this.selectedBooking = null;
     this.selectedBookingView = null;
     this.detailLoading = false;
+  }
+
+  startEditDetail(): void {
+    if (!this.selectedBooking || this.savingEdit) {
+      return;
+    }
+
+    this.syncEditFormFromSelectedBooking();
+    this.isEditingDetail = true;
+  }
+
+  cancelEditDetail(): void {
+    if (this.savingEdit) {
+      return;
+    }
+
+    this.syncEditFormFromSelectedBooking();
+    this.isEditingDetail = false;
+  }
+
+  saveEditDetail(): void {
+    if (!this.selectedBooking || this.savingEdit) {
+      return;
+    }
+
+    const nextCheckIn = this.toDateInput(this.editForm.checkIn);
+    const nextCheckOut = this.toDateInput(this.editForm.checkOut);
+    if (!nextCheckIn || !nextCheckOut) {
+      return;
+    }
+
+    if (new Date(nextCheckOut).getTime() < new Date(nextCheckIn).getTime()) {
+      return;
+    }
+
+    this.savingEdit = true;
+
+    const previousBooking = this.selectedBooking;
+
+    const payload: Partial<Booking> = {
+      guest_name: this.editForm.guestName.trim(),
+      guest_phone: this.editForm.guestPhone.trim(),
+      room_type: this.editForm.roomType.trim(),
+      room_number: this.editForm.roomNumber.trim(),
+      check_in: nextCheckIn,
+      check_out: nextCheckOut,
+      guests: Math.max(1, Number(this.editForm.guests) || 1),
+      note: this.editForm.note.trim(),
+    };
+
+    const optimisticBooking: Booking = {
+      ...this.selectedBooking,
+      ...payload,
+    };
+
+    this.selectedBooking = optimisticBooking;
+    this.selectedBookingView = this.mapToViewBooking(optimisticBooking);
+    this.updateBookingListEntry(optimisticBooking);
+    this.isEditingDetail = false;
+    this.cdr.detectChanges();
+
+    this.bookingService.updateBooking(this.selectedBooking._id, payload)
+      .pipe(
+        timeout(6000),
+        finalize(() => {
+          this.ngZone.run(() => {
+            this.savingEdit = false;
+            this.cdr.detectChanges();
+          });
+        })
+      )
+      .subscribe({
+        next: (updatedBooking) => {
+          this.ngZone.run(() => {
+            this.selectedBooking = updatedBooking;
+            this.selectedBookingView = this.mapToViewBooking(updatedBooking);
+            this.updateBookingListEntry(updatedBooking);
+            this.cdr.detectChanges();
+          });
+        },
+        error: () => {
+          this.ngZone.run(() => {
+            if (previousBooking) {
+              this.selectedBooking = previousBooking;
+              this.selectedBookingView = this.mapToViewBooking(previousBooking);
+              this.updateBookingListEntry(previousBooking);
+            }
+            this.cdr.detectChanges();
+          });
+        },
+      });
   }
 
   getSelectedMappedStatus(): BookingStatus | '-' {
@@ -393,6 +503,41 @@ export class BookingsComponent implements OnInit {
       paymentStatus: this.mapPaymentStatus(booking.totalPrice, booking.depositAmount),
       status: this.mapStatus(booking.status),
     };
+  }
+
+  private syncEditFormFromSelectedBooking(): void {
+    if (!this.selectedBooking) {
+      return;
+    }
+
+    this.editForm = {
+      guestName: this.selectedBooking.guest_name || '',
+      guestPhone: this.selectedBooking.guest_phone || '',
+      checkIn: this.toDateInput(this.selectedBooking.check_in),
+      checkOut: this.toDateInput(this.selectedBooking.check_out),
+      guests: Math.max(1, Number(this.selectedBooking.guests) || 1),
+      roomType: this.selectedBooking.room_type || this.selectedBookingView?.roomType || '',
+      roomNumber: this.selectedBooking.room_number || this.selectedBookingView?.roomNumber || '',
+      note: this.selectedBooking.note || '',
+    };
+  }
+
+  private updateBookingListEntry(updatedBooking: Booking): void {
+    const index = this.allBookings.findIndex((booking) => booking.id === updatedBooking._id);
+    if (index === -1) {
+      return;
+    }
+
+    this.allBookings[index] = this.mapToViewBooking(updatedBooking);
+    this.applyPagination();
+  }
+
+  private toDateInput(value: string): string {
+    if (!value) {
+      return '';
+    }
+
+    return value.slice(0, 10);
   }
 
   private mapPaymentStatus(totalPrice: number, depositAmount: number): PaymentStatus {

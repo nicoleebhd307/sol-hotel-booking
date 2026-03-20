@@ -1,0 +1,229 @@
+<div class="flex bg-[#fcfaf1] min-h-screen">
+  <div class="fixed left-0 top-0 w-[260px] h-screen overflow-y-auto">
+    <app-sidebar></app-sidebar>
+  </div>
+
+  <div class="flex-1 ml-[260px] flex flex-col overflow-hidden">
+    <app-header-topbar [userInfo]="userInfo"></app-header-topbar>
+
+    <main class="flex-1 overflow-y-auto">
+      <div class="px-8 py-8 max-w-[1280px] mx-auto w-full space-y-7">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-[9px] uppercase tracking-[1.1px] text-[#978f7d] font-semibold">Management / <span class="text-[#7c6a39]">Rooms</span></p>
+            <h1 class="text-[48px] leading-[1.03] text-[#1f1d16]" style="font-family: 'Playfair Display', serif;">
+              Room <span class="italic">Management</span>
+            </h1>
+            <p class="mt-2 text-[14px] text-[#5f574a]">Manage property inventory and real-time occupancy status.</p>
+          </div>
+        </div>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
+          <article class="bg-white rounded-[24px] border border-[rgba(209,197,180,0.12)] shadow-sm p-6 hover:shadow-md transition-shadow">
+            <div class="flex justify-between items-start mb-8">
+              <mat-icon class="text-[30px] text-[#775a19]">calendar_month</mat-icon>
+              <span class="text-xs font-bold text-[#775a19]">+{{ availableRatio }}</span>
+            </div>
+            <p class="text-sm font-medium text-[#4e4639] mb-2" style="font-family: 'Plus Jakarta Sans', sans-serif;">Total Rooms</p>
+            <h3 class="text-3xl font-bold text-[#1d1c13]" style="font-family: 'Plus Jakarta Sans', sans-serif;">{{ totalRooms }}</h3>
+          </article>
+
+          <article class="bg-white rounded-[24px] border border-[rgba(209,197,180,0.12)] shadow-sm p-6 hover:shadow-md transition-shadow">
+            <div class="flex justify-between items-start mb-8">
+              <mat-icon class="text-[30px] text-[#775a19]">meeting_room</mat-icon>
+              <span class="text-xs font-bold text-[#246a38]">+{{ availableRatio }}</span>
+            </div>
+            <p class="text-sm font-medium text-[#4e4639] mb-2" style="font-family: 'Plus Jakarta Sans', sans-serif;">Available</p>
+            <h3 class="text-3xl font-bold text-[#1d1c13]" style="font-family: 'Plus Jakarta Sans', sans-serif;">{{ availableRooms }}</h3>
+          </article>
+
+          <article class="bg-white rounded-[24px] border border-[rgba(209,197,180,0.12)] shadow-sm p-6 hover:shadow-md transition-shadow">
+            <div class="flex justify-between items-start mb-8">
+              <mat-icon class="text-[30px] text-[#775a19]">login</mat-icon>
+              <span class="text-xs font-bold text-[#2c5f9f]">+{{ occupiedRatio }}</span>
+            </div>
+            <p class="text-sm font-medium text-[#4e4639] mb-2" style="font-family: 'Plus Jakarta Sans', sans-serif;">Occupied</p>
+            <h3 class="text-3xl font-bold text-[#1d1c13]" style="font-family: 'Plus Jakarta Sans', sans-serif;">{{ occupiedRooms }}</h3>
+          </article>
+
+          <article class="bg-white rounded-[24px] border border-[rgba(209,197,180,0.12)] shadow-sm p-6 hover:shadow-md transition-shadow">
+            <div class="flex justify-between items-start mb-8">
+              <mat-icon class="text-[30px] text-[#775a19]">engineering</mat-icon>
+              <span class="text-xs font-bold text-[#565656]">+{{ maintenanceRatio }}</span>
+            </div>
+            <p class="text-sm font-medium text-[#4e4639] mb-2" style="font-family: 'Plus Jakarta Sans', sans-serif;">Maintenance</p>
+            <h3 class="text-3xl font-bold text-[#1d1c13]" style="font-family: 'Plus Jakarta Sans', sans-serif;">{{ maintenanceRooms }}</h3>
+          </article>
+
+          <article class="bg-white rounded-[24px] border border-[rgba(209,197,180,0.12)] shadow-sm p-6 hover:shadow-md transition-shadow">
+            <div class="flex justify-between items-start mb-8">
+              <mat-icon class="text-[30px] text-[#775a19]">bed</mat-icon>
+              <span class="text-xs font-bold text-[#a84545]">{{ inactiveRatio }}</span>
+            </div>
+            <p class="text-sm font-medium text-[#4e4639] mb-2" style="font-family: 'Plus Jakarta Sans', sans-serif;">Inactive</p>
+            <h3 class="text-3xl font-bold text-[#1d1c13]" style="font-family: 'Plus Jakarta Sans', sans-serif;">{{ inactiveRooms }}</h3>
+          </article>
+        </section>
+
+        <section class="bg-[rgba(232,227,215,0.75)] rounded-[22px] border border-[rgba(214,205,187,0.7)] px-6 py-5" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-end">
+            <div class="lg:col-span-6">
+              <label class="block text-[10px] font-bold uppercase tracking-[1.1px] text-[#4e4639] mb-2">Search</label>
+              <div class="relative">
+                <input
+                  type="text"
+                  [(ngModel)]="searchTerm"
+                  (ngModelChange)="applyFilters()"
+                  placeholder="Search by room number..."
+                  class="w-full h-12 rounded-[14px] bg-white border border-[rgba(189,179,158,0.75)] px-12 pr-4 text-[13px] font-medium text-[#2d2b24] placeholder:text-[#8f8776] focus:outline-none focus:border-[#a88d47]"
+                />
+                <mat-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-[#5f574a] text-[21px]">search</mat-icon>
+              </div>
+            </div>
+
+            <div class="lg:col-span-2">
+              <label class="block text-[10px] font-bold uppercase tracking-[1.1px] text-[#4e4639] mb-2">Status</label>
+              <div class="relative">
+                <mat-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-[#5f574a] text-[20px] pointer-events-none">checklist</mat-icon>
+                <select
+                  [(ngModel)]="statusFilter"
+                  (ngModelChange)="applyFilters()"
+                  class="w-full h-12 rounded-[14px] bg-white border border-[rgba(189,179,158,0.75)] pl-12 pr-10 text-[13px] font-medium text-[#2d2b24] appearance-none focus:outline-none focus:border-[#a88d47]"
+                >
+                  <option value="all">All status</option>
+                  <option value="available">Available</option>
+                  <option value="occupied">Occupied</option>
+                  <option value="maintenance">Maintenance</option>
+                </select>
+                <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-[#5f574a] text-[20px] pointer-events-none">expand_more</mat-icon>
+              </div>
+            </div>
+
+            <div class="lg:col-span-2">
+              <label class="block text-[10px] font-bold uppercase tracking-[1.1px] text-[#4e4639] mb-2">Room Type</label>
+              <div class="relative">
+                <mat-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-[#5f574a] text-[20px] pointer-events-none">hotel</mat-icon>
+                <select
+                  [(ngModel)]="roomTypeFilter"
+                  (ngModelChange)="applyFilters()"
+                  class="w-full h-12 rounded-[14px] bg-white border border-[rgba(189,179,158,0.75)] pl-12 pr-10 text-[13px] font-medium text-[#2d2b24] appearance-none focus:outline-none focus:border-[#a88d47]"
+                >
+                  @for (roomType of roomTypeOptions; track roomType) {
+                    <option [value]="roomType">
+                      {{ roomType === 'all' ? 'All room types' : roomType }}
+                    </option>
+                  }
+                </select>
+                <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-[#5f574a] text-[20px] pointer-events-none">expand_more</mat-icon>
+              </div>
+            </div>
+
+            <div class="lg:col-span-2">
+              <label class="block text-[10px] font-bold uppercase tracking-[1.1px] text-[#4e4639] mb-2">Sort By</label>
+              <div class="relative">
+                <mat-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-[#5f574a] text-[20px] pointer-events-none">sort</mat-icon>
+                <select
+                  [(ngModel)]="sortBy"
+                  (ngModelChange)="applyFilters()"
+                  class="w-full h-12 rounded-[14px] bg-white border border-[rgba(189,179,158,0.75)] pl-12 pr-10 text-[13px] font-medium text-[#2d2b24] appearance-none focus:outline-none focus:border-[#a88d47]"
+                >
+                  <option value="default">Default</option>
+                  <option value="roomAsc">Room No. (Ascending)</option>
+                  <option value="roomDesc">Room No. (Descending)</option>
+                  <option value="priceHigh">Price (High to Low)</option>
+                  <option value="priceLow">Price (Low to High)</option>
+                </select>
+                <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-[#5f574a] text-[20px] pointer-events-none">expand_more</mat-icon>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="bg-white rounded-[22px] border border-[rgba(214,205,187,0.7)] overflow-hidden mt-10">
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-left">
+              <thead class="bg-[#f6f4ed] text-[#6f6a5e] text-[11px] uppercase tracking-[0.6px] font-semibold border-b border-[rgba(214,205,187,0.7)]">
+                <tr>
+                  <th class="px-5 py-4">Room No.</th>
+                  <th class="px-5 py-4">Type</th>
+                  <th class="px-5 py-4">Price</th>
+                  <th class="px-5 py-4">Capacity</th>
+                  <th class="px-5 py-4">Status</th>
+                  <th class="px-5 py-4"></th>
+                </tr>
+              </thead>
+
+              <tbody class="bg-white">
+                <tr *ngIf="loading">
+                  <td colspan="6" class="px-5 py-8 text-center text-[13px] text-[#7a7468]">Loading rooms...</td>
+                </tr>
+
+                <tr *ngIf="!loading && filteredRooms.length === 0">
+                  <td colspan="6" class="px-5 py-8 text-center text-[13px] text-[#7a7468]">No rooms found.</td>
+                </tr>
+
+                @for (room of pagedRooms; track room._id) {
+                  <tr class="border-b border-[rgba(214,205,187,0.45)] hover:bg-[rgba(252,248,238,0.58)]">
+                    <td class="px-5 py-4 text-[13px] font-semibold text-[#2d2b24]">{{ room.room_number }}</td>
+                    <td class="px-5 py-4 text-[13px] text-[#2d2b24]">{{ room.room_type.name }}</td>
+                    <td class="px-5 py-4">
+                      <p class="text-[13px] text-[#2d2b24] font-semibold">{{ formatPrice(room.price_per_night) }}</p>
+                      <p class="text-[12px] text-[#6f6759] mt-1">per night</p>
+                    </td>
+                    <td class="px-5 py-4 text-[13px] text-[#2d2b24]">
+                      <span class="inline-flex items-center gap-1.5">
+                        <mat-icon class="text-[16px]">person</mat-icon>
+                        {{ formatCapacity(room) }}
+                      </span>
+                    </td>
+                    <td class="px-5 py-4">
+                      <span class="inline-flex items-center px-2.5 h-7 rounded-full text-[11px] font-semibold" [ngClass]="getStatusClass(room)">
+                        {{ getStatusLabel(room) }}
+                      </span>
+                    </td>
+                    <td class="px-5 py-4">
+                      <div class="flex items-center justify-end gap-1.5 min-w-[106px]">
+                        <button
+                          type="button"
+                          class="w-6 h-6 inline-flex items-center justify-center rounded-md hover:bg-[#f1ede1]"
+                          aria-label="View room"
+                        >
+                          <mat-icon class="text-[16px] text-[#6f695d]">visibility</mat-icon>
+                        </button>
+
+                        <button
+                          type="button"
+                          class="w-6 h-6 inline-flex items-center justify-center rounded-md hover:bg-[#f1ede1]"
+                          aria-label="Edit room"
+                        >
+                          <mat-icon class="text-[16px] text-[#6f695d]">edit</mat-icon>
+                        </button>
+
+                        <button
+                          type="button"
+                          class="w-6 h-6 inline-flex items-center justify-center rounded-md hover:bg-[#f8ecec]"
+                          aria-label="Delete room"
+                        >
+                          <mat-icon class="text-[16px] text-[#6f695d]">cancel</mat-icon>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="px-5 py-3 border-t border-[rgba(214,205,187,0.45)] bg-white">
+            <app-pagination
+              [totalItems]="totalFilteredRooms"
+              [pageSize]="pageSize"
+              [currentPage]="currentPage"
+              (pageChange)="onPageChange($event)"
+            ></app-pagination>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>

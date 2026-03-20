@@ -7,38 +7,40 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   imports: [CommonModule, MatIconModule],
   template: `
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-[12px] text-[#5f5748]">
-      <p>Showing {{ startItem }}-{{ endItem }} of {{ totalItems }} bookings</p>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <p class="text-[11px] font-bold uppercase tracking-[0.9px] text-[#8b836f]">
+        Showing {{ startItem }}-{{ endItem }} of {{ totalItems }} entries
+      </p>
 
-      <div class="flex items-center gap-1 text-[#756e60]">
+      <div class="flex items-center gap-1.5">
         <button
           type="button"
-          class="w-6 h-6 rounded-full flex items-center justify-center disabled:opacity-40"
+          class="w-9 h-9 rounded-[11px] border border-[rgba(189,179,158,0.7)] bg-white text-[#6e675a] inline-flex items-center justify-center disabled:opacity-50"
           [disabled]="currentPage === 1"
           (click)="changePage(currentPage - 1)"
         >
-          <mat-icon class="text-[15px]">chevron_left</mat-icon>
+          <mat-icon class="text-[18px]">chevron_left</mat-icon>
         </button>
 
         <button
           type="button"
           *ngFor="let p of visiblePages"
-          class="w-6 h-6 rounded-full text-[12px]"
-          [ngClass]="p === currentPage ? 'bg-[#8f742f] text-white font-semibold' : 'text-[#70695a]'"
+          class="w-9 h-9 rounded-[11px] text-[13px] font-bold"
+          [ngClass]="p === currentPage ? 'bg-[#7d6a2c] text-white' : 'border border-[rgba(189,179,158,0.7)] bg-white text-[#6e675a]'"
           (click)="changePage(p)"
         >
           {{ p }}
         </button>
 
-        <span *ngIf="showEllipsis" class="px-1 text-[#8d8578]">...</span>
+        <span *ngIf="showEllipsis" class="px-1 text-[#8d8578] text-[13px]">...</span>
 
         <button
           type="button"
-          class="w-6 h-6 rounded-full flex items-center justify-center disabled:opacity-40"
+          class="w-9 h-9 rounded-[11px] border border-[rgba(189,179,158,0.7)] bg-white text-[#6e675a] inline-flex items-center justify-center disabled:opacity-50"
           [disabled]="currentPage === totalPages"
           (click)="changePage(currentPage + 1)"
         >
-          <mat-icon class="text-[15px]">chevron_right</mat-icon>
+          <mat-icon class="text-[18px]">chevron_right</mat-icon>
         </button>
       </div>
     </div>

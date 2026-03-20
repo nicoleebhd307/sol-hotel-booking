@@ -9,9 +9,9 @@ import { BookingFilterParams } from '../../models/booking.model';
   standalone: true,
   imports: [CommonModule, FormsModule, MatIconModule],
   template: `
-    <div class="bg-[#e7e3d5] rounded-[18px] px-4 py-2.5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3.5">
+    <div class="bg-[#e7e3d5] rounded-[18px] px-4 py-2.5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3.5" style="font-family: 'Plus Jakarta Sans', sans-serif;">
       <div class="flex flex-col">
-        <p class="h-7 text-[10px] font-bold uppercase tracking-[0.55px] leading-[1.15] text-[#514a3e] mb-1.5">Search<br />Identifier</p>
+        <p class="h-7 text-[10px] font-bold uppercase tracking-[1.1px] leading-[1.15] text-[#514a3e] mb-1.5">Search<br />Identifier</p>
         <div class="relative">
           <mat-icon class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[16px] text-[#9b9487]">badge</mat-icon>
           <input
@@ -19,19 +19,19 @@ import { BookingFilterParams } from '../../models/booking.model';
             (ngModelChange)="emitFilter()"
             type="text"
             placeholder="ID or Phone Number"
-            class="w-full bg-[#f8f7f3] rounded-[7px] border border-[rgba(0,0,0,0.04)] h-9 pl-9 pr-2.5 text-[13px] text-[#595247] placeholder:text-[#a49e90] focus:outline-none focus:ring-2 focus:ring-[#b79f61]"
+            class="w-full bg-[#f8f7f3] rounded-[7px] border border-[rgba(0,0,0,0.04)] h-9 pl-9 pr-2.5 text-[13px] font-medium text-[#595247] placeholder:text-[#a49e90] focus:outline-none focus:ring-2 focus:ring-[#b79f61]"
           />
         </div>
       </div>
 
       <div class="flex flex-col">
-        <p class="h-7 text-[10px] font-bold uppercase tracking-[0.55px] leading-[1.15] text-[#514a3e] mb-1.5">Status</p>
+        <p class="h-7 text-[10px] font-bold uppercase tracking-[1.1px] leading-[1.15] text-[#514a3e] mb-1.5">Status</p>
         <div class="relative">
           <mat-icon class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[16px] text-[#9b9487]">fact_check</mat-icon>
           <select
             [(ngModel)]="filters.status"
             (ngModelChange)="emitFilter()"
-            class="w-full bg-[#f8f7f3] rounded-[7px] border border-[rgba(0,0,0,0.04)] h-9 pl-9 pr-7 text-[13px] text-[#595247] appearance-none focus:outline-none focus:ring-2 focus:ring-[#b79f61]"
+            class="w-full bg-[#f8f7f3] rounded-[7px] border border-[rgba(0,0,0,0.04)] h-9 pl-9 pr-7 text-[13px] font-medium text-[#595247] appearance-none focus:outline-none focus:ring-2 focus:ring-[#b79f61]"
           >
             <option value="All">All Statuses</option>
             <option value="Confirmed">Confirmed</option>
@@ -45,7 +45,7 @@ import { BookingFilterParams } from '../../models/booking.model';
       </div>
 
       <div class="flex flex-col">
-        <p class="h-7 text-[10px] font-bold uppercase tracking-[0.55px] leading-[1.15] text-[#514a3e] mb-1.5">Date<br />Range</p>
+        <p class="h-7 text-[10px] font-bold uppercase tracking-[1.1px] leading-[1.15] text-[#514a3e] mb-1.5">Date<br />Range</p>
         <div class="relative">
           <mat-icon class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[16px] text-[#9b9487]">calendar_today</mat-icon>
           <input
@@ -53,19 +53,19 @@ import { BookingFilterParams } from '../../models/booking.model';
             (ngModelChange)="emitFilter()"
             type="text"
             placeholder="Oct 12 - Oct 19, 2023"
-            class="w-full bg-[#f8f7f3] rounded-[7px] border border-[rgba(0,0,0,0.04)] h-9 pl-9 pr-2.5 text-[13px] text-[#767062] placeholder:text-[#9d9789] focus:outline-none focus:ring-2 focus:ring-[#b79f61]"
+            class="w-full bg-[#f8f7f3] rounded-[7px] border border-[rgba(0,0,0,0.04)] h-9 pl-9 pr-2.5 text-[13px] font-medium text-[#767062] placeholder:text-[#9d9789] focus:outline-none focus:ring-2 focus:ring-[#b79f61]"
           />
         </div>
       </div>
 
       <div class="flex flex-col">
-        <p class="h-7 text-[10px] font-bold uppercase tracking-[0.55px] leading-[1.15] text-[#514a3e] mb-1.5">Room<br />Category</p>
+        <p class="h-7 text-[10px] font-bold uppercase tracking-[1.1px] leading-[1.15] text-[#514a3e] mb-1.5">Room<br />Category</p>
         <div class="relative">
           <mat-icon class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[16px] text-[#9b9487]">hotel</mat-icon>
           <select
             [(ngModel)]="filters.roomCategory"
             (ngModelChange)="emitFilter()"
-            class="w-full bg-[#f8f7f3] rounded-[7px] border border-[rgba(0,0,0,0.04)] h-9 pl-9 pr-7 text-[13px] text-[#595247] appearance-none focus:outline-none focus:ring-2 focus:ring-[#b79f61]"
+            class="w-full bg-[#f8f7f3] rounded-[7px] border border-[rgba(0,0,0,0.04)] h-9 pl-9 pr-7 text-[13px] font-medium text-[#595247] appearance-none focus:outline-none focus:ring-2 focus:ring-[#b79f61]"
           >
             <option value="All">Room Types</option>
             <option value="Ocean Suite">Ocean Suite</option>

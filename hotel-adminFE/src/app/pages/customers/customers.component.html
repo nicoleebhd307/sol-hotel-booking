@@ -1,0 +1,208 @@
+<div class="flex bg-[#fcfaf1] min-h-screen">
+  <div class="fixed left-0 top-0 w-[260px] h-screen overflow-y-auto">
+    <app-sidebar></app-sidebar>
+  </div>
+
+  <div class="flex-1 ml-[260px] flex flex-col overflow-hidden">
+    <app-header-topbar [userInfo]="userInfo"></app-header-topbar>
+
+    <main class="flex-1 overflow-y-auto">
+      <div class="px-8 py-8 max-w-[1280px] mx-auto w-full space-y-7">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-[9px] uppercase tracking-[1.1px] text-[#978f7d] font-semibold">Management / <span class="text-[#7c6a39]">Customers</span></p>
+            <h1 class="text-[48px] leading-[1.03] text-[#1f1d16]" style="font-family: 'Playfair Display', serif;">
+              Customer <span class="italic">Management</span>
+            </h1>
+            <p class="mt-2 text-[14px] text-[#5f574a]">Manage {{ totalItems | number }} guest profiles across all properties.</p>
+          </div>
+
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 bg-gradient-to-r from-[#836a2a] to-[#a88d47] text-white px-4 h-10 rounded-[11px] shadow-[0_6px_16px_rgba(91,72,30,0.24)] hover:shadow-[0_8px_20px_rgba(91,72,30,0.3)]"
+            (click)="onExportFile()"
+            [disabled]="exportLoading"
+          >
+            <mat-icon class="text-[18px]">file_download</mat-icon>
+            <span class="text-[13px] font-semibold">{{ exportLoading ? 'Exporting...' : 'Export file' }}</span>
+          </button>
+        </div>
+
+        <section class="bg-[rgba(232,227,215,0.75)] rounded-[22px] border border-[rgba(214,205,187,0.7)] px-6 py-5" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-end">
+            <div class="lg:col-span-5">
+              <label class="block text-[10px] font-bold uppercase tracking-[1.1px] text-[#4e4639] mb-2">Search</label>
+              <div class="relative">
+                <input
+                  type="text"
+                  [(ngModel)]="searchTerm"
+                  (ngModelChange)="applyFilters()"
+                  placeholder="Search by name, email, or phone"
+                  class="w-full h-12 rounded-[14px] bg-white border border-[rgba(189,179,158,0.75)] px-12 pr-4 text-[13px] font-medium text-[#2d2b24] placeholder:text-[#8f8776] focus:outline-none focus:border-[#a88d47]"
+                />
+                <mat-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-[#5f574a] text-[21px]">search</mat-icon>
+              </div>
+            </div>
+
+            <div class="lg:col-span-3">
+              <label class="block text-[10px] font-bold uppercase tracking-[1.1px] text-[#4e4639] mb-2">Nationality</label>
+              <div class="relative">
+                <mat-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-[#5f574a] text-[20px] pointer-events-none">public</mat-icon>
+                <select
+                  [(ngModel)]="nationalityFilter"
+                  (ngModelChange)="applyFilters()"
+                  class="w-full h-12 rounded-[14px] bg-white border border-[rgba(189,179,158,0.75)] pl-12 pr-10 text-[13px] font-medium text-[#2d2b24] appearance-none focus:outline-none focus:border-[#a88d47]"
+                >
+                  @for (nationality of nationalityOptions; track nationality) {
+                    <option [value]="nationality">{{ nationality === 'all' ? 'All nationalities' : nationality }}</option>
+                  }
+                </select>
+                <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-[#5f574a] text-[20px] pointer-events-none">expand_more</mat-icon>
+              </div>
+            </div>
+
+            <div class="lg:col-span-4">
+              <label class="block text-[10px] font-bold uppercase tracking-[1.1px] text-[#4e4639] mb-2">Sort By</label>
+              <div class="relative">
+                <mat-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-[#5f574a] text-[20px] pointer-events-none">sort</mat-icon>
+                <select
+                  [(ngModel)]="sortBy"
+                  (ngModelChange)="applyFilters()"
+                  class="w-full h-12 rounded-[14px] bg-white border border-[rgba(189,179,158,0.75)] pl-12 pr-10 text-[13px] font-medium text-[#2d2b24] appearance-none focus:outline-none focus:border-[#a88d47]"
+                >
+                  <option value="recentlyCreated">Recently Created</option>
+                  <option value="oldestCreated">Oldest Created</option>
+                  <option value="nameAsc">Name (A-Z)</option>
+                  <option value="nameDesc">Name (Z-A)</option>
+                </select>
+                <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-[#5f574a] text-[20px] pointer-events-none">expand_more</mat-icon>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="bg-white rounded-[22px] border border-[rgba(214,205,187,0.7)] overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-left">
+              <thead class="bg-[#f6f4ed] text-[#6f6a5e] text-[11px] uppercase tracking-[0.6px] font-semibold border-b border-[rgba(214,205,187,0.7)]">
+                <tr>
+                  <th class="px-5 py-4">Guest Name</th>
+                  <th class="px-5 py-4">Email Address</th>
+                  <th class="px-5 py-4">Phone Number</th>
+                  <th class="px-5 py-4">Nationality</th>
+                  <th class="px-5 py-4">Identity ID</th>
+                  <th class="px-5 py-4">Created At</th>
+                  <th class="px-5 py-4 text-right"></th>
+                </tr>
+              </thead>
+
+              <tbody class="bg-white">
+                <tr *ngIf="loading">
+                  <td colspan="7" class="px-5 py-10 text-center text-[13px] text-[#7a7468]">Loading customers...</td>
+                </tr>
+
+                <tr *ngIf="!loading && customers.length === 0">
+                  <td colspan="7" class="px-5 py-10 text-center text-[13px] text-[#7a7468]">No customer accounts found.</td>
+                </tr>
+
+                @for (customer of customers; track customer._id) {
+                  <tr class="border-b border-[rgba(214,205,187,0.45)] hover:bg-[rgba(252,248,238,0.58)]">
+                    <td class="px-5 py-4">
+                      <div class="flex items-center gap-3">
+                        <span class="w-9 h-9 rounded-full bg-[rgba(125,106,44,0.15)] text-[#7d6a2c] inline-flex items-center justify-center text-[12px] font-bold">
+                          {{ initials(customer.name) }}
+                        </span>
+                        <span class="text-[14px] font-semibold text-[#2d2b24]">{{ customer.name }}</span>
+                      </div>
+                    </td>
+                    <td class="px-5 py-4 text-[13px] text-[#2d2b24] font-semibold">{{ customer.email }}</td>
+                    <td class="px-5 py-4 text-[13px] text-[#2d2b24]">{{ customer.phone }}</td>
+                    <td class="px-5 py-4">
+                      <span class="inline-flex items-center px-2.5 h-7 rounded-full text-[11px] font-semibold uppercase bg-[#e9f7ec] text-[#246a38]">
+                        {{ customer.nationality }}
+                      </span>
+                    </td>
+                    <td class="px-5 py-4 text-[13px] text-[#6a6254] font-semibold">{{ customer.identityId }}</td>
+                    <td class="px-5 py-4 text-[13px] text-[#6a6254]">{{ formatDate(customer.createdAt) }}</td>
+                    <td class="px-5 py-4 text-right">
+                      <button
+                        type="button"
+                        class="w-6 h-6 inline-flex items-center justify-center rounded-md hover:bg-[#f1ede1]"
+                        aria-label="View customer detail"
+                        (click)="openDetail(customer)"
+                      >
+                        <mat-icon class="text-[16px] text-[#6f695d]">visibility</mat-icon>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="px-5 py-3 border-t border-[rgba(214,205,187,0.45)] bg-white">
+            <app-pagination
+              [totalItems]="totalItems"
+              [pageSize]="pageSize"
+              [currentPage]="page"
+              (pageChange)="onPageChange($event)"
+            ></app-pagination>
+          </div>
+        </section>
+      </div>
+
+      <div
+        *ngIf="selectedCustomer"
+        class="fixed top-0 right-0 bottom-0 left-[260px] bg-black/40 z-[80] flex items-center justify-center px-4"
+        (click)="closeDetail()"
+      >
+        <section
+          class="w-full max-w-xl bg-white rounded-[18px] border border-[rgba(214,205,187,0.8)] shadow-xl p-5"
+          (click)="$event.stopPropagation()"
+        >
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 shrink-0 rounded-full bg-[#f8ecec] text-[#a84545] inline-flex items-center justify-center">
+              <mat-icon class="text-[20px]">person</mat-icon>
+            </div>
+
+            <div class="flex-1">
+              <p class="text-[10px] uppercase tracking-[1.1px] text-[#8b836f]">Customer Detail</p>
+              <h3 class="text-[30px] leading-tight text-[#1f1d16]" style="font-family: 'Playfair Display', serif;">{{ selectedCustomer.name }}</h3>
+            </div>
+
+            <button type="button" class="w-9 h-9 rounded-md hover:bg-[#f2efe6]" (click)="closeDetail()">
+              <mat-icon class="text-[18px] text-[#6f695d]">close</mat-icon>
+            </button>
+          </div>
+
+          <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4 text-[13px]">
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Email</p>
+              <p class="mt-1 text-[14px] text-[#2d2b24] font-semibold">{{ selectedCustomer.email }}</p>
+            </div>
+
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Phone</p>
+              <p class="mt-1 text-[14px] text-[#2d2b24] font-semibold">{{ selectedCustomer.phone }}</p>
+            </div>
+
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Nationality</p>
+              <p class="mt-1 text-[14px] text-[#2d2b24] font-semibold">{{ selectedCustomer.nationality }}</p>
+            </div>
+
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Identity ID</p>
+              <p class="mt-1 text-[14px] text-[#2d2b24] font-semibold">{{ selectedCustomer.identityId }}</p>
+            </div>
+
+            <div class="md:col-span-2">
+              <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Created At</p>
+              <p class="mt-1 text-[14px] text-[#2d2b24] font-semibold">{{ formatDate(selectedCustomer.createdAt) }}</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
