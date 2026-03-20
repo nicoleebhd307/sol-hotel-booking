@@ -1,0 +1,19 @@
+:host {
+  display: block;
+}
+
+/* Optional: Add backdrop animation */
+@media (prefers-reduced-motion: no-preference) {
+  div {
+    animation: fadeIn 0.6s ease-out;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

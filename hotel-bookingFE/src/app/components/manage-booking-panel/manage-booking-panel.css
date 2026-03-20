@@ -1,0 +1,26 @@
+:host {
+  display: block;
+}
+
+/* Panel animations on load */
+@media (prefers-reduced-motion: no-preference) {
+  :host {
+    animation: slideUp 0.5s ease-out 0.2s both;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Gradient button animation */
+button:hover {
+  transform: translateY(-2px);
+}

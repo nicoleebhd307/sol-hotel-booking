@@ -1,0 +1,23 @@
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+  <div 
+    *ngFor="let inclusion of inclusions; let idx = index"
+    class="bg-stone-100 rounded-lg p-8"
+  >
+    <!-- Icon -->
+    <div class="text-5xl mb-4">{{ inclusion.icon }}</div>
+
+    <!-- Title & Description -->
+    <h3 class="font-serif text-xl text-slate-800 mb-2">{{ inclusion.title }}</h3>
+    <p class="text-slate-700 text-sm mb-4 leading-relaxed">{{ inclusion.description }}</p>
+
+    <!-- CTA Button -->
+    <button
+      (click)="onCTA(idx)"
+      class="text-amber-700 font-semibold text-xs uppercase tracking-widest hover:text-amber-800 flex items-center gap-2"
+    >
+      {{ inclusion.cta }} >
+    </button>
+  </div>
+</div>
+
+

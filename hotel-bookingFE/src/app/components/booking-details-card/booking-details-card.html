@@ -1,0 +1,57 @@
+<div class="bg-white rounded-lg shadow overflow-hidden">
+  <!-- Card Header with Room Info & Status -->
+  <div class="p-6 border-b border-slate-200">
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h2 class="font-serif text-2xl text-slate-800">{{ booking.roomName }}</h2>
+        <p class="text-slate-600 text-sm flex items-center gap-1">📍 {{ booking.location }}</p>
+      </div>
+      <span [ngClass]="booking.statusColor" class="px-4 py-2 rounded text-xs font-semibold uppercase whitespace-nowrap flex-shrink-0">
+        Status: {{ booking.status }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Card Body - 2 Columns -->
+  <div class="p-8">
+    <div class="grid grid-cols-2 gap-16">
+      <!-- Left Column: Check-in & Check-out -->
+      <div class="space-y-10 border-r border-slate-200 pr-8">
+        <!-- Check-in -->
+        <div>
+          <p class="text-slate-600 text-xs uppercase tracking-widest font-semibold mb-3">Check-in</p>
+          <p class="font-serif text-xl text-slate-900 font-light">{{ booking.checkInDate }}</p>
+          <p class="text-slate-600 text-sm mt-2">{{ booking.checkInTime }}</p>
+        </div>
+        
+        <!-- Check-out -->
+        <div>
+          <p class="text-slate-600 text-xs uppercase tracking-widest font-semibold mb-3">Check-out</p>
+          <p class="font-serif text-xl text-slate-900 font-light">{{ booking.checkOutDate }}</p>
+          <p class="text-slate-600 text-sm mt-2">{{ booking.checkOutTime }}</p>
+        </div>
+      </div>
+
+      <!-- Right Column: Guests & Inclusions -->
+      <div class="space-y-10 pl-8">
+        <!-- Guests -->
+        <div>
+          <p class="text-slate-600 text-xs uppercase tracking-widest font-semibold mb-3">Guests</p>
+          <p class="font-serif text-xl text-slate-900 font-light">{{ booking.guests }}</p>
+        </div>
+
+        <!-- Inclusions -->
+        <div>
+          <p class="text-slate-600 text-xs uppercase tracking-widest font-semibold mb-3">Inclusions</p>
+          <ul class="space-y-2">
+            <li *ngFor="let inclusion of booking.inclusions" class="flex items-start gap-2 text-slate-700 text-sm">
+              <span class="text-slate-400">•</span>
+              <span>{{ inclusion }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

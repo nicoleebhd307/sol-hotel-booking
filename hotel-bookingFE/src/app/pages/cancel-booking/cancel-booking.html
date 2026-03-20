@@ -1,0 +1,56 @@
+<div class="bg-[#f9f7f2] text-[#1a1a1a] min-h-screen flex flex-col">
+  <!-- Navbar -->
+  <app-sticky-navbar
+    [navLinks]="navLinks"
+    [logoUrl]="logoUrl"
+    [reserveLabel]="reserveLabel"
+  />
+
+  <!-- Main Content -->
+  <main class="flex-grow py-16 px-4">
+    <div class="mx-auto max-w-2xl">
+      <!-- Warning Card -->
+      <div class="bg-red-50 border-2 border-red-300 rounded-xl p-8 mb-8 text-center">
+        <div class="text-6xl mb-4">⚠️</div>
+        <h1 class="font-serif text-3xl text-red-900 mb-3">Cancel Your Reservation?</h1>
+        <p class="text-red-800">This action will permanently cancel your booking. Please review our cancellation policy below.</p>
+      </div>
+
+      <!-- Cancellation Policy -->
+      <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+        <h2 class="font-serif text-2xl text-slate-800 mb-6">Cancellation Policy</h2>
+        <ul class="space-y-3">
+          <li *ngFor="let policy of cancellationPolicy" class="flex items-start gap-3 text-slate-700">
+            <span class="text-red-500 mt-1 flex-shrink-0">•</span>
+            <span>{{ policy }}</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Refund Warning -->
+      <div class="bg-amber-50 border-l-4 border-amber-400 p-6 rounded mb-8">
+        <p class="text-amber-900 font-medium">⏱️ Note: Refunds are typically processed within 7-10 business days after cancellation is confirmed.</p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row gap-4">
+        <button
+          (click)="onKeepBooking()"
+          class="flex-1 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all"
+        >
+          ✓ Keep My Reservation
+        </button>
+        <button
+          (click)="onConfirmCancellation()"
+          class="flex-1 px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-all"
+        >
+          ✕ Confirm Cancellation
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <app-site-footer [data]="footerData" />
+</div>
+

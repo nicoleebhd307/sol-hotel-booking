@@ -1,0 +1,28 @@
+:host {
+  display: block;
+  background: #f9f7f2;
+}
+
+/* Warning card entrance */
+@media (prefers-reduced-motion: no-preference) {
+  ::ng-deep .bg-red-50 {
+    animation: slideDown 0.5s ease-out;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Button hover effects */
+::ng-deep button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}

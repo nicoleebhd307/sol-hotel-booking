@@ -1,0 +1,58 @@
+<div class="space-y-0">
+  <!-- Header with Teal Background -->
+  <div class="bg-stone-500 text-white px-6 py-4 rounded-t-lg">
+    <h3 class="text-sm font-semibold uppercase tracking-widest">Manage Booking</h3>
+  </div>
+
+  <!-- Action Buttons Section -->
+  <div class="bg-white rounded-b-lg shadow p-6 space-y-3 mb-6">
+    <button 
+      (click)="onDownloadPDF()"
+      class="w-full px-4 py-3 bg-stone-600 text-white font-semibold italic rounded hover:bg-stone-700 transition-all text-sm"
+    >
+      ⬇ Download Confirmation (PDF)
+    </button>
+    <button 
+      (click)="onCancelBooking()"
+      class="w-full px-4 py-3 border-2 border-slate-400 text-slate-800 font-serif italic rounded hover:bg-stone-50 transition-all text-sm"
+    >
+      Cancel Booking
+    </button>
+  </div>
+
+  <!-- Confirmation Message -->
+  <div class="bg-stone-100 rounded-lg p-4 mb-6 text-center text-xs text-slate-700">
+    <p>A confirmation email has been sent to your registered address.</p>
+  </div>
+
+  <!-- Payment Summary Card -->
+  <div class="bg-white rounded-lg shadow p-6 space-y-4">
+    <h4 class="text-xs font-semibold text-slate-700 uppercase tracking-widest">Payment Summary</h4>
+    <div class="space-y-2 text-sm">
+      <div class="flex justify-between text-slate-700">
+        <span>{{ paymentSummary.nights }} Nights</span>
+        <span class="text-right">{{ paymentSummary.currency }}{{ paymentSummary.subtotal | number:'1.2-2' }}</span>
+      </div>
+      <div class="flex justify-between text-slate-700">
+        <span>Service Charge & Taxes</span>
+        <span class="text-right">{{ paymentSummary.currency }}{{ paymentSummary.serviceCharge | number:'1.2-2' }}</span>
+      </div>
+      <div class="flex justify-between text-slate-700">
+        <span>Eco-Sustainability Fee</span>
+        <span class="text-right">{{ paymentSummary.currency }}{{ paymentSummary.ecoFee | number:'1.2-2' }}</span>
+      </div>
+      <div class="border-t border-slate-200 pt-2 flex justify-between font-serif text-slate-800 text-lg">
+        <span>Total Amount</span>
+        <span class="text-right">{{ paymentSummary.currency }}{{ paymentSummary.total | number:'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <!-- Payment Method -->
+    <div class="pt-4 border-t border-slate-200 text-xs space-y-1">
+      <p class="text-slate-700">{{ paymentMethod.type }} •••• {{ paymentMethod.last4 }}</p>
+      <p class="text-slate-500">Processed {{ paymentMethod.processedDate }}</p>
+    </div>
+  </div>
+</div>
+
+
