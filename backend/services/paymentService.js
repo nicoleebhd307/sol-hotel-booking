@@ -49,7 +49,8 @@ async function payDeposit({ bookingId, paymentMethod, simulateStatus }) {
   }
 
   const now = new Date();
-  const booking = await Booking.findById(bookingId).populate('customer_id');
+  const objectId = new mongoose.Types.ObjectId(bookingId);
+  const booking = await Booking.findById(objectId).populate('customer_id');
   if (!booking) {
     const err = new Error('Booking not found');
     err.statusCode = 404;

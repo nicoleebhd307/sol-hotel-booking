@@ -1,0 +1,301 @@
+{
+  "info": {
+    "name": "VNPay Payment Test",
+    "_postman_id": "vnpay-payment-test-v1",
+    "description": "Test & debug VNPay payment signing.\n\n## Setup\n1. Set `baseUrl` to your backend (e.g., http://localhost:5000 or https://sol-hotel-booking-1.onrender.com)\n2. Set `bookingId` to a valid pending booking ID\n3. Run requests in order\n\n## Test Flow\n1. **Test Signing** — Generates a VNPay URL without DB, check all signing details\n2. **Open Payment URL** — Copy the paymentUrl and open in browser\n3. **Create Real Payment** — Uses a real bookingId to create VNPay payment\n4. **Verify Signature (Standalone)** — Pre-request script generates & verifies signature locally",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "bookingId", "value": "" },
+    { "key": "vnpay_tmn_code", "value": "LH5EO45P" },
+    { "key": "vnpay_secret_key", "value": "RG5SDNNAQQCE72QAZX2PFPJANLZ1DAPN" },
+    { "key": "vnpay_return_url", "value": "https://sol-hotel-booking-1.onrender.com/api/payments/vnpay/return" },
+    { "key": "vnpay_url", "value": "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html" }
+  ],
+  "item": [
+    {
+      "name": "1 – Test Signing (No DB)",
+      "item": [
+        {
+          "name": "GET /vnpay/test - Debug Signing",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/vnpay/test?amount=10000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "payments", "vnpay", "test"],
+              "query": [
+                { "key": "amount", "value": "10000" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('Response has paymentUrl', () => {",
+                  "  pm.expect(res).to.have.property('paymentUrl');",
+                  "  pm.expect(res.paymentUrl).to.include('sandbox.vnpayment.vn');",
+                  "});",
+                  "",
+                  "pm.test('Response has signing details', () => {",
+                  "  pm.expect(res).to.have.property('signData');",
+                  "  pm.expect(res).to.have.property('secureHash');",
+                  "  pm.expect(res).to.have.property('sortedEncodedParams');",
+                  "});",
+                  "",
+                  "pm.test('Config matches env', () => {",
+                  "  pm.expect(res.config.tmnCode).to.eql(pm.variables.get('vnpay_tmn_code'));",
+                  "});",
+                  "",
+                  "// Save payment URL for manual browser testing",
+                  "if (res.paymentUrl) {",
+                  "  pm.environment.set('test_payment_url', res.paymentUrl);",
+                  "  console.log('=== PAYMENT URL (open in browser) ===');",
+                  "  console.log(res.paymentUrl);",
+                  "}",
+                  "",
+                  "console.log('--- Sign Data ---');",
+                  "console.log(res.signData);",
+                  "console.log('--- Hash ---');",
+                  "console.log(res.secureHash);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2 – Verify Signature Locally (Pre-request Script)",
+      "item": [
+        {
+          "name": "Local Signature Verification Test",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/vnpay/test?amount=50000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "payments", "vnpay", "test"],
+              "query": [
+                { "key": "amount", "value": "50000" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('Server generated URL successfully', () => {",
+                  "  pm.expect(res).to.have.property('paymentUrl');",
+                  "});",
+                  "",
+                  "// Re-verify the signature locally using CryptoJS",
+                  "pm.test('Signature verification (local re-sign)', () => {",
+                  "  const secretKey = pm.variables.get('vnpay_secret_key');",
+                  "  const signData = res.signData;",
+                  "  const serverHash = res.secureHash;",
+                  "",
+                  "  // CryptoJS HMAC SHA512",
+                  "  const localHash = CryptoJS.HmacSHA512(signData, secretKey).toString(CryptoJS.enc.Hex);",
+                  "",
+                  "  console.log('Server hash: ' + serverHash);",
+                  "  console.log('Local hash:  ' + localHash);",
+                  "  console.log('Match: ' + (serverHash === localHash));",
+                  "",
+                  "  pm.expect(localHash).to.eql(serverHash);",
+                  "});",
+                  "",
+                  "// Parse URL and verify params are properly encoded",
+                  "pm.test('URL params are URL-encoded', () => {",
+                  "  const url = res.paymentUrl;",
+                  "  // vnp_ReturnUrl should be encoded (contains ://)",
+                  "  pm.expect(url).to.include('vnp_ReturnUrl=https%3A%2F%2F');",
+                  "  // Spaces in OrderInfo should be encoded as +",
+                  "  pm.expect(url).to.include('vnp_OrderInfo=Test+thanh+toan');",
+                  "});",
+                  "",
+                  "// Verify: parse URL, strip hash, re-sign",
+                  "pm.test('Round-trip signature verification', () => {",
+                  "  const secretKey = pm.variables.get('vnpay_secret_key');",
+                  "  const url = new URL(res.paymentUrl);",
+                  "  const params = {};",
+                  "  url.searchParams.forEach((v, k) => { params[k] = v; });",
+                  "",
+                  "  const receivedHash = params.vnp_SecureHash;",
+                  "  delete params.vnp_SecureHash;",
+                  "  delete params.vnp_SecureHashType;",
+                  "",
+                  "  // Sort and re-encode",
+                  "  const sorted = Object.keys(params).sort();",
+                  "  const reSignData = sorted.map(k => {",
+                  "    return k + '=' + encodeURIComponent(params[k]).replace(/%20/g, '+');",
+                  "  }).join('&');",
+                  "",
+                  "  const reHash = CryptoJS.HmacSHA512(reSignData, secretKey).toString(CryptoJS.enc.Hex);",
+                  "",
+                  "  console.log('Re-sign data matches: ' + (reSignData === res.signData));",
+                  "  console.log('Re-hash matches: ' + (reHash === receivedHash));",
+                  "",
+                  "  pm.expect(reHash).to.eql(receivedHash);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3 – Real Payment Flow",
+      "item": [
+        {
+          "name": "POST /vnpay/create - Create VNPay Payment",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/payments/vnpay/create",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": \"{{bookingId}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('Status 200', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Has paymentUrl', () => {",
+                  "  pm.expect(res).to.have.property('paymentUrl');",
+                  "  pm.expect(res.paymentUrl).to.include('sandbox.vnpayment.vn');",
+                  "});",
+                  "",
+                  "if (res.paymentUrl) {",
+                  "  pm.environment.set('real_payment_url', res.paymentUrl);",
+                  "  console.log('=== REAL PAYMENT URL ===');",
+                  "  console.log(res.paymentUrl);",
+                  "  console.log('');",
+                  "  console.log('Open this URL in browser to pay.');",
+                  "  console.log('Test card: NCB / 9704198526191432198 / NGUYEN VAN A / 07/15 / OTP: 123456');",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4 – Standalone Signing (No Server Needed)",
+      "item": [
+        {
+          "name": "Pure Client-Side VNPay URL Generator",
+          "request": {
+            "method": "GET",
+            "url": "https://httpbin.org/get",
+            "description": "This request uses a Pre-Request Script to generate a VNPay URL entirely client-side (no server needed). Check the Postman Console for the output."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// === Pure client-side VNPay URL generation ===",
+                  "const TMN_CODE = pm.variables.get('vnpay_tmn_code');",
+                  "const SECRET_KEY = pm.variables.get('vnpay_secret_key');",
+                  "const RETURN_URL = pm.variables.get('vnpay_return_url');",
+                  "const VNPAY_URL = pm.variables.get('vnpay_url');",
+                  "",
+                  "function phpUrlencode(str) {",
+                  "  return encodeURIComponent(String(str)).replace(/%20/g, '+');",
+                  "}",
+                  "",
+                  "function formatDate(d) {",
+                  "  const vn = new Date(d.getTime() + 7 * 60 * 60 * 1000);",
+                  "  return vn.toISOString().replace(/[-T:\\.Z]/g, '').slice(0, 14);",
+                  "}",
+                  "",
+                  "const now = new Date();",
+                  "const createDate = formatDate(now);",
+                  "const expireDate = formatDate(new Date(now.getTime() + 15 * 60 * 1000));",
+                  "",
+                  "const rawParams = {",
+                  "  vnp_Version: '2.1.0',",
+                  "  vnp_Command: 'pay',",
+                  "  vnp_TmnCode: TMN_CODE,",
+                  "  vnp_Amount: '1000000',",
+                  "  vnp_CreateDate: createDate,",
+                  "  vnp_CurrCode: 'VND',",
+                  "  vnp_IpAddr: '127.0.0.1',",
+                  "  vnp_Locale: 'vn',",
+                  "  vnp_OrderInfo: 'Thanh toan test ' + Date.now(),",
+                  "  vnp_OrderType: 'other',",
+                  "  vnp_ReturnUrl: RETURN_URL,",
+                  "  vnp_TxnRef: 'TEST' + Date.now(),",
+                  "  vnp_ExpireDate: expireDate",
+                  "};",
+                  "",
+                  "// Sort keys",
+                  "const sortedKeys = Object.keys(rawParams).sort();",
+                  "const signParts = sortedKeys.map(k => k + '=' + phpUrlencode(rawParams[k]));",
+                  "const signData = signParts.join('&');",
+                  "",
+                  "// HMAC SHA512",
+                  "const hash = CryptoJS.HmacSHA512(signData, SECRET_KEY).toString(CryptoJS.enc.Hex);",
+                  "",
+                  "const fullUrl = VNPAY_URL + '?' + signData + '&vnp_SecureHash=' + hash;",
+                  "",
+                  "console.log('=== CLIENT-SIDE VNPay URL Generation ===');",
+                  "console.log('TMN_CODE: ' + TMN_CODE);",
+                  "console.log('');",
+                  "console.log('--- Raw Params ---');",
+                  "sortedKeys.forEach(k => console.log('  ' + k + ' = ' + rawParams[k]));",
+                  "console.log('');",
+                  "console.log('--- Sign Data ---');",
+                  "console.log(signData);",
+                  "console.log('');",
+                  "console.log('--- Hash ---');",
+                  "console.log(hash);",
+                  "console.log('');",
+                  "console.log('--- Full URL ---');",
+                  "console.log(fullUrl);",
+                  "console.log('');",
+                  "console.log('Copy the URL above and open in browser to test!');",
+                  "",
+                  "pm.environment.set('client_payment_url', fullUrl);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Client-side URL was generated (check Console)', () => {",
+                  "  const url = pm.environment.get('client_payment_url');",
+                  "  pm.expect(url).to.include('sandbox.vnpayment.vn');",
+                  "  pm.expect(url).to.include('vnp_SecureHash=');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

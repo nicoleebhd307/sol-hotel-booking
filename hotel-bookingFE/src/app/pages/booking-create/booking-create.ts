@@ -370,6 +370,22 @@ export class BookingCreate implements OnInit {
     this.errorMsg.set('');
 
     const booking = this.createdBooking();
+
+    // VNPay: redirect to VNPay gateway
+    if (this.selectedPaymentMethod() === 'vnpay') {
+      this.api.createVnpayPayment(booking._id).subscribe({
+        next: (res) => {
+          window.location.href = res.paymentUrl;
+        },
+        error: (err) => {
+          this.isPaymentLoading.set(false);
+          this.errorMsg.set(err?.error?.message || 'Failed to create VNPay payment. Please try again.');
+        }
+      });
+      return;
+    }
+
+    // Other methods (card, momo): use stub deposit
     this.api.payDeposit(booking._id, this.selectedPaymentMethod()).subscribe({
       next: () => {
         this.isPaymentLoading.set(false);

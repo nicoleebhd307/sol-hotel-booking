@@ -77,6 +77,10 @@ export class ApiService {
     return this.http.post<any>(`${this.API_URL}/payments/deposit`, { bookingId, paymentMethod });
   }
 
+  createVnpayPayment(bookingId: string): Observable<{ paymentUrl: string }> {
+    return this.http.post<{ paymentUrl: string }>(`${this.API_URL}/payments/vnpay/create`, { bookingId });
+  }
+
   // Health check
   healthCheck(): Observable<{ status: string; uptime: number }> {
     return this.http.get<{ status: string; uptime: number }>(`http://localhost:5000/health`);
