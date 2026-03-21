@@ -54,7 +54,7 @@ export class DashboardManagerComponent implements OnInit, OnDestroy {
   userInfo = {
     name: 'John Manager',
     role: 'manager',
-    profileImage: 'assets/images/manager-profile.png',
+    profileImage: 'assets/images/admin-profile.png',
   };
 
   private destroy$ = new Subject<void>();

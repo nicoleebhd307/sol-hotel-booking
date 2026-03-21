@@ -13,7 +13,7 @@ const users = [
     password: 'manager123',
     role: 'manager',
     name: 'John Manager',
-    profileImage: 'assets/images/manager-profile.png'
+    profileImage: 'assets/images/admin-profile.png'
   }
 ];
 

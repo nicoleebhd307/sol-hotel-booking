@@ -213,7 +213,7 @@ export class AuthService {
     }
 
     if (value.includes('manager-profile')) {
-      return '/assets/images/manager-profile.png';
+      return '/assets/images/admin-profile.png';
     }
 
     if (value.includes('admin-profile')) {

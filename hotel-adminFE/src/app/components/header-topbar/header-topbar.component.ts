@@ -55,7 +55,7 @@ interface UserInfo {
             </p>
           </div>
           <img
-            [src]="userInfo.profileImage"
+            [src]="resolveProfileImage(userInfo.profileImage)"
             alt="Profile"
             class="w-10 h-10 rounded-[12px] border-2 border-[rgba(197,160,89,0.3)] object-cover"
             (error)="onProfileImageError($event)"
@@ -66,18 +66,47 @@ interface UserInfo {
   `,
 })
 export class HeaderTopbarComponent {
+  private readonly fallbackProfileImage = '/assets/images/admin-profile.png';
+
   @Input() userInfo: UserInfo = {
     name: 'Mary Janes',
     role: 'Receptionist',
     profileImage: '/assets/images/admin-profile.png',
   };
 
+  resolveProfileImage(value: string): string {
+    if (!value || typeof value !== 'string') {
+      return this.fallbackProfileImage;
+    }
+
+    const normalized = value.trim();
+    if (!normalized) {
+      return this.fallbackProfileImage;
+    }
+
+    if (/^https?:\/\//i.test(normalized) || normalized.startsWith('/assets/')) {
+      return normalized;
+    }
+
+    if (normalized.startsWith('assets/')) {
+      return `/${normalized}`;
+    }
+
+    return this.fallbackProfileImage;
+  }
+
   onProfileImageError(event: Event): void {
     const img = event.target as HTMLImageElement | null;
-    if (!img || img.src.endsWith('/assets/images/admin-profile.png')) {
+    if (!img) {
       return;
     }
 
-    img.src = '/assets/images/admin-profile.png';
+    // Prevent retry loops while always falling back to a valid absolute asset path.
+    if (img.dataset['fallbackApplied'] === '1') {
+      return;
+    }
+
+    img.dataset['fallbackApplied'] = '1';
+    img.src = this.fallbackProfileImage;
   }
 }
