@@ -25,7 +25,7 @@
         <div class="grid grid-cols-3 gap-8 mb-10">
           <!-- Room Availability Chart (spans 2 columns) -->
           <div class="col-span-2 bg-white rounded-[16px] border border-[rgba(209,197,180,0.15)] p-8">
-            <h2 class="text-xl font-bold text-[#1d1c13] mb-6" style="font-family: 'Playfair Display', serif;">
+            <h2 class="text-[36px] leading-[1.05] text-[#1d1c13] mb-6" style="font-family: 'Playfair Display', serif;">
               Room Availability
             </h2>
             <div class="space-y-6">
@@ -53,16 +53,16 @@
           </div>
 
           <!-- Quick Actions -->
-          <div class="bg-[#f3eedf] rounded-[32px] border border-[rgba(209,197,180,0.1)] p-8">
-            <h3 class="text-xl font-medium text-[#1d1c13] mb-6" style="font-family: 'Playfair Display', serif;">
+          <div class="bg-[#f3eedf] rounded-[28px] border border-[rgba(209,197,180,0.18)] p-6">
+            <h3 class="text-[34px] leading-[1.05] text-[#1d1c13] mb-5" style="font-family: 'Playfair Display', serif;">
               Quick Actions
             </h3>
-            <div class="space-y-4">
+            <div class="space-y-3">
               <!-- Create Booking Button (Primary) -->
               <app-quick-action-card
                 [data]="{ title: 'Create New<br>Booking', icon: 'add_circle' }"
                 [isPrimary]="true"
-                [route]="'/bookings'"
+                [route]="'/bookings/new'"
               ></app-quick-action-card>
 
               <!-- View Bookings Button -->

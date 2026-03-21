@@ -34,10 +34,13 @@ interface ManagerStatsCard {
   styleUrl: './dashboard-manager.component.css',
 })
 export class DashboardManagerComponent implements OnInit, OnDestroy {
-  readonly activityLabels = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+  readonly activityLabelsByPeriod = {
+    weekly: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'],
+    monthly: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
+  };
   readonly bookingActivity = {
     weekly: [42, 48, 45, 61, 70, 55, 73],
-    monthly: [38, 44, 52, 59, 66, 62, 78],
+    monthly: [420, 438, 462, 479, 495, 512, 526, 518, 534, 556, 572, 590],
   };
 
   managerStats: ManagerStatsCard[] = [];
@@ -192,6 +195,16 @@ export class DashboardManagerComponent implements OnInit, OnDestroy {
     this.activityPeriod = period;
   }
 
+  get activityLabels(): string[] {
+    return this.activityLabelsByPeriod[this.activityPeriod];
+  }
+
+  get activitySubtitle(): string {
+    return this.activityPeriod === 'weekly'
+      ? 'Overview of guest reservations from last 7 days'
+      : 'Overview of guest reservations by month in this year';
+  }
+
   get activitySmoothPath(): string {
     const points = this.getActivityPoints();
     if (points.length === 0) {
@@ -249,8 +262,10 @@ export class DashboardManagerComponent implements OnInit, OnDestroy {
     const min = Math.min(...values);
     const range = Math.max(1, max - min);
 
+    const divider = Math.max(1, values.length - 1);
+
     return values.map((value, index) => {
-      const x = (index / (values.length - 1)) * width;
+      const x = (index / divider) * width;
       const y = height - ((value - min) / range) * (height - 16) - 8;
       return { x, y };
     });

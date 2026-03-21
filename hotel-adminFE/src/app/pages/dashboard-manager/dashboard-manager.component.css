@@ -12,6 +12,17 @@
   padding: 12px 8px 4px;
 }
 
+.activity-scroll {
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  padding-bottom: 0;
+}
+
+.activity-scroll-content {
+  width: 100%;
+}
+
 @media (max-width: 1200px) {
   .manager-activity h3 {
     font-size: 32px;

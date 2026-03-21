@@ -19,14 +19,14 @@
         </div>
 
         <div class="grid grid-cols-3 gap-8 mb-8">
-          <section class="col-span-2 bg-white rounded-[24px] border border-[rgba(209,197,180,0.12)] p-8 manager-activity">
+          <section class="col-span-2 bg-white rounded-[24px] border border-[rgba(209,197,180,0.12)] p-8 manager-activity overflow-hidden">
             <div class="flex items-start justify-between gap-4 mb-6">
               <div>
                 <h3 class="text-[36px] leading-[1.05] text-[#1d1c13]" style="font-family: 'Playfair Display', serif;">
                   Booking Activity
                 </h3>
                 <p class="text-sm text-[#4e4639]" style="font-family: 'Plus Jakarta Sans', sans-serif;">
-                  Overview of guest reservations from last 7 days
+                  {{ activitySubtitle }}
                 </p>
               </div>
 
@@ -50,30 +50,38 @@
               </div>
             </div>
 
-            <div class="chart-wrap mb-4">
-              <svg viewBox="0 0 560 150" class="w-full h-[210px]">
-                <defs>
-                  <linearGradient id="lineFade" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#b7934a" stop-opacity="0.30"></stop>
-                    <stop offset="100%" stop-color="#b7934a" stop-opacity="0.02"></stop>
-                  </linearGradient>
-                </defs>
+            <div class="activity-scroll">
+              <div class="activity-scroll-content">
+                <div class="chart-wrap mb-4">
+                  <svg viewBox="0 0 560 150" class="w-full h-[210px]">
+                    <defs>
+                      <linearGradient id="lineFade" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#b7934a" stop-opacity="0.30"></stop>
+                        <stop offset="100%" stop-color="#b7934a" stop-opacity="0.02"></stop>
+                      </linearGradient>
+                    </defs>
 
-                <path [attr.d]="activityAreaPath" fill="url(#lineFade)"></path>
-                <path [attr.d]="activitySmoothPath" fill="none" stroke="#7f6323" stroke-width="2"></path>
+                    <path [attr.d]="activityAreaPath" fill="url(#lineFade)"></path>
+                    <path [attr.d]="activitySmoothPath" fill="none" stroke="#7f6323" stroke-width="2"></path>
 
-                <circle
-                  *ngFor="let dot of activityDots; let i = index"
-                  [attr.cx]="dot.x"
-                  [attr.cy]="dot.y"
-                  [attr.r]="i % 2 === 0 ? 3 : 2"
-                  fill="#7f6323"
-                ></circle>
-              </svg>
-            </div>
+                    <circle
+                      *ngFor="let dot of activityDots; let i = index"
+                      [attr.cx]="dot.x"
+                      [attr.cy]="dot.y"
+                      [attr.r]="i % 2 === 0 ? 3 : 2"
+                      fill="#7f6323"
+                    ></circle>
+                  </svg>
+                </div>
 
-            <div class="grid grid-cols-7 text-[11px] text-[#5f5749] tracking-wide" style="font-family: 'Plus Jakarta Sans', sans-serif;">
-              <span *ngFor="let label of activityLabels" class="text-center">{{ label }}</span>
+                <div
+                  class="grid text-[11px] text-[#5f5749] tracking-wide"
+                  style="font-family: 'Plus Jakarta Sans', sans-serif;"
+                  [style.gridTemplateColumns]="'repeat(' + activityLabels.length + ', minmax(0, 1fr))'"
+                >
+                  <span *ngFor="let label of activityLabels" class="text-center">{{ label }}</span>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -87,7 +95,7 @@
                 <app-quick-action-card
                   [data]="{ title: 'Create New<br>Booking', icon: 'add_circle' }"
                   [isPrimary]="true"
-                  [route]="'/bookings'"
+                  [route]="'/bookings/new'"
                 ></app-quick-action-card>
 
                 <app-quick-action-card

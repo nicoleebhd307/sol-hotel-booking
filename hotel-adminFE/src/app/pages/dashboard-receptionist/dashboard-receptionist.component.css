@@ -66,21 +66,6 @@ button:active {
   transform: scale(0.98) translateY(0);
 }
 
-/* Quick Action Card Styles */
-app-quick-action-card button {
-  border: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-app-quick-action-card button:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-}
-
-app-quick-action-card button:active {
-  transform: scale(0.98) translateY(0);
-}
-
 /* Profile image styling */
 img[alt="Profile"] {
   box-shadow: 0 0 0 2px rgba(197, 160, 89, 0.3);
