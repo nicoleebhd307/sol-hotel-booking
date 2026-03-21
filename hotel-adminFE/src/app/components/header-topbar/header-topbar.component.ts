@@ -58,6 +58,7 @@ interface UserInfo {
             [src]="userInfo.profileImage"
             alt="Profile"
             class="w-10 h-10 rounded-[12px] border-2 border-[rgba(197,160,89,0.3)] object-cover"
+            (error)="onProfileImageError($event)"
           />
         </div>
       </div>
@@ -70,4 +71,13 @@ export class HeaderTopbarComponent {
     role: 'Receptionist',
     profileImage: '/assets/images/admin-profile.png',
   };
+
+  onProfileImageError(event: Event): void {
+    const img = event.target as HTMLImageElement | null;
+    if (!img || img.src.endsWith('/assets/images/admin-profile.png')) {
+      return;
+    }
+
+    img.src = '/assets/images/admin-profile.png';
+  }
 }

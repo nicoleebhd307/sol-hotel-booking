@@ -138,7 +138,6 @@ export class DashboardManagerComponent implements OnInit, OnDestroy {
           this.cdr.detectChanges();
         },
         error: (error) => {
-          console.error('Error loading manager summary:', error);
           this.summaryError = 'Failed to load manager summary. Using default data.';
           this.setDefaultSummary();
           this.isLoadingSummary = false;

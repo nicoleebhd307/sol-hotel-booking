@@ -47,7 +47,7 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap(response => {
         if (response.success && response.data) {
-          const user = response.data;
+          const user = this.normalizeUser(response.data);
           this.saveToken(user.token || '');
           this.saveUser(user);
           this.currentUserSubject.next(user);
@@ -114,7 +114,15 @@ export class AuthService {
     }
 
     const user = localStorage.getItem(this.USER_KEY);
-    return user ? JSON.parse(user) : null;
+    if (!user) {
+      return null;
+    }
+
+    try {
+      return this.normalizeUser(JSON.parse(user));
+    } catch {
+      return null;
+    }
   }
 
   /**
@@ -176,5 +184,42 @@ export class AuthService {
 
   private isBrowser(): boolean {
     return isPlatformBrowser(this.platformId);
+  }
+
+  private normalizeUser(user: User): User {
+    return {
+      ...user,
+      profileImage: this.normalizeProfileImage(user?.profileImage),
+    };
+  }
+
+  private normalizeProfileImage(profileImage?: string): string {
+    const fallback = '/assets/images/admin-profile.png';
+    if (!profileImage || typeof profileImage !== 'string') {
+      return fallback;
+    }
+
+    const value = profileImage.trim();
+    if (!value) {
+      return fallback;
+    }
+
+    if (/^https?:\/\//i.test(value) || value.startsWith('/assets/')) {
+      return value;
+    }
+
+    if (value.startsWith('assets/')) {
+      return `/${value}`;
+    }
+
+    if (value.includes('manager-profile')) {
+      return '/assets/images/manager-profile.png';
+    }
+
+    if (value.includes('admin-profile')) {
+      return '/assets/images/admin-profile.png';
+    }
+
+    return fallback;
   }
 }
