@@ -7,7 +7,7 @@ import { Room, RoomType, ServiceItem, BookingData } from '../models/home.models'
   providedIn: 'root'
 })
 export class ApiService {
-  private readonly API_URL = 'http://localhost:5000/api';
+  private readonly API_URL = 'http://localhost:5005/api';
 
   constructor(private http: HttpClient) {}
 
@@ -73,12 +73,23 @@ export class ApiService {
     return this.http.post<any>(`${this.API_URL}/bookings`, data);
   }
 
-  payDeposit(bookingId: string, paymentMethod: string): Observable<any> {
-    return this.http.post<any>(`${this.API_URL}/payments/deposit`, { bookingId, paymentMethod });
+  initMomoV2Session(
+    bookingId: string,
+    options?: { channel?: 'qr' | 'card'; paymentCode?: string }
+  ): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/payments/momo-v2/init`, {
+      bookingId,
+      channel: options?.channel,
+      paymentCode: options?.paymentCode
+    });
+  }
+
+  payDeposit(bookingId: string, paymentMethod: string, simulateStatus?: 'success' | 'failed'): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/payments/deposit`, { bookingId, paymentMethod, simulateStatus });
   }
 
   // Health check
   healthCheck(): Observable<{ status: string; uptime: number }> {
-    return this.http.get<{ status: string; uptime: number }>(`http://localhost:5000/health`);
+    return this.http.get<{ status: string; uptime: number }>(`http://localhost:5005/health`);
   }
 }
