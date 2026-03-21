@@ -184,7 +184,7 @@ export class RefundsComponent implements OnInit {
       return 'Processing...';
     }
 
-    return refund.status === 'confirmed' ? 'Refunded' : 'Confirm Refunded';
+    return refund.status === 'confirmed' ? 'Refunded' : 'Confirm';
   }
 
   getActionTitle(type: RefundActionType): string {
