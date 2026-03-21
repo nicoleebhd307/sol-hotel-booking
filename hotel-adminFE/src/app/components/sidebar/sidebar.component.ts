@@ -31,7 +31,6 @@ export class SidebarComponent {
       { label: 'Dashboard', icon: 'dashboard', route: dashboardRoute },
       { label: 'Bookings', icon: 'book_online', route: '/bookings' },
       { label: 'Rooms', icon: 'hotel', route: '/rooms' },
-      { label: 'Room Calendar', icon: 'calendar_month', route: '/calendar' },
       { label: 'Customers', icon: 'groups', route: '/customers' },
       { label: 'Refunds', icon: 'payments', route: '/refunds' },
       { label: 'Reports', icon: 'monitoring', route: '/reports' },
