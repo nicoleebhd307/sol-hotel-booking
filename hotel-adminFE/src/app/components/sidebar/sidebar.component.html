@@ -68,13 +68,18 @@
           (click)="handleMenuClick($event, item)"
           routerLinkActive="active-menu-item"
           class="flex flex-row gap-4 items-center px-4 py-3 rounded-[12px] transition-all duration-200"
-          [ngClass]="{
-            'text-[#ba1a1a]': item.label === 'Logout'
-          }"
         >
           <!-- Icon -->
-          <span class="material-symbols-outlined text-[22px] text-[#6a5f4c]">{{ item.icon }}</span>
-          <span class="text-[14px] leading-5 font-medium" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+          <span
+            class="material-symbols-outlined text-[22px]"
+            [style.color]="item.action === 'logout' ? '#ba1a1a' : '#6a5f4c'"
+            >{{ item.icon }}</span
+          >
+          <span
+            class="text-[14px] leading-5 font-medium"
+            [style.color]="item.action === 'logout' ? '#ba1a1a' : null"
+            style="font-family: 'Plus Jakarta Sans', sans-serif;"
+          >
             {{ item.label }}
           </span>
         </a>

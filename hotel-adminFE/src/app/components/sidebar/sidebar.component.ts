@@ -21,7 +21,6 @@ export class SidebarComponent {
   menuItems: MenuItem[] = [];
 
   bottomMenuItems: MenuItem[] = [
-    { label: 'Settings', icon: 'settings', route: '/login' },
     { label: 'Logout', icon: 'logout', route: '/login', action: 'logout' },
   ];
 

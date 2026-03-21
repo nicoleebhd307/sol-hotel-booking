@@ -25,8 +25,8 @@ interface ActionCardData {
       <!-- Left side: Icon + Text -->
       <div class="flex items-center gap-4 flex-1 min-w-0">
         <span class="material-symbols-outlined text-[26px] flex-shrink-0">{{ data.icon }}</span>
-        <div class="text-base leading-tight whitespace-nowrap">
-          <div *ngFor="let line of titleLines">{{ line }}</div>
+        <div class="leading-tight whitespace-nowrap min-w-0" [ngClass]="titleClass">
+          {{ normalizedTitle }}
         </div>
       </div>
       <!-- Right side: Arrow -->
@@ -41,8 +41,12 @@ export class QuickActionCardComponent {
 
   constructor(private router: Router) {}
 
-  get titleLines(): string[] {
-    return this.data.title.split('<br>');
+  get normalizedTitle(): string {
+    return this.data.title.replace(/<br\s*\/?\s*>/gi, ' ');
+  }
+
+  get titleClass(): string {
+    return this.normalizedTitle.length > 16 ? 'text-[14px] sm:text-[15px] md:text-base' : 'text-base';
   }
 
   handleClick(): void {
