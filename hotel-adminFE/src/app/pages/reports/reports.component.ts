@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { Subject, catchError, debounceTime, distinctUntilChanged, finalize, of, switchMap, takeUntil, timeout } from 'rxjs';
+import { Subscription, finalize, timeout } from 'rxjs';
 import { DashboardCardComponent } from '../../components/dashboard-card/dashboard-card.component';
 import { HeaderTopbarComponent } from '../../components/header-topbar/header-topbar.component';
 import { SidebarComponent } from '../../components/sidebar/sidebar.component';
@@ -50,8 +50,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
   loading = false;
   errorMessage = '';
   reportsData: ReportsData | null = null;
-  private readonly filters$ = new Subject<{ month: number; year: number; force: boolean }>();
-  private readonly destroy$ = new Subject<void>();
+  private requestSub: Subscription | null = null;
 
   readonly months = [
     { value: 1, label: 'January' },
@@ -80,7 +79,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
   constructor(
     private reportsService: ReportsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {
     const now = new Date();
     this.selectedMonth = now.getMonth() + 1;
@@ -98,13 +98,14 @@ export class ReportsComponent implements OnInit, OnDestroy {
       };
     }
 
-    this.bindFilterPipeline();
-    this.requestReports(false);
+    this.loadReports();
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    if (this.requestSub) {
+      this.requestSub.unsubscribe();
+      this.requestSub = null;
+    }
   }
 
   get kpiCards(): ReportsKpiCard[] {
@@ -257,18 +258,28 @@ export class ReportsComponent implements OnInit, OnDestroy {
   }
 
   onMonthChange(month: number): void {
-    this.selectedMonth = Number(month);
-    this.requestReports(false);
+    const nextMonth = Number(month);
+    if (!Number.isFinite(nextMonth) || nextMonth === this.selectedMonth) {
+      return;
+    }
+
+    this.selectedMonth = nextMonth;
+    this.loadReports();
   }
 
   onYearChange(year: number): void {
-    this.selectedYear = Number(year);
-    this.requestReports(false);
+    const nextYear = Number(year);
+    if (!Number.isFinite(nextYear) || nextYear === this.selectedYear) {
+      return;
+    }
+
+    this.selectedYear = nextYear;
+    this.loadReports();
   }
 
   // Backward-compatible handler for stale templates/chunks still wired to old button click.
   onApplyFilters(): void {
-    this.requestReports(true);
+    this.loadReports();
   }
 
   getStatusClass(status: string): string {
@@ -307,42 +318,33 @@ export class ReportsComponent implements OnInit, OnDestroy {
     return `${month} ${String(day).padStart(2, '0')}`;
   }
 
-  private requestReports(force: boolean): void {
-    this.filters$.next({
-      month: this.selectedMonth,
-      year: this.selectedYear,
-      force,
-    });
-  }
+  private loadReports(): void {
+    if (this.requestSub) {
+      this.requestSub.unsubscribe();
+      this.requestSub = null;
+    }
 
-  private bindFilterPipeline(): void {
-    this.filters$
+    this.loading = true;
+    this.errorMessage = '';
+
+    this.requestSub = this.reportsService
+      .getReports(this.selectedMonth, this.selectedYear)
       .pipe(
-        debounceTime(60),
-        distinctUntilChanged((prev, curr) => prev.month === curr.month && prev.year === curr.year && prev.force === curr.force),
-        switchMap(({ month, year }) => {
-          this.loading = true;
-          this.errorMessage = '';
-
-          return this.reportsService.getReports(month, year).pipe(
-            timeout(8000),
-            catchError(() => {
-              this.errorMessage = 'Failed to load reports data.';
-              return of(null);
-            }),
-            finalize(() => {
-              this.loading = false;
-            })
-          );
-        }),
-        takeUntil(this.destroy$)
+        timeout(12000),
+        finalize(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        })
       )
-      .subscribe((response: ReportsResponse | null) => {
-        if (!response?.data) {
-          return;
-        }
-
-        this.reportsData = response.data;
+      .subscribe({
+        next: (response: ReportsResponse) => {
+          this.reportsData = response.data;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.errorMessage = 'Failed to load reports data.';
+          this.cdr.detectChanges();
+        },
       });
   }
 }

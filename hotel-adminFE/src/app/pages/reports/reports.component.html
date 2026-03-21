@@ -24,7 +24,7 @@
               <div class="relative">
                 <mat-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-[#5f574a] text-[20px] pointer-events-none">calendar_month</mat-icon>
                 <select
-                  [(ngModel)]="selectedMonth"
+                  [ngModel]="selectedMonth"
                   (ngModelChange)="onMonthChange($event)"
                   class="w-full h-12 rounded-[14px] bg-white border border-[rgba(189,179,158,0.75)] pl-12 pr-10 text-[13px] font-medium text-[#2d2b24] appearance-none focus:outline-none focus:border-[#a88d47]"
                 >
@@ -41,7 +41,7 @@
               <div class="relative">
                 <mat-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-[#5f574a] text-[20px] pointer-events-none">event</mat-icon>
                 <select
-                  [(ngModel)]="selectedYear"
+                  [ngModel]="selectedYear"
                   (ngModelChange)="onYearChange($event)"
                   class="w-full h-12 rounded-[14px] bg-white border border-[rgba(189,179,158,0.75)] pl-12 pr-10 text-[13px] font-medium text-[#2d2b24] appearance-none focus:outline-none focus:border-[#a88d47]"
                 >
