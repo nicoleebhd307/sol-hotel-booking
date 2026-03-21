@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { finalize, timeout } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { BookingFilterComponent } from '../../components/booking-filter/booking-filter.component';
 import { BookingTableComponent } from '../../components/booking-table/booking-table.component';
 import { HeaderTopbarComponent } from '../../components/header-topbar/header-topbar.component';
@@ -95,6 +96,7 @@ export class BookingsComponent implements OnInit {
 
   private readonly platformId = inject(PLATFORM_ID);
   private readonly appRouter = inject(Router);
+  private bookingPaymentSyncSub: Subscription | null = null;
 
   constructor(
     private bookingService: BookingService,
@@ -105,7 +107,13 @@ export class BookingsComponent implements OnInit {
 
   ngOnInit(): void {
     this.resolveUserRole();
+    this.listenBookingPaymentSync();
     this.loadBookings();
+  }
+
+  ngOnDestroy(): void {
+    this.bookingPaymentSyncSub?.unsubscribe();
+    this.bookingPaymentSyncSub = null;
   }
 
   get totalBookings(): number {
@@ -452,7 +460,12 @@ export class BookingsComponent implements OnInit {
     if (!this.selectedBooking) {
       return '-';
     }
-    return this.mapPaymentStatus(this.selectedBooking.totalPrice, this.selectedBooking.depositAmount);
+    return this.mapPaymentStatus(
+      this.selectedBooking.totalPrice,
+      this.selectedBooking.depositAmount,
+      this.selectedBooking.payment,
+      this.selectedBooking.refundStatus,
+    );
   }
 
   private resolveUserRole(): void {
@@ -500,9 +513,40 @@ export class BookingsComponent implements OnInit {
       roomNumber: booking.room_number || firstRoom?.room_id || '-',
       checkIn: booking.check_in,
       checkOut: booking.check_out,
-      paymentStatus: this.mapPaymentStatus(booking.totalPrice, booking.depositAmount),
+      paymentStatus: this.mapPaymentStatus(booking.totalPrice, booking.depositAmount, booking.payment, booking.refundStatus),
       status: this.mapStatus(booking.status),
     };
+  }
+
+  private listenBookingPaymentSync(): void {
+    this.bookingPaymentSyncSub = this.bookingService.bookingPaymentSync$.subscribe((event) => {
+      this.ngZone.run(() => {
+        const index = this.allBookings.findIndex((booking) => booking.id === event.bookingId);
+        if (index >= 0) {
+          this.allBookings[index] = {
+            ...this.allBookings[index],
+            paymentStatus: 'Refunded',
+          };
+          this.applyPagination();
+        }
+
+        if (this.selectedBooking?._id === event.bookingId) {
+          this.selectedBooking = {
+            ...this.selectedBooking,
+            payment: 'Refunded',
+          };
+
+          this.selectedBookingView = this.selectedBookingView
+            ? {
+                ...this.selectedBookingView,
+                paymentStatus: 'Refunded',
+              }
+            : this.mapToViewBooking(this.selectedBooking);
+        }
+
+        this.cdr.detectChanges();
+      });
+    });
   }
 
   private syncEditFormFromSelectedBooking(): void {
@@ -540,7 +584,15 @@ export class BookingsComponent implements OnInit {
     return value.slice(0, 10);
   }
 
-  private mapPaymentStatus(totalPrice: number, depositAmount: number): PaymentStatus {
+  private mapPaymentStatus(totalPrice: number, depositAmount: number, payment?: string, refundStatus?: string): PaymentStatus {
+    if ((payment || '').trim().toLowerCase() === 'refunded') {
+      return 'Refunded';
+    }
+
+    if ((refundStatus || '').trim().toLowerCase() === 'confirmed') {
+      return 'Refunded';
+    }
+
     if (depositAmount === 0) {
       return 'Unpaid';
     }

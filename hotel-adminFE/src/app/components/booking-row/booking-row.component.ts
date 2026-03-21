@@ -136,6 +136,9 @@ export class BookingRowComponent implements OnChanges {
   }
 
   get paymentClass(): string {
+    if (this.booking.paymentStatus === 'Refunded') {
+      return 'bg-[#f3e7fb] text-[#7a4ea3]';
+    }
     if (this.booking.paymentStatus === 'Paid') {
       return 'bg-[#d7ecf2] text-[#4d8591]';
     }

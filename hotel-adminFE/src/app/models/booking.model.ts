@@ -1,6 +1,6 @@
 export type BookingRole = 'receptionist' | 'manager';
 
-export type PaymentStatus = 'Paid' | 'Partial' | 'Unpaid';
+export type PaymentStatus = 'Paid' | 'Partial' | 'Unpaid' | 'Refunded';
 export type BookingStatus = 'Confirmed' | 'Pending' | 'Cancelled' | 'Checked In' | 'Checked Out';
 
 export interface Booking {
@@ -20,6 +20,8 @@ export interface Booking {
   totalPrice: number;
   depositAmount: number;
   extraCharge: number;
+  payment?: string;
+  refundStatus?: string;
   status: string;
   note: string;
   createdAt: string;

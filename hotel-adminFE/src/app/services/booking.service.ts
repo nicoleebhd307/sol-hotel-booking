@@ -1,9 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Booking, BookingDraft, BookingFilterParams, CreateBookingDraftPayload, CreateBookingPayload } from '../models/booking.model';
 import { API_CONFIG } from '../config/api.config';
+
+export interface BookingPaymentSyncEvent {
+  bookingId: string;
+  payment: 'Refunded';
+}
 
 const BOOKING_FALLBACK_MOCK: Booking[] = [
   {
@@ -121,6 +126,8 @@ const BOOKING_FALLBACK_MOCK: Booking[] = [
 })
 export class BookingService {
   private readonly apiUrl = `${API_CONFIG.baseUrl}/api/bookings`;
+  private readonly bookingPaymentSyncSubject = new Subject<BookingPaymentSyncEvent>();
+  readonly bookingPaymentSync$ = this.bookingPaymentSyncSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -223,6 +230,17 @@ export class BookingService {
     );
   }
 
+  syncRefundedPayment(bookingId: string): void {
+    if (!bookingId) {
+      return;
+    }
+
+    this.bookingPaymentSyncSubject.next({
+      bookingId,
+      payment: 'Refunded',
+    });
+  }
+
   private mapStatus(status: string): string {
     switch (status) {
       case 'confirmed':
@@ -307,10 +325,21 @@ export class BookingService {
       totalPrice,
       depositAmount,
       extraCharge,
+      payment: this.toText(raw.payment, ''),
+      refundStatus: this.extractRefundStatus(raw),
       status: this.toText(raw.status, 'pending'),
       note: this.toText(raw.note, ''),
       createdAt,
     };
+  }
+
+  private extractRefundStatus(raw: Partial<Booking>): string {
+    const refund = (raw as Record<string, unknown>)['refund'];
+    if (!this.isRecord(refund)) {
+      return '';
+    }
+
+    return this.toText(refund['status'], '');
   }
 
   private toApiBooking(value: unknown): Partial<Booking> {
