@@ -99,7 +99,7 @@
                           [disabled]="!canProcessRefund(refund)"
                           (click)="confirmRefund(refund)"
                         >
-                          {{ isActionLoading(refund.bookingId) ? 'Processing...' : 'Confirm' }}
+                          {{ getConfirmButtonLabel(refund) }}
                         </button>
 
                         <button

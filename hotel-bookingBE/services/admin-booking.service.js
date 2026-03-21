@@ -292,6 +292,9 @@ class AdminBookingService {
     request.processedAt = new Date().toISOString();
 
     booking.status = 'cancelled';
+    if (refundStatus === 'confirmed') {
+      booking.payment = 'Refunded';
+    }
     booking.refund = {
       status: refundStatus,
       amount: refundAmount,

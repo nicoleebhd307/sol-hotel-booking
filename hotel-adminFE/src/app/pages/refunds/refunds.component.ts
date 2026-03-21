@@ -8,6 +8,7 @@ import { SidebarComponent } from '../../components/sidebar/sidebar.component';
 import { RefundRequest } from '../../models/admin-booking.model';
 import { AdminBookingService } from '../../services/admin-booking.service';
 import { AuthService } from '../../services/auth.service';
+import { BookingService } from '../../services/booking.service';
 
 type RefundFilter = 'all' | 'pending' | 'confirmed' | 'rejected';
 type RefundActionType = 'confirm' | 'reject';
@@ -42,6 +43,7 @@ export class RefundsComponent implements OnInit {
 
   constructor(
     private adminBookingService: AdminBookingService,
+    private bookingService: BookingService,
     private authService: AuthService,
     private ngZone: NgZone,
     private cdr: ChangeDetectorRef,
@@ -142,11 +144,21 @@ export class RefundsComponent implements OnInit {
         }),
       )
       .subscribe({
-        next: () => {
+        next: (response) => {
           this.ngZone.run(() => {
             this.pendingAction = null;
             this.showSuccess(type === 'confirm' ? 'Refund confirmed successfully.' : 'Refund rejected successfully.');
-            this.loadRefunds();
+
+            const updatedRefund = response?.data?.refund;
+            if (updatedRefund) {
+              this.refunds = this.refunds.map((item) => (item.bookingId === updatedRefund.bookingId ? { ...item, ...updatedRefund } : item));
+              this.applyClientFilters();
+            }
+
+            if (type === 'confirm') {
+              this.bookingService.syncRefundedPayment(refund.bookingId);
+            }
+
             this.cdr.detectChanges();
           });
         },
@@ -165,6 +177,14 @@ export class RefundsComponent implements OnInit {
 
   canProcessRefund(refund: RefundRequest): boolean {
     return refund.status === 'pending' && refund.depositAmount > 0 && !this.isActionLoading(refund.bookingId);
+  }
+
+  getConfirmButtonLabel(refund: RefundRequest): string {
+    if (this.isActionLoading(refund.bookingId)) {
+      return 'Processing...';
+    }
+
+    return refund.status === 'confirmed' ? 'Refunded' : 'Confirm Refunded';
   }
 
   getActionTitle(type: RefundActionType): string {
