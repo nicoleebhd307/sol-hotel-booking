@@ -47,10 +47,18 @@ export class RoomDetail implements OnInit, AfterViewInit {
   protected readonly reserveLabel = this.homeContent.getHomePageData().hero.reserveLabel;
 
   ngOnInit(): void {
+    // Check for room ID in route param
     const roomTypeId = this.route.snapshot.paramMap.get('id');
+    
+    // Check for room name in query param
+    const roomName = this.route.snapshot.queryParamMap.get('name');
+
     if (roomTypeId) {
       this.loadRoomType(roomTypeId);
+    } else if (roomName) {
+      this.loadRoomTypeByName(roomName);
     }
+    
     this.loadRelatedRooms(roomTypeId);
   }
 
@@ -65,6 +73,21 @@ export class RoomDetail implements OnInit, AfterViewInit {
       next: (roomType) => {
         this.selectedRoomType.set(roomType);
         this.selectedRoom.set(this.mapRoomTypeToCard(roomType));
+        this.isLoading.set(false);
+      },
+      error: () => this.isLoading.set(false)
+    });
+  }
+
+  private loadRoomTypeByName(name: string): void {
+    // Fetch all room types and find the one matching the name
+    this.apiService.getRoomTypes().subscribe({
+      next: (roomTypes) => {
+        const roomType = roomTypes.find(rt => rt.name?.toLowerCase() === name.toLowerCase());
+        if (roomType) {
+          this.selectedRoomType.set(roomType);
+          this.selectedRoom.set(this.mapRoomTypeToCard(roomType));
+        }
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false)

@@ -59,8 +59,7 @@ export class HomeContent {
           imageUrl:
             'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=900&q=80',
           primaryAction: 'Details',
-          secondaryAction: 'Book Now',
-          featured: true,
+          secondaryAction: 'Explore More',
         },
         {
           title: 'Deluxe Street View',
@@ -168,15 +167,14 @@ export class HomeContent {
   }
 
   private mapRoomTypesToAccommodations(roomTypes: RoomType[]): AccommodationCard[] {
-    return roomTypes.map((rt, index) => {
+    return roomTypes.map((rt) => {
       const firstImage = rt.images?.[0] || rt.image?.[0] || '';
       return {
         title: rt.name,
         description: rt.description,
         imageUrl: firstImage,
         primaryAction: 'Details',
-        secondaryAction: index === 1 ? 'Book Now' : 'Explore More',
-        featured: index === 1,
+        secondaryAction: 'Explore More',
       };
     });
   }

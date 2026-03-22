@@ -7,20 +7,15 @@
 
 	<div class="relative mx-auto max-w-7xl">
 		<!-- Section heading -->
-		<div class="mb-12 flex flex-col items-center reveal-up">
+		<div class="mb-12 flex flex-col items-center">
 			<h2 class="text-5xl leading-10 text-[#1a1a1a] italic" style="font-family: 'Playfair Display', serif;">Luxury Accommodations</h2>
 		</div>
 
-		<!-- Cards row: non-featured cards height 460px, featured is scale-105 with gold glow -->
-		<div class="flex items-center justify-center gap-6">
+		<!-- Cards row: display all cards on single horizontal line -->
+		<div class="flex flex-nowrap items-center justify-center gap-4">
 			@for (card of cards(); track card.title; let i = $index) {
 				<article
-					class="reveal-up bg-white flex flex-col gap-4 rounded-2xl p-5 w-[395px] transition-all duration-500"
-					[ngClass]="card.featured
-						? 'z-10 scale-105'
-						: 'shadow-sm hover:shadow-lg hover:-translate-y-1'"
-					[style.min-height]="card.featured ? '' : '460px'"
-					[style.box-shadow]="card.featured ? '4px 4px 50px 0px rgba(255,237,203,1)' : ''"
+					class="group reveal-up bg-white/80 backdrop-blur-md flex flex-col gap-3 rounded-2xl p-3 w-[230px] h-[500px] transition-all duration-500 border border-white/40 shadow-md hover:shadow-2xl hover:-translate-y-3 flex-shrink-0"
 					[style.--animation-delay]="(i * 0.1) + 's'"
 				>
 					<!-- Room image -->
@@ -28,42 +23,35 @@
 						<img
 							[src]="card.imageUrl"
 							[alt]="card.title"
-							class="h-full w-full object-cover transition-transform duration-700 hover:scale-110"
+							class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
 						/>
+
+						<!-- Overlay -->
+						<div class="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent opacity-80"></div>
 					</div>
 
 					<!-- Title -->
-					<h3 class="text-2xl leading-8 text-[#1a1a1a]" style="font-family: 'Playfair Display', serif;">{{ card.title }}</h3>
+					<h3 class="text-[20px] leading-6 text-[#1a1a1a] line-clamp-2 transition-colors duration-300 group-hover:text-[#c5a059]" style="font-family: 'Playfair Display', serif;">{{ card.title }}</h3>
 
 					<!-- Description -->
-					<p class="text-sm leading-6 text-[#000000]" style="font-family: 'Plus Jakarta Sans', sans-serif;">{{ card.description }}</p>
+					<p class="text-xs leading-5 text-[#777] flex-grow line-clamp-2" style="font-family: 'Plus Jakarta Sans', sans-serif;">{{ card.description }}</p>
 
 					<!-- Actions -->
-					@if (card.featured) {
-						<div class="px-4 flex gap-5 mt-auto">
-							<button
-								class="flex-1 rounded-lg border border-[#1a1a1a] py-3 text-sm italic text-[#1a1a1a] transition-all duration-300 hover:bg-[#1a1a1a] hover:text-white"
-								style="font-family: 'Playfair Display', serif;"
-							>
-								{{ card.primaryAction }}
-							</button>
-							<button
-								class="flex-1 rounded-lg py-3 text-sm italic text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg active:scale-95"
-								style="background: linear-gradient(0deg, rgba(199,158,53,1) 0%, rgba(221,188,108,1) 100%); font-family: 'Playfair Display', serif;"
-							>
-								{{ card.secondaryAction }}
-							</button>
-						</div>
-					} @else {
-						<div class="border-t border-[#e5e7eb] pt-4 px-4 mt-auto flex items-center justify-between">
-							<button class="text-sm italic text-[#1a1a1a] transition-colors duration-300 hover:text-[#c5a059]" style="font-family: 'Playfair Display', serif;">
-								{{ card.primaryAction }}
-							</button>
-							<button class="text-sm italic text-[#c5a059] transition-transform duration-300 hover:translate-x-1" style="font-family: 'Playfair Display', serif;">
-								{{ card.secondaryAction }} →
-							</button>
-						</div>
-					}
+				<div class="border-t border-[#e5e7eb] pt-2 px-2 mt-auto flex items-center justify-between">
+					<button 
+						(click)="navigateToDetail(card)"
+						class="text-xs italic text-[#1a1a1a] transition-colors duration-300 hover:text-[#c5a059] cursor-pointer" 
+						style="font-family: 'Playfair Display', serif;">
+						{{ card.primaryAction }}
+					</button>
+
+					<button 
+						(click)="navigateToStories()"
+						class="text-xs italic text-[#c5a059] transition-all duration-300 hover:translate-x-2 hover:underline cursor-pointer" 
+						style="font-family: 'Playfair Display', serif;">
+						{{ card.secondaryAction }} →
+					</button>
+				</div>
 				</article>
 			}
 		</div>
