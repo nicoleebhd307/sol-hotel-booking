@@ -1,0 +1,294 @@
+<div class="flex bg-[#fcfaf1] min-h-screen">
+  <div class="fixed left-0 top-0 w-[260px] h-screen overflow-y-auto">
+    <app-sidebar></app-sidebar>
+  </div>
+
+  <div class="flex-1 ml-[260px] flex flex-col overflow-hidden">
+    <app-header-topbar [userInfo]="userInfo"></app-header-topbar>
+
+    <main class="flex-1 overflow-y-auto">
+      <div class="px-8 py-8 max-w-[1260px] mx-auto w-full">
+        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-8">
+          <div>
+            <p class="text-[12px] tracking-[1.2px] uppercase text-[#7c7466]">
+              <span class="text-[#8f8777]">Bookings /</span>
+              <span class="text-[#1d1c13]"> New Entry</span>
+            </p>
+            <h1 class="text-[42px] leading-[1.05] text-[#1f1d16] mt-2" style="font-family: 'Playfair Display', serif;">
+              Create a <span class="italic">new reservation</span>
+            </h1>
+          </div>
+
+          <div class="self-start lg:self-auto">
+            <p class="text-[11px] text-right tracking-[1px] uppercase text-[#5f574a]">Current Status</p>
+            <span class="inline-flex mt-1 rounded-full bg-[#d7e8f1] text-[#16435f] px-3 py-1 text-[11px] tracking-[1px] font-bold uppercase">
+              Drafting Mode
+            </span>
+          </div>
+        </div>
+
+        <form [formGroup]="createBookingForm" class="grid grid-cols-1 xl:grid-cols-12 gap-8" (ngSubmit)="onCreateBooking()">
+          <section class="xl:col-span-8 space-y-8">
+            <div class="bg-white border border-[rgba(209,197,180,0.25)] rounded-2xl p-6 shadow-[0_4px_24px_rgba(29,28,19,0.03)]">
+              <div class="flex items-center gap-3 mb-6">
+                <span class="w-8 h-8 rounded-xl bg-[rgba(119,90,25,0.12)] inline-flex items-center justify-center text-[#775a19]">
+                  <mat-icon class="text-[18px]">person</mat-icon>
+                </span>
+                <h2 class="text-[24px] text-[#1d1c13]" style="font-family: 'Playfair Display', serif;">Guest Information</h2>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 items-end">
+                  <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253] mb-2">Phone Number</label>
+                    <input
+                      type="text"
+                      formControlName="phone"
+                      placeholder="+1 (555) 000-0000"
+                      class="w-full h-11 px-3 rounded-xl border border-[#d1c5b4] bg-white text-[15px] text-[#1d1c13] focus:outline-none focus:ring-2 focus:ring-[#c9ab66]"
+                    />
+                    <p *ngIf="hasControlError('phone', 'required')" class="mt-1 text-[11px] text-[#b04a4a]">Phone number is required.</p>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="h-11 px-5 rounded-xl bg-[#ede8d9] text-[#775a19] text-[12px] font-bold uppercase tracking-[1px] hover:bg-[#e2dbc7]"
+                    (click)="onCheckMember()"
+                  >
+                    Check Member
+                  </button>
+                </div>
+
+                <div>
+                  <label class="block text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253] mb-2">Full Name</label>
+                  <input
+                    type="text"
+                    formControlName="fullName"
+                    placeholder="e.g. Julianne Moore"
+                    class="w-full h-11 px-3 rounded-xl border border-[#d1c5b4] bg-white text-[15px] text-[#1d1c13] focus:outline-none focus:ring-2 focus:ring-[#c9ab66]"
+                  />
+                  <p *ngIf="hasControlError('fullName', 'required')" class="mt-1 text-[11px] text-[#b04a4a]">Full name is required.</p>
+                </div>
+
+                <div>
+                  <label class="block text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253] mb-2">Email Address</label>
+                  <input
+                    type="email"
+                    formControlName="email"
+                    placeholder="guest@email.com"
+                    class="w-full h-11 px-3 rounded-xl border border-[#d1c5b4] bg-white text-[15px] text-[#1d1c13] focus:outline-none focus:ring-2 focus:ring-[#c9ab66]"
+                  />
+                  <p *ngIf="hasControlError('email', 'required')" class="mt-1 text-[11px] text-[#b04a4a]">Email is required.</p>
+                  <p *ngIf="hasControlError('email', 'email')" class="mt-1 text-[11px] text-[#b04a4a]">Please enter a valid email address.</p>
+                </div>
+
+                <div class="md:col-span-2">
+                  <label class="block text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253] mb-2">ID / Passport Number</label>
+                  <input
+                    type="text"
+                    formControlName="identityNumber"
+                    placeholder="X-123456789"
+                    class="w-full h-11 px-3 rounded-xl border border-[#d1c5b4] bg-white text-[15px] text-[#1d1c13] focus:outline-none focus:ring-2 focus:ring-[#c9ab66]"
+                  />
+                  <p *ngIf="hasControlError('identityNumber', 'required')" class="mt-1 text-[11px] text-[#b04a4a]">Identity number is required.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white border border-[rgba(209,197,180,0.25)] rounded-2xl p-6 shadow-[0_4px_24px_rgba(29,28,19,0.03)]">
+              <div class="flex items-center gap-3 mb-6">
+                <span class="w-8 h-8 rounded-xl bg-[rgba(0,104,123,0.12)] inline-flex items-center justify-center text-[#00687b]">
+                  <mat-icon class="text-[18px]">calendar_today</mat-icon>
+                </span>
+                <h2 class="text-[24px] text-[#1d1c13]" style="font-family: 'Playfair Display', serif;">Stay Details</h2>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div>
+                  <label class="block text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253] mb-2">Check-in</label>
+                  <input
+                    type="date"
+                    formControlName="checkIn"
+                    [min]="todayIsoDate"
+                    class="w-full h-11 px-3 rounded-xl border border-[#d1c5b4] bg-white text-[15px] text-[#1d1c13] focus:outline-none focus:ring-2 focus:ring-[#c9ab66]"
+                  />
+                  <p *ngIf="hasControlError('checkIn', 'required')" class="mt-1 text-[11px] text-[#b04a4a]">Check-in date is required.</p>
+                  <p *ngIf="hasCheckInPastError()" class="mt-1 text-[11px] text-[#b04a4a]">Check-in must be today or later.</p>
+                </div>
+
+                <div>
+                  <label class="block text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253] mb-2">Check-out</label>
+                  <input
+                    type="date"
+                    formControlName="checkOut"
+                    [min]="minCheckOutDate"
+                    class="w-full h-11 px-3 rounded-xl border border-[#d1c5b4] bg-white text-[15px] text-[#1d1c13] focus:outline-none focus:ring-2 focus:ring-[#c9ab66]"
+                  />
+                  <p *ngIf="hasControlError('checkOut', 'required')" class="mt-1 text-[11px] text-[#b04a4a]">Check-out date is required.</p>
+                </div>
+
+                <div>
+                  <label class="block text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253] mb-2">Guests</label>
+                  <input
+                    type="number"
+                    min="1"
+                    formControlName="guests"
+                    class="w-full h-11 px-3 rounded-xl border border-[#d1c5b4] bg-white text-[15px] text-[#1d1c13] focus:outline-none focus:ring-2 focus:ring-[#c9ab66]"
+                  />
+                  <p class="mt-1 text-[11px] text-[#7b7366]" *ngIf="selectedRoom">{{ selectedRoomCapacityLabel }}</p>
+                  <p *ngIf="hasGuestCapacityError()" class="mt-1 text-[11px] text-[#b04a4a]">Guest count exceeds selected room capacity.</p>
+                </div>
+              </div>
+
+              <p *ngIf="hasDateRangeError()" class="mt-4 text-[12px] text-[#b04a4a]">
+                Check-out must be later than check-in.
+              </p>
+            </div>
+
+            <div class="space-y-4">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div class="flex items-center gap-3">
+                  <span class="w-8 h-8 rounded-xl bg-[rgba(59,98,127,0.12)] inline-flex items-center justify-center text-[#3b627f]">
+                    <mat-icon class="text-[18px]">hotel</mat-icon>
+                  </span>
+                  <h2 class="text-[24px] text-[#1d1c13]" style="font-family: 'Playfair Display', serif;">Select Curated Living</h2>
+                </div>
+                <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#736b5d]">{{ roomOptions.length }} options available</p>
+              </div>
+
+              <div class="space-y-4">
+                <button
+                  type="button"
+                  *ngFor="let room of roomOptions; trackBy: trackRoomById"
+                  (click)="selectRoom(room)"
+                  class="w-full text-left rounded-2xl border p-4 transition-all"
+                  [ngClass]="selectedRoom?.id === room.id
+                    ? 'bg-[#fef9ea] border-[#775a19] shadow-[0_10px_24px_rgba(119,90,25,0.14)]'
+                    : 'bg-white border-[rgba(209,197,180,0.35)] hover:border-[#b59a63]'"
+                >
+                  <div class="flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                      <span class="w-16 h-16 rounded-xl bg-gradient-to-br from-[#e9debf] to-[#d0bb86] inline-flex items-center justify-center text-[#775a19]">
+                        <mat-icon class="text-[28px]">bed</mat-icon>
+                      </span>
+
+                      <div>
+                        <div class="flex items-center gap-2">
+                          <h3 class="text-[22px] text-[#1d1c13]" style="font-family: 'Playfair Display', serif;">{{ room.name }}</h3>
+                          <span
+                            *ngIf="selectedRoom?.id === room.id"
+                            class="inline-flex rounded-md px-2 py-0.5 bg-[rgba(119,90,25,0.12)] text-[#775a19] text-[10px] font-bold uppercase tracking-[1px]"
+                          >
+                            Selected
+                          </span>
+                        </div>
+                        <p class="text-[12px] text-[#6f6759] mt-1">{{ room.description }}</p>
+                      </div>
+                    </div>
+
+                    <div class="text-right shrink-0">
+                      <p class="text-[22px] text-[#775a19]" style="font-family: 'Playfair Display', serif;">${{ room.price | number:'1.0-0' }}</p>
+                      <p class="text-[11px] uppercase tracking-[1px] text-[#00687b] font-bold">{{ room.availableText }}</p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <div class="bg-white border border-[rgba(209,197,180,0.25)] rounded-2xl p-6 shadow-[0_4px_24px_rgba(29,28,19,0.03)]">
+              <label class="block text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253] mb-2">Note</label>
+              <textarea
+                rows="3"
+                formControlName="note"
+                placeholder="Special request or internal note"
+                class="w-full px-3 py-2 rounded-xl border border-[#d1c5b4] bg-white text-[14px] text-[#1d1c13] focus:outline-none focus:ring-2 focus:ring-[#c9ab66] resize-y"
+              ></textarea>
+            </div>
+          </section>
+
+          <aside class="xl:col-span-4">
+            <div class="sticky top-24 space-y-5">
+              <section class="rounded-2xl border border-[rgba(209,197,180,0.25)] bg-[rgba(237,232,217,0.55)] shadow-[0_20px_25px_-5px_rgba(0,0,0,0.08)] backdrop-blur-sm p-6">
+                <p class="text-[14px] uppercase tracking-[2.4px] text-[#6c6457] font-bold leading-5">Reservation<br />Summary</p>
+
+                <div class="mt-6 pb-4 border-b border-[rgba(209,197,180,0.35)] flex items-end justify-between gap-3">
+                  <div>
+                    <p class="text-[13px] font-bold text-[#1d1c13]">{{ createBookingForm.value.roomType || 'No room selected' }}</p>
+                    <p class="text-[12px] text-[#6f6759] mt-1">
+                      {{ nights }} night{{ nights === 1 ? '' : 's' }}
+                      <span *ngIf="createBookingForm.value.checkIn && createBookingForm.value.checkOut">
+                        ({{ createBookingForm.value.checkIn | date:'MMM d' }} - {{ createBookingForm.value.checkOut | date:'MMM d' }})
+                      </span>
+                    </p>
+                  </div>
+                  <p class="text-[15px] font-bold text-[#1d1c13]">${{ subtotal | number:'1.2-2' }}</p>
+                </div>
+
+                <div class="mt-4 space-y-2 text-[12px]">
+                  <div class="flex items-center justify-between text-[#5f574a]">
+                    <span>Taxes & Resort Fees (12%)</span>
+                    <span>${{ tax | number:'1.2-2' }}</span>
+                  </div>
+                  <div class="flex items-center justify-between text-[#5f574a]">
+                    <span>Exclusive Butler Service</span>
+                    <span class="text-[#00687b]">Complimentary</span>
+                  </div>
+                </div>
+
+                <div class="mt-5 pt-5 border-t border-[rgba(209,197,180,0.35)] flex items-end justify-between gap-3">
+                  <p class="text-[10px] uppercase tracking-[1px] font-bold text-[#1d1c13]">Estimated<br />Total</p>
+                  <p class="text-[34px] leading-none text-[#775a19]" style="font-family: 'Playfair Display', serif;">${{ total | number:'1.2-2' }}</p>
+                </div>
+
+                <button
+                  type="submit"
+                  class="mt-6 w-full h-12 rounded-xl bg-gradient-to-r from-[#775a19] to-[#c5a059] text-white text-[12px] font-bold uppercase tracking-[1.2px] hover:brightness-105 disabled:opacity-55 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+                  [disabled]="!canCreateBooking"
+                >
+                  <mat-icon class="text-[18px]">add_circle</mat-icon>
+                  {{ isSubmitting ? 'Creating...' : 'Create Booking' }}
+                </button>
+
+                <button
+                  type="button"
+                  class="mt-3 w-full h-11 rounded-xl border border-[rgba(119,90,25,0.35)] text-[#775a19] text-[12px] font-bold uppercase tracking-[1.2px] hover:bg-[#f3ecda] inline-flex items-center justify-center gap-2"
+                  (click)="onSaveDraft()"
+                >
+                  <mat-icon class="text-[18px]">save</mat-icon>
+                  Save Draft
+                </button>
+
+                <p class="mt-2 text-center text-[11px] text-[#6f6759]">{{ draftTimestampLabel }}</p>
+
+                <p class="mt-4 text-center text-[10px] leading-4 text-[#7a7265]">
+                  By creating this booking, you confirm all guest details are accurate.
+                  A confirmation email will be sent automatically to the guest.
+                </p>
+              </section>
+
+              <section class="rounded-xl border border-[rgba(0,104,123,0.2)] bg-[rgba(0,104,123,0.06)] p-4 flex gap-3">
+                <span class="w-8 h-8 rounded-lg bg-[rgba(0,104,123,0.14)] inline-flex items-center justify-center text-[#00687b] shrink-0">
+                  <mat-icon class="text-[18px]">tips_and_updates</mat-icon>
+                </span>
+                <div>
+                  <p class="text-[12px] uppercase font-bold tracking-[1px] text-[#00687b]">Curator's Note</p>
+                  <p class="text-[11px] text-[#5c5548] mt-1 leading-[1.35]">
+                    The Sunset Suite is highly requested for this date range. Securing it now avoids potential conflicts with VIP inquiries.
+                  </p>
+                </div>
+              </section>
+
+              <button
+                type="button"
+                class="w-full h-11 rounded-xl border border-[rgba(140,130,110,0.35)] text-[#5e574b] text-[13px] font-semibold hover:bg-[#f4f1e7]"
+                (click)="goBack()"
+              >
+                Back to Bookings
+              </button>
+            </div>
+          </aside>
+        </form>
+      </div>
+    </main>
+  </div>
+</div>

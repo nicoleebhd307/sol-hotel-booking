@@ -1,0 +1,101 @@
+<div class="flex bg-[#fcfaf1] min-h-screen">
+  <!-- Fixed Sidebar -->
+  <div class="fixed left-0 top-0 w-[260px] h-screen overflow-y-auto">
+    <app-sidebar></app-sidebar>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="flex-1 ml-[260px] flex flex-col overflow-hidden">
+    <!-- Header Top Navigation Bar -->
+    <app-header-topbar [userInfo]="userInfo"></app-header-topbar>
+
+    <!-- Dashboard Content -->
+    <main class="flex-1 overflow-y-auto">
+      <div class="p-8 max-w-6xl mx-auto w-full">
+        <!-- SECTION 1: Summary Stats Cards - 4 Cards Grid -->
+        <div class="grid grid-cols-4 gap-6 mb-10">
+          <app-dashboard-card *ngFor="let stat of dashboardStats" [data]="stat"></app-dashboard-card>
+          <!-- Loading State -->
+          <div *ngIf="isLoadingSummary && dashboardStats.length === 0" class="col-span-4 text-center py-8 text-[#4e4639]">
+            Loading summary data...
+          </div>
+        </div>
+
+        <!-- SECTION 2 & 3: Room Availability & Quick Actions -->
+        <div class="grid grid-cols-3 gap-8 mb-10">
+          <!-- Room Availability Chart (spans 2 columns) -->
+          <div class="col-span-2 bg-white rounded-[16px] border border-[rgba(209,197,180,0.15)] p-8">
+            <h2 class="text-[36px] leading-[1.05] text-[#1d1c13] mb-6" style="font-family: 'Playfair Display', serif;">
+              Room Availability
+            </h2>
+            <div class="space-y-6">
+              <div *ngFor="let room of roomAvailability" [style.opacity]="isLoadingRooms ? 0.5 : 1" class="transition-opacity duration-500">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-sm font-medium text-[#1d1c13]" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                    {{ room.roomType }}
+                  </span>
+                  <span class="text-sm font-bold text-[#775a19]" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                    {{ room.percentage }}%
+                  </span>
+                </div>
+                <div class="w-full bg-[#f3eedf] rounded-[12px] h-2 overflow-hidden">
+                  <div
+                    class="h-full bg-gradient-to-r from-[#775a19] to-[#c5a059] rounded-[12px] transition-all duration-500"
+                    [style.width.%]="room.percentage"
+                  ></div>
+                </div>
+              </div>
+              <!-- Loading State -->
+              <div *ngIf="isLoadingRooms && roomAvailability.length === 0" class="text-center py-6 text-[#4e4639]">
+                Loading room data...
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="bg-[#f3eedf] rounded-[28px] border border-[rgba(209,197,180,0.18)] p-6">
+            <h3 class="text-[34px] leading-[1.05] text-[#1d1c13] mb-5" style="font-family: 'Playfair Display', serif;">
+              Quick Actions
+            </h3>
+            <div class="space-y-3">
+              <!-- Create Booking Button (Primary) -->
+              <app-quick-action-card
+                [data]="{ title: 'Create New<br>Booking', icon: 'add_circle' }"
+                [isPrimary]="true"
+                [route]="'/bookings/new'"
+              ></app-quick-action-card>
+
+              <!-- View Bookings Button -->
+              <app-quick-action-card
+                [data]="{ title: 'View All Bookings', icon: 'list_alt' }"
+                [isPrimary]="false"
+                [route]="'/bookings'"
+              ></app-quick-action-card>
+
+              <!-- Manage Rooms Button -->
+              <app-quick-action-card
+                [data]="{ title: 'Manage Rooms', icon: 'meeting_room' }"
+                [isPrimary]="false"
+                [route]="'/rooms'"
+              ></app-quick-action-card>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 4: Check-ins & Check-outs Tables -->
+        <div class="grid grid-cols-2 gap-8 mb-10">
+          <!-- Check-ins Table Component -->
+          <app-table-checkins [guests]="checkInGuests"></app-table-checkins>
+
+          <!-- Check-outs Table Component -->
+          <app-table-checkouts [guests]="checkOutGuests"></app-table-checkouts>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-10 py-6 text-center text-xs text-[#4e4639] font-light uppercase tracking-wider" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+          Copyright © 2026 Sol An Bang Beach Resort &amp; Spa | Powered by NHA CO 5 NANG TIEN
+        </footer>
+      </div>
+    </main>
+  </div>
+</div>

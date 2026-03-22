@@ -43,7 +43,6 @@ async function createOrReuseCustomer(customerInput) {
     name: customerInput.name,
     email,
     phone: customerInput.phone,
-    nationality: customerInput.nationality,
     identityId: customerInput.identityId
   });
 

@@ -1,0 +1,143 @@
+/* Dashboard Receptionist - Enhanced Styling & Animations */
+
+:host {
+  display: block;
+  height: 100vh;
+}
+
+/* Main background */
+main {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  background: #fcfaf1;
+}
+
+/* Dashboard Card Animation */
+app-dashboard-card {
+  animation: slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+app-dashboard-card:nth-child(1) { animation-delay: 0ms; }
+app-dashboard-card:nth-child(2) { animation-delay: 75ms; }
+app-dashboard-card:nth-child(3) { animation-delay: 150ms; }
+app-dashboard-card:nth-child(4) { animation-delay: 225ms; }
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Table enhancements */
+table {
+  border-collapse: collapse;
+}
+
+table tbody tr {
+  transition: all 0.25s ease;
+}
+
+table tbody tr:hover {
+  background-color: #f9f7f1;
+  box-shadow: inset 0 0 0 1px rgba(209, 197, 180, 0.1);
+}
+
+table tbody tr:hover td {
+  color: #1d1c13;
+}
+
+/* Button styles with enhanced hover */
+button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+button:hover {
+  transform: translateY(-2px);
+}
+
+button:active {
+  transform: scale(0.98) translateY(0);
+}
+
+/* Profile image styling */
+img[alt="Profile"] {
+  box-shadow: 0 0 0 2px rgba(197, 160, 89, 0.3);
+  transition: transform 0.2s ease;
+}
+
+img[alt="Profile"]:hover {
+  transform: scale(1.05);
+}
+
+/* Search input focus styling */
+input::placeholder {
+  color: #9ca3af;
+}
+
+input:focus {
+  box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.1);
+}
+
+/* Progress bar animation */
+div[style*="width"] {
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Scrollbar styling */
+main::-webkit-scrollbar {
+  width: 8px;
+}
+
+main::-webkit-scrollbar-track {
+  background: #f9f7f1;
+}
+
+main::-webkit-scrollbar-thumb {
+  background: #d1c5b4;
+  border-radius: 4px;
+}
+
+main::-webkit-scrollbar-thumb:hover {
+  background: #c5a059;
+}
+
+/* Card hover lift effect */
+div[class*="rounded-\\[24px\\]"]:not(button) {
+  transition: all 0.3s ease;
+}
+
+div[class*="rounded-\\[24px\\]"]:not(button):hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .col-span-2 {
+    grid-column: span 1 / span 1;
+  }
+
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .ml-\[260px\] {
+    margin-left: 0;
+  }
+}

@@ -2,8 +2,10 @@ const mongoose = require('mongoose');
 
 const AccountSchema = new mongoose.Schema(
   {
-    username: { type: String, required: true, trim: true, unique: true, index: true },
-    passwordHash: { type: String, required: true },
+    username: { type: String, trim: true, unique: true, sparse: true, index: true },
+    email:    { type: String, trim: true, lowercase: true, unique: true, sparse: true, index: true },
+    passwordHash: { type: String },
+    password:     { type: String },
     status: { type: String, required: true, enum: ['active', 'disabled'], default: 'active' },
     createdAt: { type: Date, default: Date.now }
   },

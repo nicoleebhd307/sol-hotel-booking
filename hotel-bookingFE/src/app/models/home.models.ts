@@ -125,7 +125,7 @@ export interface BookingData {
     name: string;
     email: string;
     phone: string;
-    nationality?: string;
+
   };
   rooms: BookingRoom[];
   check_in: string;

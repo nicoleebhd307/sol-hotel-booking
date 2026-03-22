@@ -22,6 +22,14 @@ const BookingSchema = new mongoose.Schema(
     totalPrice: { type: Number, required: true, min: 0 },
     depositAmount: { type: Number, required: true, min: 0 },
     extraCharge: { type: Number, default: 0, min: 0 },
+    extraServices: {
+      type: [{
+        name: { type: String, default: '' },
+        amount: { type: Number, default: 0 },
+        createdAt: { type: Date, default: Date.now },
+      }],
+      default: [],
+    },
     status: {
       type: String,
       required: true,

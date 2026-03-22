@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const StaffSchema = new mongoose.Schema(
   {
-    account_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Account', required: true, index: true },
+    account_id: { type: String, required: true, index: true },
     role: {
       type: String,
       required: true,

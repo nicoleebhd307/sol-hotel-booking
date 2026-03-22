@@ -1,0 +1,66 @@
+<div class="flex flex-col gap-2">
+  <!-- Label -->
+  <label
+    class="text-xs font-light text-[#0d2e33] uppercase tracking-wider"
+    style="font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: 1.2px"
+  >
+    {{ label }}
+  </label>
+
+  <!-- Input Field Container -->
+  <div class="relative" *ngIf="control">
+    <!-- Input -->
+    <input
+      [formControl]="formControl"
+      [type]="getInputType()"
+      [placeholder]="placeholder"
+      [ngClass]="{
+        'pl-12': icon,
+        'pr-12': type === 'password',
+      }"
+      class="w-full px-4 py-3 text-sm font-extralight border transition-all focus:outline-none"
+      style="
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        border-color: rgba(197, 160, 89, 0.3);
+        color: #1f2937;
+      "
+      [class.focus:ring-2]="true"
+      [class]="
+        control.valid && control.touched
+          ? 'focus:ring-[#c5a059] focus:border-[#c5a059]'
+          : control.invalid && control.touched
+            ? 'focus:ring-red-400 focus:border-red-400 ring-1 ring-red-400'
+            : 'focus:ring-[#c5a059] focus:border-[#c5a059]'
+      "
+    />
+
+    <!-- Left Icon -->
+    <div
+      class="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#9ca3af]"
+      *ngIf="icon"
+    >
+      <mat-icon [attr.aria-label]="label" class="text-xl">{{
+        icon
+      }}</mat-icon>
+    </div>
+
+    <!-- Right Icon (for password visibility toggle) -->
+    <button
+      type="button"
+      *ngIf="type === 'password'"
+      (click)="togglePasswordVisibility()"
+      class="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#9ca3af] hover:text-[#6b7280] transition-colors cursor-pointer"
+    >
+      <mat-icon class="text-xl">{{ getVisibilityIcon() }}</mat-icon>
+    </button>
+  </div>
+
+  <!-- Error Message -->
+  <div
+    *ngIf="control && control.invalid && control.touched"
+    class="text-xs text-red-500 font-light"
+  >
+    <span *ngIf="control.errors?.['required']">{{ label }} is required</span>
+    <span *ngIf="control.errors?.['email']">Please enter a valid email</span>
+  </div>
+</div>

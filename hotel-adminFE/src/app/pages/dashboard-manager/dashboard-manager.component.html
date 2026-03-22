@@ -1,0 +1,138 @@
+<div class="flex bg-[#fcfaf1] min-h-screen">
+  <div class="fixed left-0 top-0 w-[260px] h-screen overflow-y-auto">
+    <app-sidebar></app-sidebar>
+  </div>
+
+  <div class="flex-1 ml-[260px] flex flex-col overflow-hidden">
+    <app-header-topbar [userInfo]="userInfo"></app-header-topbar>
+
+    <main class="flex-1 overflow-y-auto">
+      <div class="p-8 max-w-6xl mx-auto w-full">
+        <div class="grid grid-cols-4 gap-6 mb-8">
+          <app-dashboard-card *ngFor="let stat of managerStats" [data]="stat"></app-dashboard-card>
+          <div *ngIf="isLoadingSummary && managerStats.length === 0" class="col-span-4 text-center py-8 text-[#4e4639]">
+            Loading manager summary...
+          </div>
+          <div *ngIf="summaryError" class="col-span-4 text-center py-4 text-[#ba1a1a] text-sm">
+            {{ summaryError }}
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-8 mb-8">
+          <section class="col-span-2 bg-white rounded-[24px] border border-[rgba(209,197,180,0.12)] p-8 manager-activity overflow-hidden">
+            <div class="flex items-start justify-between gap-4 mb-6">
+              <div>
+                <h3 class="text-[36px] leading-[1.05] text-[#1d1c13]" style="font-family: 'Playfair Display', serif;">
+                  Booking Activity
+                </h3>
+                <p class="text-sm text-[#4e4639]" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                  {{ activitySubtitle }}
+                </p>
+              </div>
+
+              <div class="inline-flex rounded-[12px] bg-[#f7f3e7] p-1">
+                <button
+                  type="button"
+                  class="px-4 py-2 text-xs rounded-[10px] transition-all"
+                  [ngClass]="activityPeriod === 'weekly' ? 'bg-[#ede8d9] text-[#4e4639] font-semibold' : 'text-[#7b7263]'"
+                  (click)="setActivityPeriod('weekly')"
+                >
+                  Weekly
+                </button>
+                <button
+                  type="button"
+                  class="px-4 py-2 text-xs rounded-[10px] transition-all"
+                  [ngClass]="activityPeriod === 'monthly' ? 'bg-[#ede8d9] text-[#4e4639] font-semibold' : 'text-[#7b7263]'"
+                  (click)="setActivityPeriod('monthly')"
+                >
+                  Monthly
+                </button>
+              </div>
+            </div>
+
+            <div class="activity-scroll">
+              <div class="activity-scroll-content">
+                <div class="chart-wrap mb-4">
+                  <svg viewBox="0 0 560 150" class="w-full h-[210px]">
+                    <defs>
+                      <linearGradient id="lineFade" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#b7934a" stop-opacity="0.30"></stop>
+                        <stop offset="100%" stop-color="#b7934a" stop-opacity="0.02"></stop>
+                      </linearGradient>
+                    </defs>
+
+                    <path [attr.d]="activityAreaPath" fill="url(#lineFade)"></path>
+                    <path [attr.d]="activitySmoothPath" fill="none" stroke="#7f6323" stroke-width="2"></path>
+
+                    <circle
+                      *ngFor="let dot of activityDots; let i = index"
+                      [attr.cx]="dot.x"
+                      [attr.cy]="dot.y"
+                      [attr.r]="i % 2 === 0 ? 3 : 2"
+                      fill="#7f6323"
+                    ></circle>
+                  </svg>
+                </div>
+
+                <div
+                  class="grid text-[11px] text-[#5f5749] tracking-wide"
+                  style="font-family: 'Plus Jakarta Sans', sans-serif;"
+                  [style.gridTemplateColumns]="'repeat(' + activityLabels.length + ', minmax(0, 1fr))'"
+                >
+                  <span *ngFor="let label of activityLabels" class="text-center">{{ label }}</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div class="flex flex-col gap-6">
+            <section class="bg-[#f3eedf] rounded-[28px] border border-[rgba(209,197,180,0.18)] p-6">
+              <h3 class="text-[34px] leading-[1.05] text-[#1d1c13] mb-5" style="font-family: 'Playfair Display', serif;">
+                Quick Actions
+              </h3>
+
+              <div class="space-y-3">
+                <app-quick-action-card
+                  [data]="{ title: 'Create New<br>Booking', icon: 'add_circle' }"
+                  [isPrimary]="true"
+                  [route]="'/bookings/new'"
+                ></app-quick-action-card>
+
+                <app-quick-action-card
+                  [data]="{ title: 'View All Bookings', icon: 'list_alt' }"
+                  [isPrimary]="false"
+                  [route]="'/bookings'"
+                ></app-quick-action-card>
+
+                <app-quick-action-card
+                  [data]="{ title: 'Manage Rooms', icon: 'meeting_room' }"
+                  [isPrimary]="false"
+                  [route]="'/rooms'"
+                ></app-quick-action-card>
+              </div>
+            </section>
+
+            <section class="relative overflow-hidden rounded-[22px] min-h-[210px]">
+              <img src="assets/images/login_bg.jpg" alt="Staff message" class="absolute inset-0 w-full h-full object-cover" />
+              <div class="absolute inset-0 bg-gradient-to-tr from-[#2d4a49]/85 via-[#476b68]/72 to-[#1f3635]/55"></div>
+
+              <div class="relative p-6 text-[#f5f1e8] h-full flex flex-col justify-end">
+                <p class="text-xs font-semibold tracking-[2px] uppercase mb-3" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                  Staff Message
+                </p>
+                <p class="text-[30px] leading-[1.05]" style="font-family: 'Playfair Display', serif;">
+                  "Excellence is not an act,<br />but a habit. Welcome<br />your guest with the<br />warmth of the sun today."
+                </p>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-8 mb-10">
+          <app-table-checkins [guests]="checkInGuests"></app-table-checkins>
+          <app-table-checkouts [guests]="checkOutGuests"></app-table-checkouts>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
