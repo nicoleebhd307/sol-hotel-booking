@@ -15,8 +15,13 @@ export class Accommodations {
   readonly cards = input<AccommodationCard[]>([]);
 
   navigateToDetail(card: AccommodationCard): void {
-    // Navigate to room-detail page with room title as query parameter
-    this.router.navigate(['/rooms', 'search'], { queryParams: { name: card.title } });
+    // Navigate to room-detail page with room ID or name
+    if (card.roomTypeId) {
+      this.router.navigate(['/rooms', card.roomTypeId]);
+    } else {
+      // Fallback to query param if ID not available
+      this.router.navigate(['/rooms', 'search'], { queryParams: { name: card.title } });
+    }
   }
 
   navigateToStories(): void {

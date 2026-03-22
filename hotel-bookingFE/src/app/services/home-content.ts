@@ -175,6 +175,7 @@ export class HomeContent {
         imageUrl: firstImage,
         primaryAction: 'Details',
         secondaryAction: 'Explore More',
+        roomTypeId: rt._id,
       };
     });
   }
