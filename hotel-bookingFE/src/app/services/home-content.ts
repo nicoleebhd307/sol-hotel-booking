@@ -18,7 +18,7 @@ export class HomeContent {
         logoUrl: 'assets/images/sol-white.png',
         navLinks: [
           { label: 'Home', href: '/' },
-          { label: 'Our Stories', href: '#' },
+          { label: 'Our Stories', href: '/stories' },
           { label: 'Accommodations', href: '/rooms' },
         ],
         welcomeEyebrow: 'Welcome to',
