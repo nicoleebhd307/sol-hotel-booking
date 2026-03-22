@@ -47,6 +47,11 @@ export class RoomDetail implements OnInit, AfterViewInit {
   protected readonly reserveLabel = this.homeContent.getHomePageData().hero.reserveLabel;
 
   ngOnInit(): void {
+    // Scroll to top of page
+    if (isPlatformBrowser(this.platformId)) {
+      window.scrollTo(0, 0);
+    }
+
     // Check for room ID in route param
     const roomTypeId = this.route.snapshot.paramMap.get('id');
     
