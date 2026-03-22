@@ -7,7 +7,15 @@
     <app-header-topbar [userInfo]="userInfo"></app-header-topbar>
 
     <main class="flex-1 overflow-y-auto">
-      <div class="p-8 max-w-6xl mx-auto w-full">
+      <div class="px-8 py-8 max-w-[1280px] mx-auto w-full" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+        <!-- Page Title -->
+        <div class="mb-8">
+          <p class="text-[9px] uppercase tracking-[1.1px] text-[#978f7d] font-semibold" style="font-family: 'Plus Jakarta Sans', sans-serif;">Management / <span class="text-[#7c6a39]">Dashboard</span></p>
+          <h1 class="text-[48px] leading-[1.03] text-[#1f1d16]" style="font-family: 'Playfair Display', serif;">
+            Manager <span class="italic">Dashboard</span>
+          </h1>
+        </div>
+
         <div class="grid grid-cols-4 gap-6 mb-8">
           <app-dashboard-card *ngFor="let stat of managerStats" [data]="stat"></app-dashboard-card>
           <div *ngIf="isLoadingSummary && managerStats.length === 0" class="col-span-4 text-center py-8 text-[#4e4639]">
@@ -85,26 +93,29 @@
             </div>
           </section>
 
-          <div class="flex flex-col gap-6">
-            <section class="bg-[#f3eedf] rounded-[28px] border border-[rgba(209,197,180,0.18)] p-6">
+          <div class="flex flex-col gap-6 h-full">
+            <section class="bg-[#f3eedf] rounded-[28px] border border-[rgba(209,197,180,0.18)] p-6 flex flex-col flex-1">
               <h3 class="text-[34px] leading-[1.05] text-[#1d1c13] mb-5" style="font-family: 'Playfair Display', serif;">
                 Quick Actions
               </h3>
 
-              <div class="space-y-3">
+              <div class="flex flex-col flex-1 gap-3">
                 <app-quick-action-card
-                  [data]="{ title: 'Create New<br>Booking', icon: 'add_circle' }"
+                  class="flex-1 flex flex-col"
+                  [data]="{ title: 'Create New Booking', icon: 'add_circle' }"
                   [isPrimary]="true"
                   [route]="'/bookings/new'"
                 ></app-quick-action-card>
 
                 <app-quick-action-card
+                  class="flex-1 flex flex-col"
                   [data]="{ title: 'View All Bookings', icon: 'list_alt' }"
                   [isPrimary]="false"
                   [route]="'/bookings'"
                 ></app-quick-action-card>
 
                 <app-quick-action-card
+                  class="flex-1 flex flex-col"
                   [data]="{ title: 'Manage Rooms', icon: 'meeting_room' }"
                   [isPrimary]="false"
                   [route]="'/rooms'"
@@ -129,8 +140,16 @@
         </div>
 
         <div class="grid grid-cols-2 gap-8 mb-10">
-          <app-table-checkins [guests]="checkInGuests"></app-table-checkins>
-          <app-table-checkouts [guests]="checkOutGuests"></app-table-checkouts>
+          <app-table-checkins
+            [guests]="checkInGuests"
+            [updatingId]="updatingCheckInId"
+            (checkIn)="onCheckIn($event)"
+          ></app-table-checkins>
+          <app-table-checkouts
+            [guests]="checkOutGuests"
+            [updatingId]="updatingCheckOutId"
+            (checkOut)="onCheckOut($event)"
+          ></app-table-checkouts>
         </div>
       </div>
     </main>

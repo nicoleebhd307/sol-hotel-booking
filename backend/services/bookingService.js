@@ -301,8 +301,8 @@ async function adminUpdateBookingStatus(bookingId, newStatus) {
     throw err;
   }
 
-  const booking = await Booking.findByIdAndUpdate(
-    bookingId,
+  const booking = await Booking.findOneAndUpdate(
+    buildIdConditions(bookingId),
     { $set: { status: newStatus } },
     { new: true }
   );
@@ -324,8 +324,8 @@ async function adminAddExtraCharges(bookingId, extraCharge) {
     throw err;
   }
 
-  const booking = await Booking.findByIdAndUpdate(
-    bookingId,
+  const booking = await Booking.findOneAndUpdate(
+    buildIdConditions(bookingId),
     { $set: { extraCharge: val } },
     { new: true }
   );
@@ -340,8 +340,8 @@ async function adminAddExtraCharges(bookingId, extraCharge) {
 }
 
 async function adminAddNote(bookingId, note) {
-  const booking = await Booking.findByIdAndUpdate(
-    bookingId,
+  const booking = await Booking.findOneAndUpdate(
+    buildIdConditions(bookingId),
     { $set: { note: note || '' } },
     { new: true }
   );
@@ -440,6 +440,7 @@ async function createManualBooking({ customer, roomIds, checkIn, checkOut, guest
 }
 
 module.exports = {
+  buildIdConditions,
   expireStalePendingBookings,
   createBooking,
   createManualBooking,

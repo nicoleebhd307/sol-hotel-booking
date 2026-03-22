@@ -3,7 +3,7 @@ const bookingController = require('../controllers/bookingController');
 const authMiddleware = require('../middleware/authMiddleware');
 const Booking = require('../models/Booking');
 const BookingDraft = require('../models/BookingDraft');
-const { expireStalePendingBookings } = require('../services/bookingService');
+const { expireStalePendingBookings, buildIdConditions } = require('../services/bookingService');
 
 // Statuses managed in booking management (only paid/active bookings)
 const MANAGED_STATUSES = ['confirmed', 'checked_in', 'checked_out', 'completed'];
@@ -124,10 +124,10 @@ router.patch('/:id', authMiddleware, async (req, res, next) => {
     if (updates.totalPrice !== undefined) setFields.totalPrice = Number(updates.totalPrice);
 
     if (Object.keys(setFields).length > 0) {
-      await Booking.findByIdAndUpdate(id, { $set: setFields });
+      await Booking.findOneAndUpdate(buildIdConditions(id), { $set: setFields });
     }
 
-    const booking = await Booking.findById(id)
+    const booking = await Booking.findOne(buildIdConditions(id))
       .populate('customer_id')
       .populate({ path: 'rooms.room_id', populate: { path: 'room_type_id' } })
       .lean();

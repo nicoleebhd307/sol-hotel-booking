@@ -27,9 +27,9 @@ const days = (n, base = new Date()) => new Date(base.getTime() + n * 86400_000);
 // All passwords: 123456 (plaintext for dev seed)
 const accountSeed = [
   { email: 'admin@hotel.com',      password: '123456', role: 'admin',        name: 'Admin User',       phone: '0901000001' },
-  { email: 'manager@hotel.com',    password: '123456', role: 'manager',      name: 'Hotel Manager',    phone: '0901000002' },
-  { email: 'reception1@hotel.com', password: '123456', role: 'receptionist', name: 'Reception Staff 1', phone: '0901000003' },
-  { email: 'reception2@hotel.com', password: '123456', role: 'receptionist', name: 'Reception Staff 2', phone: '0901000004' },
+  { email: 'manager@hotel.com',    password: '123456', role: 'manager',      name: 'Bui Hoang Dieu',    phone: '0901000002' },
+  { email: 'reception1@hotel.com', password: '123456', role: 'receptionist', name: 'Tran Khanh Linh', phone: '0901000003' },
+  { email: 'reception2@hotel.com', password: '123456', role: 'receptionist', name: 'Phung Kim Chau', phone: '0901000004' },
 ];
 
 // ─── 2. ROOM TYPES ──────────────────────────────────────────────────────────

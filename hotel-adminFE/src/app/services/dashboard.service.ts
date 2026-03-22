@@ -15,20 +15,23 @@ export interface DashboardSummary {
 }
 
 export interface CheckInGuest {
+  bookingId: string;
   id: number;
   guestName: string;
   room: string;
   time: string;
   roomType: string;
+  status: string;
 }
 
 export interface CheckOutGuest {
+  bookingId: string;
   id: number;
   guestName: string;
   room: string;
   status: string;
-  amount: number;
-  checkoutTime: string;
+  amount?: number;
+  checkoutTime?: string;
 }
 
 export interface RoomAvailability {

@@ -61,6 +61,24 @@
 
   <!-- Bottom Section -->
   <div class="border-t border-[rgba(209,197,180,0.1)] px-4 py-4">
+    <!-- User Profile Card -->
+    <div class="flex items-center gap-3 px-4 py-3 mb-2 rounded-[12px] bg-[#faf7ee]">
+      <img
+        [src]="currentUser.profileImage"
+        alt="Profile"
+        class="w-9 h-9 rounded-[10px] border border-[rgba(197,160,89,0.3)] object-cover flex-shrink-0"
+        (error)="$any($event.target).src = '/assets/images/admin-profile.png'"
+      />
+      <div class="flex flex-col min-w-0">
+        <p class="text-[13px] font-semibold text-[#1d1c13] leading-tight truncate" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+          {{ currentUser.name }}
+        </p>
+        <p class="text-[11px] text-[#775a19] uppercase tracking-wider font-semibold leading-tight" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+          {{ currentUser.role }}
+        </p>
+      </div>
+    </div>
+
     <ul class="flex flex-col gap-1">
       <li *ngFor="let item of bottomMenuItems; let isLast = last">
         <a

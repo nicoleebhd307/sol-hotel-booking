@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -17,12 +17,20 @@ interface MenuItem {
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
   menuItems: MenuItem[] = [];
 
   bottomMenuItems: MenuItem[] = [
     { label: 'Logout', icon: 'logout', route: '/login', action: 'logout' },
   ];
+
+  currentUser = {
+    name: '',
+    role: '',
+    profileImage: '/assets/images/admin-profile.png',
+  };
+
+  private readonly platformId = inject(PLATFORM_ID);
 
   constructor(private authService: AuthService) {
     const dashboardRoute = this.authService.hasRole('manager') ? '/manager-dashboard' : '/dashboard';
@@ -34,6 +42,20 @@ export class SidebarComponent {
       { label: 'Refunds', icon: 'payments', route: '/refunds' },
       { label: 'Reports', icon: 'monitoring', route: '/reports' },
     ];
+  }
+
+  ngOnInit(): void {
+    const user = this.authService.getCurrentUser();
+    const isBrowser = isPlatformBrowser(this.platformId);
+    const local = isBrowser ? localStorage.getItem('authUser') : null;
+    const localUser = local ? JSON.parse(local) : null;
+
+    const rawRole = user?.role ?? localUser?.role ?? '';
+    this.currentUser = {
+      name: user?.name ?? localUser?.name ?? 'Hotel Staff',
+      role: rawRole === 'manager' ? 'Manager' : rawRole === 'receptionist' ? 'Receptionist' : rawRole,
+      profileImage: user?.profileImage ?? localUser?.profileImage ?? '/assets/images/admin-profile.png',
+    };
   }
 
   handleMenuClick(event: Event, item: MenuItem): void {

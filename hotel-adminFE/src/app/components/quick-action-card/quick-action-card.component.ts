@@ -19,7 +19,7 @@ interface ActionCardData {
       [ngClass]="isPrimary 
         ? 'bg-gradient-to-r from-[#775a19] to-[#c5a059] text-white shadow-md hover:shadow-lg' 
         : 'bg-white border border-[rgba(209,197,180,0.2)] text-[#4e4639] hover:bg-[#f5f3ec] hover:border-[rgba(209,197,180,0.3)]'"
-      class="w-full rounded-[32px] px-8 py-4 font-medium transition-all duration-300 flex items-center justify-between gap-6 h-auto min-h-[60px]"
+      class="w-full rounded-[32px] px-8 py-4 font-medium transition-all duration-300 flex items-center justify-between gap-6 flex-1 min-h-[60px]"
       style="font-family: 'Plus Jakarta Sans', sans-serif;"
     >
       <!-- Left side: Icon + Text -->

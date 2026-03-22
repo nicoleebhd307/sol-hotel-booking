@@ -9,6 +9,8 @@ import { SidebarComponent } from '../../components/sidebar/sidebar.component';
 import { TableCheckinsComponent } from '../../components/table-checkins/table-checkins.component';
 import { TableCheckoutsComponent } from '../../components/table-checkouts/table-checkouts.component';
 import { DashboardService, CheckInGuest, CheckOutGuest } from '../../services/dashboard.service';
+import { AuthService } from '../../services/auth.service';
+import { BookingService } from '../../services/booking.service';
 
 interface ManagerStatsCard {
   label: string;
@@ -52,10 +54,14 @@ export class DashboardManagerComponent implements OnInit, OnDestroy {
   isLoadingCheckIns = true;
   isLoadingCheckOuts = true;
 
+  // Status update tracking
+  updatingCheckInId: string | null = null;
+  updatingCheckOutId: string | null = null;
+
   summaryError = '';
 
   userInfo = {
-    name: 'John Manager',
+    name: 'Hotel Staff',
     role: 'manager',
     profileImage: 'assets/images/admin-profile.png',
   };
@@ -65,18 +71,47 @@ export class DashboardManagerComponent implements OnInit, OnDestroy {
 
   constructor(
     private dashboardService: DashboardService,
-    private cdr: ChangeDetectorRef
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef,
+    private bookingService: BookingService
   ) {}
 
   ngOnInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      this.loadDashboardData();
-      return;
-    }
+    this.resolveUserInfo();
+    this.loadDashboardData();
+  }
 
-    this.isLoadingSummary = false;
-    this.isLoadingCheckIns = false;
-    this.isLoadingCheckOuts = false;
+  private resolveUserInfo(): void {
+    const user = this.authService.getCurrentUser();
+    const isBrowser = isPlatformBrowser(this.platformId);
+    const local = isBrowser ? localStorage.getItem('authUser') : null;
+    const localUser = local ? JSON.parse(local) : null;
+
+    this.userInfo = {
+      name: user?.name ?? localUser?.name ?? 'Hotel Staff',
+      role: user?.role ?? localUser?.role ?? 'manager',
+      profileImage: user?.profileImage ?? localUser?.profileImage ?? 'assets/images/admin-profile.png',
+    };
+  }
+
+  onCheckIn(guest: CheckInGuest): void {
+    this.updatingCheckInId = guest.bookingId;
+    this.bookingService.updateBooking(guest.bookingId, { status: 'checked_in' } as any)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => { this.updatingCheckInId = null; this.loadCheckIns(); },
+        error: () => { this.updatingCheckInId = null; }
+      });
+  }
+
+  onCheckOut(guest: CheckOutGuest): void {
+    this.updatingCheckOutId = guest.bookingId;
+    this.bookingService.updateBooking(guest.bookingId, { status: 'checked_out' } as any)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => { this.updatingCheckOutId = null; this.loadCheckOuts(); },
+        error: () => { this.updatingCheckOutId = null; }
+      });
   }
 
   ngOnDestroy(): void {
@@ -149,7 +184,7 @@ export class DashboardManagerComponent implements OnInit, OnDestroy {
       });
   }
 
-  private loadCheckIns(): void {
+  loadCheckIns(): void {
     this.isLoadingCheckIns = true;
 
     this.dashboardService
@@ -170,7 +205,7 @@ export class DashboardManagerComponent implements OnInit, OnDestroy {
       });
   }
 
-  private loadCheckOuts(): void {
+  loadCheckOuts(): void {
     this.isLoadingCheckOuts = true;
 
     this.dashboardService

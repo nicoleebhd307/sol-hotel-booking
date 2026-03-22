@@ -29,11 +29,11 @@ async function getSummary() {
 
 async function getCheckIns() {
   const todayStart = startOfDayUtc(new Date());
-  const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000);
 
+  // Upcoming confirmed bookings — check_in from today onwards, waiting to be checked in
   const bookings = await Booking.find({
-    check_in: { $gte: todayStart, $lt: todayEnd },
-    status: { $in: ['confirmed', 'checked_in'] },
+    check_in: { $gte: todayStart },
+    status: 'confirmed',
   })
     .populate('customer_id')
     .populate({ path: 'rooms.room_id', populate: { path: 'room_type_id' } })
@@ -45,22 +45,24 @@ async function getCheckIns() {
     const room = b.rooms?.[0]?.room_id;
     const roomType = room?.room_type_id;
     return {
+      bookingId: String(b._id),
       id: i + 1,
       guestName: b.customer_id?.name || 'Guest',
       room: room?.room_number ? `Room ${room.room_number}` : '-',
-      time: new Date(b.check_in).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      time: new Date(b.check_in).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }),
       roomType: roomType?.name || 'Standard',
+      status: b.status,
     };
   });
 }
 
 async function getCheckOuts() {
   const todayStart = startOfDayUtc(new Date());
-  const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000);
 
+  // Currently checked-in guests with check-out from today onwards — these need to be checked out
   const bookings = await Booking.find({
-    check_out: { $gte: todayStart, $lt: todayEnd },
-    status: { $in: ['checked_out', 'completed', 'checked_in'] },
+    check_out: { $gte: todayStart },
+    status: 'checked_in',
   })
     .populate('customer_id')
     .populate({ path: 'rooms.room_id', populate: { path: 'room_type_id' } })
@@ -70,14 +72,14 @@ async function getCheckOuts() {
 
   return bookings.map((b, i) => {
     const room = b.rooms?.[0]?.room_id;
-    const isPaid = b.depositAmount > 0;
     return {
+      bookingId: String(b._id),
       id: i + 1,
       guestName: b.customer_id?.name || 'Guest',
       room: room?.room_number ? `Room ${room.room_number}` : '-',
-      status: isPaid ? 'Paid' : 'Pending',
+      status: b.status,
       amount: b.totalPrice || 0,
-      checkoutTime: new Date(b.check_out).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      checkoutTime: new Date(b.check_out).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }),
     };
   });
 }

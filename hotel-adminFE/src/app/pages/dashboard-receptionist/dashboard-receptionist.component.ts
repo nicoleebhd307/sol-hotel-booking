@@ -7,7 +7,9 @@ import { DashboardCardComponent } from '../../components/dashboard-card/dashboar
 import { QuickActionCardComponent } from '../../components/quick-action-card/quick-action-card.component';
 import { TableCheckinsComponent } from '../../components/table-checkins/table-checkins.component';
 import { TableCheckoutsComponent } from '../../components/table-checkouts/table-checkouts.component';
-import { DashboardService } from '../../services/dashboard.service';
+import { DashboardService, CheckInGuest, CheckOutGuest } from '../../services/dashboard.service';
+import { AuthService } from '../../services/auth.service';
+import { BookingService } from '../../services/booking.service';
 import { Subject, timeout } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -17,23 +19,6 @@ interface DashboardStats {
   percentage: number;
   trend: 'up' | 'down';
   icon: string;
-}
-
-interface CheckInGuest {
-  id: number;
-  guestName: string;
-  room: string;
-  time: string;
-  roomType: string;
-}
-
-interface CheckOutGuest {
-  id: number;
-  guestName: string;
-  room: string;
-  status: string;
-  amount: number;
-  checkoutTime: string;
 }
 
 interface RoomAvailability {
@@ -74,6 +59,10 @@ export class DashboardReceptionistComponent implements OnInit, OnDestroy {
   isLoadingCheckIns = true;
   isLoadingCheckOuts = true;
   isLoadingRooms = true;
+
+  // Status update tracking
+  updatingCheckInId: string | null = null;
+  updatingCheckOutId: string | null = null;
   
   // Error messages
   summaryError = '';
@@ -83,9 +72,9 @@ export class DashboardReceptionistComponent implements OnInit, OnDestroy {
   
   // User info
   userInfo = {
-    name: 'Mary Janes',
+    name: 'Hotel Staff',
     role: 'receptionist',
-    profileImage: 'assets/images/admin-profile.png'
+    profileImage: 'assets/images/admin-profile.png',
   };
 
   private destroy$ = new Subject<void>();
@@ -93,20 +82,47 @@ export class DashboardReceptionistComponent implements OnInit, OnDestroy {
 
   constructor(
     private dashboardService: DashboardService,
-    private cdr: ChangeDetectorRef
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef,
+    private bookingService: BookingService
   ) {}
 
   ngOnInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      this.loadDashboardData();
-      return;
-    }
+    this.resolveUserInfo();
+    this.loadDashboardData();
+  }
 
-    // Avoid locking SSR HTML in a loading state before hydration on the client.
-    this.isLoadingSummary = false;
-    this.isLoadingCheckIns = false;
-    this.isLoadingCheckOuts = false;
-    this.isLoadingRooms = false;
+  private resolveUserInfo(): void {
+    const user = this.authService.getCurrentUser();
+    const isBrowser = isPlatformBrowser(this.platformId);
+    const local = isBrowser ? localStorage.getItem('authUser') : null;
+    const localUser = local ? JSON.parse(local) : null;
+
+    this.userInfo = {
+      name: user?.name ?? localUser?.name ?? 'Hotel Staff',
+      role: user?.role ?? localUser?.role ?? 'receptionist',
+      profileImage: user?.profileImage ?? localUser?.profileImage ?? 'assets/images/admin-profile.png',
+    };
+  }
+
+  onCheckIn(guest: CheckInGuest): void {
+    this.updatingCheckInId = guest.bookingId;
+    this.bookingService.updateBooking(guest.bookingId, { status: 'checked_in' } as any)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => { this.updatingCheckInId = null; this.loadCheckIns(); },
+        error: () => { this.updatingCheckInId = null; }
+      });
+  }
+
+  onCheckOut(guest: CheckOutGuest): void {
+    this.updatingCheckOutId = guest.bookingId;
+    this.bookingService.updateBooking(guest.bookingId, { status: 'checked_out' } as any)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => { this.updatingCheckOutId = null; this.loadCheckOuts(); },
+        error: () => { this.updatingCheckOutId = null; }
+      });
   }
 
   ngOnDestroy(): void {
@@ -187,7 +203,7 @@ export class DashboardReceptionistComponent implements OnInit, OnDestroy {
   /**
    * Load check-in guests
    */
-  private loadCheckIns(): void {
+  loadCheckIns(): void {
     this.isLoadingCheckIns = true;
     this.checkInsError = '';
     
@@ -217,7 +233,7 @@ export class DashboardReceptionistComponent implements OnInit, OnDestroy {
   /**
    * Load check-out guests
    */
-  private loadCheckOuts(): void {
+  loadCheckOuts(): void {
     this.isLoadingCheckOuts = true;
     this.checkOutsError = '';
     
@@ -290,22 +306,14 @@ export class DashboardReceptionistComponent implements OnInit, OnDestroy {
    * Set default check-in data (fallback)
    */
   private setDefaultCheckIns(): void {
-    this.checkInGuests = [
-      { id: 1, guestName: 'Julianne Moore', room: 'Suite 402', time: '14:30 PM', roomType: 'Suite' },
-      { id: 2, guestName: 'Victor Hugo', room: 'Ocean Villa 03', time: '15:00 PM', roomType: 'Villa' },
-      { id: 3, guestName: 'Clara Oswald', room: 'Deluxe 108', time: '16:15 PM', roomType: 'Deluxe' }
-    ];
+    this.checkInGuests = [];
   }
 
   /**
    * Set default check-out data (fallback)
    */
   private setDefaultCheckOuts(): void {
-    this.checkOutGuests = [
-      { id: 1, guestName: 'Marcus Aurelius', room: 'King Suite 12', status: 'Paid', amount: 450, checkoutTime: '10:00 AM' },
-      { id: 2, guestName: 'Sophia Loren', room: 'Suite 405', status: 'Pending', amount: 320, checkoutTime: '10:30 AM' },
-      { id: 3, guestName: 'James Bond', room: 'Secret Villa 07', status: 'Paid', amount: 850, checkoutTime: '11:00 AM' }
-    ];
+    this.checkOutGuests = [];
   }
 
   /**
