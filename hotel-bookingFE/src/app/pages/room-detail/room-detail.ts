@@ -1,6 +1,8 @@
-import { Component, inject, AfterViewInit, PLATFORM_ID, signal, OnInit } from '@angular/core';
+import { Component, inject, AfterViewInit, PLATFORM_ID, signal, OnInit, OnDestroy } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../services/api.service';
 import { RoomsContent } from '../../services/rooms-content';
 import { HomeContent } from '../../services/home-content';
@@ -28,13 +30,14 @@ import { BookingCta } from '../../components/home/booking-cta/booking-cta';
   templateUrl: './room-detail.html',
   styleUrl: './room-detail.css',
 })
-export class RoomDetail implements OnInit, AfterViewInit {
+export class RoomDetail implements OnInit, AfterViewInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly apiService = inject(ApiService);
   private readonly roomsContent = inject(RoomsContent);
   private readonly homeContent = inject(HomeContent);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly destroy$ = new Subject<void>();
 
   protected readonly selectedRoom = signal<RoomCard | null>(null);
   protected readonly selectedRoomType = signal<RoomType | null>(null);
@@ -52,19 +55,28 @@ export class RoomDetail implements OnInit, AfterViewInit {
       window.scrollTo(0, 0);
     }
 
-    // Check for room ID in route param
-    const roomTypeId = this.route.snapshot.paramMap.get('id');
-    
-    // Check for room name in query param
-    const roomName = this.route.snapshot.queryParamMap.get('name');
+    // Subscribe to route param changes (not just snapshot)
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((paramMap) => {
+      const roomTypeId = paramMap.get('id');
+      
+      if (roomTypeId) {
+        this.isLoading.set(true);
+        this.loadRoomType(roomTypeId);
+        this.loadRelatedRooms(roomTypeId);
+      } else {
+        // Check for room name in query param as fallback
+        const roomName = this.route.snapshot.queryParamMap.get('name');
+        if (roomName) {
+          this.isLoading.set(true);
+          this.loadRoomTypeByName(roomName);
+        }
+      }
+    });
+  }
 
-    if (roomTypeId) {
-      this.loadRoomType(roomTypeId);
-    } else if (roomName) {
-      this.loadRoomTypeByName(roomName);
-    }
-    
-    this.loadRelatedRooms(roomTypeId);
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   ngAfterViewInit(): void {
@@ -80,7 +92,10 @@ export class RoomDetail implements OnInit, AfterViewInit {
         this.selectedRoom.set(this.mapRoomTypeToCard(roomType));
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false)
+      error: (err) => {
+        console.error('Failed to load room type:', err);
+        this.isLoading.set(false);
+      }
     });
   }
 
