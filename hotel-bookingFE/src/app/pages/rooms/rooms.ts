@@ -71,9 +71,10 @@ export class Rooms implements OnInit, AfterViewInit {
 
     if (filters.priceRange) {
       const price = room.priceFrom;
-      if (filters.priceRange === '$0 - $500' && price > 500) return false;
-      if (filters.priceRange === '$500 - $1000' && (price < 500 || price > 1000)) return false;
-      if (filters.priceRange === '$1000+' && price < 1000) return false;
+      if (filters.priceRange === '1,000,000 - 1,200,000' && (price < 1000000 || price > 1200000)) return false;
+      if (filters.priceRange === '1,200,000 - 1,400,000' && (price < 1200000 || price > 1400000)) return false;
+      if (filters.priceRange === '1,400,000 - 1,700,000' && (price < 1400000 || price > 1700000)) return false;
+      if (filters.priceRange === '1,700,000+' && price < 1700000) return false;
     }
 
     if (filters.guests) {
