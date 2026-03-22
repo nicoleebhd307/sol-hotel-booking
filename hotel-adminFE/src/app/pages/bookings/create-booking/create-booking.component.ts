@@ -1,13 +1,15 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { HeaderTopbarComponent } from '../../../components/header-topbar/header-topbar.component';
 import { SidebarComponent } from '../../../components/sidebar/sidebar.component';
-import { BookingDraft, BookingRole, CreateBookingDraftPayload, CreateBookingPayload } from '../../../models/booking.model';
+import { AdminCreateBookingPayload, BookingRole } from '../../../models/booking.model';
 import { AuthService } from '../../../services/auth.service';
 import { BookingService } from '../../../services/booking.service';
+import { CustomerService } from '../../../services/customer.service';
+import { AvailableRoomTypeGroup, RoomService } from '../../../services/room.service';
 
 interface RoomOption {
   id: string;
@@ -16,6 +18,9 @@ interface RoomOption {
   price: number;
   availableText: string;
   maxGuests: number;
+  roomIds: string[];
+  serviceCharge: number;
+  vat: boolean;
 }
 
 @Component({
@@ -30,10 +35,12 @@ export class CreateBookingComponent implements OnInit {
 
   role: BookingRole = 'receptionist';
   isSubmitting = false;
+  checkingMember = false;
+  memberMessage = '';
+  memberFound: boolean | null = null;
+  loadingRooms = false;
   selectedRoom: RoomOption | null = null;
   createBookingForm!: FormGroup;
-  draftMessage = '';
-  currentDraftId: string | null = null;
 
   userInfo = {
     name: 'Hotel Staff',
@@ -41,38 +48,16 @@ export class CreateBookingComponent implements OnInit {
     profileImage: 'assets/images/admin-profile.png',
   };
 
-  readonly roomOptions: RoomOption[] = [
-    {
-      id: 'room-ocean-villa',
-      name: 'Ocean Overwater Villa',
-      description: 'Private deck with direct lagoon access',
-      price: 1250,
-      availableText: '2 rooms left',
-      maxGuests: 4,
-    },
-    {
-      id: 'room-sunset-suite',
-      name: 'The Sunset Suite',
-      description: 'Panoramic views with deep soaking tub',
-      price: 890,
-      availableText: '5 rooms left',
-      maxGuests: 3,
-    },
-    {
-      id: 'room-deluxe-palm',
-      name: 'Deluxe Palm Room',
-      description: 'Tropical garden views with king bed',
-      price: 550,
-      availableText: 'Plenty available',
-      maxGuests: 2,
-    },
-  ];
+  roomOptions: RoomOption[] = [];
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly bookingService: BookingService,
+    private readonly roomService: RoomService,
+    private readonly customerService: CustomerService,
     private readonly authService: AuthService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -93,9 +78,11 @@ export class CreateBookingComponent implements OnInit {
       this.applyGuestCapacityValidation();
     });
 
+    // When dates change, re-fetch available rooms
+    this.createBookingForm.get('checkIn')?.valueChanges.subscribe(() => this.onDatesChanged());
+    this.createBookingForm.get('checkOut')?.valueChanges.subscribe(() => this.onDatesChanged());
+
     this.resolveUserRole();
-    this.selectRoom(this.roomOptions[1]);
-    this.restoreDraft();
   }
 
   get todayIsoDate(): string {
@@ -135,16 +122,27 @@ export class CreateBookingComponent implements OnInit {
     return this.nights * price;
   }
 
+  get taxRate(): number {
+    if (!this.selectedRoom) return 0.12;
+    const sc = (this.selectedRoom.serviceCharge || 0) / 100;
+    const vt = this.selectedRoom.vat ? 0.1 : 0;
+    return sc + vt;
+  }
+
   get tax(): number {
-    return this.subtotal * 0.12;
+    return this.subtotal * this.taxRate;
   }
 
   get total(): number {
     return this.subtotal + this.tax;
   }
 
+  get taxLabel(): string {
+    return `Taxes & Fees (${Math.round(this.taxRate * 100)}%)`;
+  }
+
   get canCreateBooking(): boolean {
-    return !this.isSubmitting && this.createBookingForm.valid && this.nights > 0 && !this.hasGuestCapacityError();
+    return !this.isSubmitting && this.createBookingForm.valid && this.nights > 0 && !!this.selectedRoom && !this.hasGuestCapacityError();
   }
 
   selectRoom(room: RoomOption): void {
@@ -162,9 +160,32 @@ export class CreateBookingComponent implements OnInit {
       return;
     }
 
-    // Placeholder behavior until member lookup endpoint is available.
-    this.createBookingForm.patchValue({
-      note: `Member check requested for ${phone}`,
+    this.checkingMember = true;
+    this.memberMessage = '';
+
+    this.customerService.lookupByPhone(phone).subscribe({
+      next: (customer) => {
+        this.checkingMember = false;
+        if (customer) {
+          this.memberFound = true;
+          this.createBookingForm.patchValue({
+            fullName: customer.name || '',
+            email: customer.email || '',
+            identityNumber: customer.identityId || '',
+          });
+          this.memberMessage = 'Customer found — Autofilled information.';
+        } else {
+          this.memberFound = false;
+          this.memberMessage = 'Can not find customer of given phone numer.';
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.checkingMember = false;
+        this.memberFound = false;
+        this.memberMessage = 'Try again. Failed to lookup customer.';
+        this.cdr.detectChanges();
+      },
     });
   }
 
@@ -172,77 +193,36 @@ export class CreateBookingComponent implements OnInit {
     this.createBookingForm.markAllAsTouched();
     this.applyGuestCapacityValidation();
 
-    if (!this.canCreateBooking) {
+    if (!this.canCreateBooking || !this.selectedRoom) {
       return;
     }
 
-    const payload: CreateBookingPayload = {
-      guestName: this.createBookingForm.value.fullName || '',
-      phone: this.createBookingForm.value.phone || '',
-      email: this.createBookingForm.value.email || '',
-      identityNumber: this.createBookingForm.value.identityNumber || '',
-      checkIn: this.createBookingForm.value.checkIn || '',
-      checkOut: this.createBookingForm.value.checkOut || '',
-      guests: Number(this.createBookingForm.value.guests || 1),
-      roomType: this.createBookingForm.value.roomType || '',
-      totalPrice: this.total,
-      pricePerNight: Number(this.createBookingForm.value.pricePerNight || 0),
-      status: 'confirmed',
+    const payload: AdminCreateBookingPayload = {
+      customer: {
+        name: this.createBookingForm.value.fullName || '',
+        email: this.createBookingForm.value.email || '',
+        phone: this.createBookingForm.value.phone || '',
+        identityId: this.createBookingForm.value.identityNumber || '',
+      },
+      roomIds: [this.selectedRoom.roomIds[0]],
+      check_in: this.createBookingForm.value.checkIn || '',
+      check_out: this.createBookingForm.value.checkOut || '',
+      guests: {
+        adults: Number(this.createBookingForm.value.guests || 1),
+        children: 0,
+      },
       note: this.createBookingForm.value.note || '',
     };
 
     this.isSubmitting = true;
 
-    this.bookingService.createBooking(payload).subscribe({
+    this.bookingService.createAdminBooking(payload).subscribe({
       next: () => {
         this.isSubmitting = false;
-        if (this.currentDraftId) {
-          this.bookingService.deleteBookingDraft(this.currentDraftId).subscribe({
-            next: () => {
-              this.currentDraftId = null;
-              this.draftMessage = '';
-              this.router.navigate(['/bookings']);
-            },
-            error: () => {
-              this.router.navigate(['/bookings']);
-            },
-          });
-          return;
-        }
-
         this.router.navigate(['/bookings']);
       },
       error: () => {
         this.isSubmitting = false;
-      },
-    });
-  }
-
-  onSaveDraft(): void {
-    const payload: CreateBookingDraftPayload = {
-      draftId: this.currentDraftId || undefined,
-      formValue: {
-        phone: this.createBookingForm.value.phone || '',
-        fullName: this.createBookingForm.value.fullName || '',
-        email: this.createBookingForm.value.email || '',
-        identityNumber: this.createBookingForm.value.identityNumber || '',
-        checkIn: this.createBookingForm.value.checkIn || '',
-        checkOut: this.createBookingForm.value.checkOut || '',
-        guests: Number(this.createBookingForm.value.guests || 1),
-        roomType: this.createBookingForm.value.roomType || '',
-        pricePerNight: Number(this.createBookingForm.value.pricePerNight || 0),
-        note: this.createBookingForm.value.note || '',
-      },
-      selectedRoomId: this.selectedRoom?.id || '',
-    };
-
-    this.bookingService.saveBookingDraft(payload).subscribe({
-      next: (savedDraft) => {
-        this.currentDraftId = savedDraft._id;
-        this.draftMessage = `Draft saved at ${new Date(savedDraft.updatedAt).toLocaleTimeString()}`;
-      },
-      error: () => {
-        this.draftMessage = 'Failed to save draft';
       },
     });
   }
@@ -281,11 +261,65 @@ export class CreateBookingComponent implements OnInit {
     return `Max ${this.selectedRoom.maxGuests} guests`;
   }
 
-  get draftTimestampLabel(): string {
-    if (!this.draftMessage) {
-      return 'No draft saved yet';
+  private onDatesChanged(): void {
+    const checkIn = this.createBookingForm.value.checkIn;
+    const checkOut = this.createBookingForm.value.checkOut;
+
+    if (!checkIn || !checkOut || checkOut <= checkIn) {
+      this.roomOptions = [];
+      this.selectedRoom = null;
+      this.createBookingForm.patchValue({ roomType: '', pricePerNight: 0 });
+      return;
     }
-    return this.draftMessage;
+
+    this.fetchAvailableRooms(checkIn, checkOut);
+  }
+
+  private fetchAvailableRooms(checkIn: string, checkOut: string): void {
+    this.loadingRooms = true;
+    this.roomService.getAvailableRooms(checkIn, checkOut).subscribe({
+      next: (groups) => {
+        this.roomOptions = groups.map((g) => this.mapGroupToOption(g));
+        this.loadingRooms = false;
+
+        // Reset selection if previously selected type is no longer available
+        if (this.selectedRoom && !this.roomOptions.find(r => r.id === this.selectedRoom!.id)) {
+          this.selectedRoom = null;
+          this.createBookingForm.patchValue({ roomType: '', pricePerNight: 0 });
+        }
+      },
+      error: () => {
+        this.roomOptions = [];
+        this.loadingRooms = false;
+      },
+    });
+  }
+
+  private mapGroupToOption(group: AvailableRoomTypeGroup): RoomOption {
+    const rt = group.roomType;
+    const count = group.availableCount;
+    const maxGuests = (rt.capacity?.adults || 2) + (rt.capacity?.children || 0);
+
+    let availableText: string;
+    if (count === 0) {
+      availableText = 'Sold out';
+    } else if (count <= 3) {
+      availableText = `${count} room${count > 1 ? 's' : ''} left`;
+    } else {
+      availableText = 'Plenty available';
+    }
+
+    return {
+      id: rt._id,
+      name: rt.name,
+      description: rt.description || `${rt.area}m² · ${rt.bed_options.join(', ')}`,
+      price: rt.price_per_night,
+      availableText,
+      maxGuests,
+      roomIds: group.rooms.map(r => r._id),
+      serviceCharge: rt.service_charge,
+      vat: rt.vat,
+    };
   }
 
   private resolveUserRole(): void {
@@ -346,31 +380,6 @@ export class CreateBookingComponent implements OnInit {
 
     const hasOtherErrors = Object.keys(currentErrors).length > 0;
     guestsControl.setErrors(hasOtherErrors ? currentErrors : null);
-  }
-
-  private restoreDraft(): void {
-    this.bookingService.getLatestBookingDraft().subscribe({
-      next: (draft) => {
-        if (!draft) {
-          return;
-        }
-
-        this.currentDraftId = draft._id;
-
-        const room = this.roomOptions.find((item) => item.id === draft.selectedRoomId);
-        this.createBookingForm.patchValue(draft.formValue);
-
-        if (room) {
-          this.selectedRoom = room;
-        }
-
-        this.applyGuestCapacityValidation();
-        this.draftMessage = `Draft restored from ${new Date(draft.updatedAt).toLocaleString()}`;
-      },
-      error: () => {
-        this.draftMessage = '';
-      },
-    });
   }
 
   private toIsoDate(value: Date): string {

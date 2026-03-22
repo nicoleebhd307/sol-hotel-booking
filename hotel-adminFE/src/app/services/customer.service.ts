@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_CONFIG } from '../config/api.config';
-import { CustomerListResponse } from '../models/customer.model';
+import { Customer, CustomerListResponse } from '../models/customer.model';
 
 @Injectable({
   providedIn: 'root',
@@ -33,6 +33,10 @@ export class CustomerService {
     query.set('limit', String(params.limit || 10));
 
     return this.http.get<CustomerListResponse>(`${this.apiUrl}?${query.toString()}`, { transferCache: false });
+  }
+
+  lookupByPhone(phone: string): Observable<Customer | null> {
+    return this.http.get<Customer | null>(`${this.apiUrl}/lookup?phone=${encodeURIComponent(phone)}`, { transferCache: false });
   }
 
   exportCustomers(params: {

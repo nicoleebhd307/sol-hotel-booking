@@ -88,6 +88,10 @@ export class ReportsComponent implements OnInit, OnDestroy {
     this.years = Array.from({ length: 6 }, (_, i) => now.getFullYear() - i);
   }
 
+  get isManager(): boolean {
+    return this.userInfo.role === 'manager';
+  }
+
   ngOnInit(): void {
     const current = this.authService.getCurrentUser();
     if (current) {
@@ -98,7 +102,9 @@ export class ReportsComponent implements OnInit, OnDestroy {
       };
     }
 
-    this.loadReports();
+    if (this.isManager) {
+      this.loadReports();
+    }
   }
 
   ngOnDestroy(): void {

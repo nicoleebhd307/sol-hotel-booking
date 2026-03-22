@@ -49,10 +49,14 @@ export class RefundsComponent implements OnInit {
     private cdr: ChangeDetectorRef,
   ) {}
 
+  get isManager(): boolean {
+    return this.userInfo.role === 'manager';
+  }
+
   ngOnInit(): void {
     this.resolveUserInfo();
 
-    if (isPlatformBrowser(this.platformId) && !this.hasLoadedInitially) {
+    if (this.isManager && isPlatformBrowser(this.platformId) && !this.hasLoadedInitially) {
       this.hasLoadedInitially = true;
       setTimeout(() => this.loadRefunds(), 0);
     }

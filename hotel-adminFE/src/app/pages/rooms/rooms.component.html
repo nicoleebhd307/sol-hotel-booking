@@ -187,6 +187,7 @@
                           type="button"
                           class="w-6 h-6 inline-flex items-center justify-center rounded-md hover:bg-[#f1ede1]"
                           aria-label="View room"
+                          (click)="onViewRoom(room)"
                         >
                           <mat-icon class="text-[16px] text-[#6f695d]">visibility</mat-icon>
                         </button>
@@ -195,6 +196,7 @@
                           type="button"
                           class="w-6 h-6 inline-flex items-center justify-center rounded-md hover:bg-[#f1ede1]"
                           aria-label="Edit room"
+                          (click)="onEditRoom(room)"
                         >
                           <mat-icon class="text-[16px] text-[#6f695d]">edit</mat-icon>
                         </button>
@@ -202,7 +204,8 @@
                         <button
                           type="button"
                           class="w-6 h-6 inline-flex items-center justify-center rounded-md hover:bg-[#f8ecec]"
-                          aria-label="Delete room"
+                          aria-label="Toggle active"
+                          (click)="onToggleActive(room)"
                         >
                           <mat-icon class="text-[16px] text-[#6f695d]">cancel</mat-icon>
                         </button>
@@ -221,6 +224,186 @@
               [currentPage]="currentPage"
               (pageChange)="onPageChange($event)"
             ></app-pagination>
+          </div>
+        </section>
+      </div>
+
+      <!-- View Room Modal -->
+      <div
+        *ngIf="selectedRoom"
+        class="fixed top-0 right-0 bottom-0 left-[260px] bg-black/35 z-[70] flex items-center justify-center px-4"
+        (click)="closeViewRoom()"
+      >
+        <section
+          class="w-full max-w-lg bg-white rounded-[22px] border border-[rgba(214,205,187,0.7)] shadow-xl p-6"
+          (click)="$event.stopPropagation()"
+        >
+          <div class="flex items-start justify-between mb-5">
+            <div>
+              <p class="text-[10px] uppercase tracking-[1.1px] text-[#8b836f]">Room Detail</p>
+              <h3 class="text-[32px] leading-tight text-[#1f1d16]" style="font-family: 'Playfair Display', serif;">
+                Room <span class="italic">{{ selectedRoom.room_number }}</span>
+              </h3>
+            </div>
+            <button type="button" class="w-9 h-9 inline-flex items-center justify-center rounded-md hover:bg-[#f2efe6]" (click)="closeViewRoom()">
+              <mat-icon class="text-[18px] text-[#6f695d]">close</mat-icon>
+            </button>
+          </div>
+
+          <div class="space-y-4 text-[13px]">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Room Number</p>
+                <p class="mt-1 text-[15px] text-[#1d1c13] font-semibold">{{ selectedRoom.room_number }}</p>
+              </div>
+              <div>
+                <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Floor</p>
+                <p class="mt-1 text-[15px] text-[#1d1c13] font-semibold">{{ selectedRoom.floor }}</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Room Type</p>
+                <p class="mt-1 text-[15px] text-[#1d1c13] font-semibold">{{ selectedRoom.room_type.name }}</p>
+              </div>
+              <div>
+                <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Price / Night</p>
+                <p class="mt-1 text-[15px] text-[#1d1c13] font-semibold">{{ formatPrice(selectedRoom.price_per_night) }}</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Capacity</p>
+                <p class="mt-1 text-[15px] text-[#1d1c13] font-semibold">{{ formatCapacity(selectedRoom) }}</p>
+              </div>
+              <div>
+                <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Status</p>
+                <span class="inline-flex items-center px-2.5 h-7 rounded-full text-[11px] font-semibold mt-1" [ngClass]="getStatusClass(selectedRoom)">
+                  {{ getStatusLabel(selectedRoom) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Edit Room Modal -->
+      <div
+        *ngIf="editingRoom"
+        class="fixed top-0 right-0 bottom-0 left-[260px] bg-black/35 z-[70] flex items-center justify-center px-4"
+        (click)="closeEditRoom()"
+      >
+        <section
+          class="w-full max-w-md bg-white rounded-[22px] border border-[rgba(214,205,187,0.7)] shadow-xl p-6"
+          (click)="$event.stopPropagation()"
+        >
+          <div class="flex items-start justify-between mb-5">
+            <div>
+              <p class="text-[10px] uppercase tracking-[1.1px] text-[#8b836f]">Edit Room</p>
+              <h3 class="text-[28px] leading-tight text-[#1f1d16]" style="font-family: 'Playfair Display', serif;">
+                Room <span class="italic">{{ editingRoom.room_number }}</span>
+              </h3>
+            </div>
+            <button type="button" class="w-9 h-9 inline-flex items-center justify-center rounded-md hover:bg-[#f2efe6]" (click)="closeEditRoom()">
+              <mat-icon class="text-[18px] text-[#6f695d]">close</mat-icon>
+            </button>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <label class="block text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253] mb-1.5">Status</label>
+              <select
+                [(ngModel)]="editForm.status"
+                class="w-full h-11 rounded-[10px] border border-[rgba(189,179,158,0.75)] px-3 text-[14px] font-medium text-[#1d1c13] focus:outline-none focus:border-[#a88d47]"
+              >
+                <option value="available">Available</option>
+                <option value="occupied">Occupied</option>
+                <option value="maintenance">Maintenance</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253] mb-1.5">Active</label>
+              <select
+                [(ngModel)]="editForm.is_active"
+                class="w-full h-11 rounded-[10px] border border-[rgba(189,179,158,0.75)] px-3 text-[14px] font-medium text-[#1d1c13] focus:outline-none focus:border-[#a88d47]"
+              >
+                <option [ngValue]="true">Active</option>
+                <option [ngValue]="false">Inactive</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mt-6 flex items-center justify-end gap-2.5">
+            <button
+              type="button"
+              class="h-10 px-4 rounded-[10px] border border-[rgba(140,130,110,0.35)] text-[#5e574b] text-[13px] font-semibold hover:bg-[#f4f1e7]"
+              [disabled]="savingEdit"
+              (click)="closeEditRoom()"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="h-10 px-4 rounded-[10px] bg-[#7d6a2c] text-white text-[13px] font-semibold hover:bg-[#6e5d27] disabled:opacity-60 disabled:cursor-not-allowed"
+              [disabled]="savingEdit"
+              (click)="saveEditRoom()"
+            >
+              {{ savingEdit ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <!-- Deactivate/Activate Confirmation Modal -->
+      <div
+        *ngIf="pendingDeactivateRoom"
+        class="fixed top-0 right-0 bottom-0 left-[260px] bg-black/40 z-[80] flex items-center justify-center px-4"
+        (click)="cancelDeactivate()"
+      >
+        <section
+          class="w-full max-w-md bg-white rounded-[18px] border border-[rgba(214,205,187,0.8)] shadow-xl p-5"
+          (click)="$event.stopPropagation()"
+        >
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 shrink-0 rounded-full inline-flex items-center justify-center"
+              [ngClass]="pendingDeactivateRoom.is_active ? 'bg-[#f8ecec] text-[#a84545]' : 'bg-[#e9f7ec] text-[#246a38]'">
+              <mat-icon class="text-[20px]">{{ pendingDeactivateRoom.is_active ? 'block' : 'check_circle' }}</mat-icon>
+            </div>
+            <div>
+              <p class="text-[10px] uppercase tracking-[1.1px] text-[#8b836f]">Room Status</p>
+              <h3 class="text-[28px] leading-tight text-[#1f1d16]" style="font-family: 'Playfair Display', serif;">
+                {{ pendingDeactivateRoom.is_active ? 'Deactivate' : 'Activate' }} Room
+              </h3>
+            </div>
+          </div>
+
+          <p class="mt-4 text-[14px] text-[#5b5448] leading-relaxed">
+            Are you sure you want to {{ pendingDeactivateRoom.is_active ? 'deactivate' : 'activate' }} room
+            <span class="font-semibold text-[#2d2b24]">{{ pendingDeactivateRoom.room_number }}</span>
+            ({{ pendingDeactivateRoom.room_type.name }})?
+          </p>
+
+          <div class="mt-6 flex items-center justify-end gap-2.5">
+            <button
+              type="button"
+              class="h-10 px-4 rounded-[10px] border border-[rgba(140,130,110,0.35)] text-[#5e574b] text-[13px] font-semibold hover:bg-[#f4f1e7]"
+              [disabled]="deactivating"
+              (click)="cancelDeactivate()"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="h-10 px-4 rounded-[10px] text-white text-[13px] font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+              [ngClass]="pendingDeactivateRoom.is_active ? 'bg-[#a84545] hover:bg-[#923a3a]' : 'bg-[#246a38] hover:bg-[#1d5a2e]'"
+              [disabled]="deactivating"
+              (click)="confirmDeactivate()"
+            >
+              {{ deactivating ? 'Processing...' : (pendingDeactivateRoom.is_active ? 'Deactivate' : 'Activate') }}
+            </button>
           </div>
         </section>
       </div>

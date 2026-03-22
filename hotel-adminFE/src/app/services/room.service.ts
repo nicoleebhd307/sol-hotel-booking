@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { API_CONFIG } from '../config/api.config';
 
@@ -35,6 +35,22 @@ export interface Room {
   is_active: boolean;
 }
 
+export interface AvailableRoom {
+  _id: string;
+  room_number: string;
+  room_type_id: RoomType;
+  floor: number;
+  status: string;
+  beach_view: boolean;
+  is_active: boolean;
+}
+
+export interface AvailableRoomTypeGroup {
+  roomType: RoomType;
+  availableCount: number;
+  rooms: AvailableRoom[];
+}
+
 export interface RoomView {
   _id: string;
   room_number: string;
@@ -66,35 +82,45 @@ export class RoomService {
     );
   }
 
-  getRooms(): Observable<RoomView[]> {
-    return forkJoin({
-      rooms: this.getRawRooms(),
-      roomTypes: this.getRoomTypes(),
+  getAvailableRooms(checkIn: string, checkOut: string): Observable<AvailableRoomTypeGroup[]> {
+    return this.http.get<unknown>(`${this.apiUrl}/available`, {
+      params: { checkIn, checkOut },
+      transferCache: false,
     }).pipe(
-      map(({ rooms, roomTypes }) => {
-        const roomTypeMap = new Map(roomTypes.map((item) => [item._id, item]));
+      map((response) => {
+        const rooms: AvailableRoom[] = this.extractAvailableRooms(response);
+        const grouped = new Map<string, AvailableRoomTypeGroup>();
 
-        return rooms
-          .map((room) => {
-            const roomType = roomTypeMap.get(room.room_type_id);
+        for (const room of rooms) {
+          const rt = room.room_type_id;
+          if (!rt?._id) continue;
+          const key = rt._id;
+          if (!grouped.has(key)) {
+            grouped.set(key, { roomType: rt, availableCount: 0, rooms: [] });
+          }
+          const group = grouped.get(key)!;
+          group.availableCount++;
+          group.rooms.push(room);
+        }
 
-            return {
-              _id: room._id,
-              room_number: room.room_number,
-              floor: room.floor,
-              status: room.status,
-              is_active: room.is_active,
-              room_type: {
-                id: room.room_type_id,
-                name: roomType?.name || 'Unknown room type',
-              },
-              price_per_night: roomType?.price_per_night || 0,
-              capacity: roomType?.capacity || { adults: 0, children: 0 },
-            };
-          })
+        return Array.from(grouped.values());
+      })
+    );
+  }
+
+  getRooms(): Observable<RoomView[]> {
+    return this.http.get<unknown>(this.apiUrl, { transferCache: false }).pipe(
+      map((response) => {
+        const rows = this.extractDataArray(response);
+        return rows
+          .map((item) => this.normalizeRoomView(item))
           .sort((a, b) => Number(a.room_number) - Number(b.room_number));
       })
     );
+  }
+
+  updateRoom(id: string, data: Record<string, unknown>): Observable<unknown> {
+    return this.http.patch<unknown>(`${this.apiUrl}/${id}`, data);
   }
 
   private getRawRooms(): Observable<Room[]> {
@@ -116,6 +142,49 @@ export class RoomService {
     }
 
     return [];
+  }
+
+  private extractAvailableRooms(payload: unknown): AvailableRoom[] {
+    if (this.isRecord(payload) && Array.isArray(payload['rooms'])) {
+      return payload['rooms'] as AvailableRoom[];
+    }
+    if (Array.isArray(payload)) {
+      return payload as AvailableRoom[];
+    }
+    return [];
+  }
+
+  private normalizeRoomView(item: Record<string, unknown>): RoomView {
+    const status = this.toText(item['status'], 'available').toLowerCase();
+    const mappedStatus: RoomStatus =
+      status === 'occupied' || status === 'maintenance' ? status : 'available';
+
+    const rtRaw = item['room_type_id'];
+    let roomType: { id: string; name: string } = { id: '', name: 'Unknown room type' };
+    let pricePerNight = 0;
+    let capacity: RoomCapacity = { adults: 0, children: 0 };
+
+    if (this.isRecord(rtRaw)) {
+      roomType = {
+        id: this.toText(rtRaw['_id'], ''),
+        name: this.toText(rtRaw['name'], 'Unknown room type'),
+      };
+      pricePerNight = this.toNumber(rtRaw['price_per_night'], 0);
+      capacity = this.toCapacity(rtRaw['capacity']);
+    } else if (typeof rtRaw === 'string') {
+      roomType.id = rtRaw;
+    }
+
+    return {
+      _id: this.toText(item['_id'], ''),
+      room_number: this.toText(item['room_number'], '-'),
+      floor: this.toNumber(item['floor'], 0),
+      status: mappedStatus,
+      is_active: item['is_active'] !== false,
+      room_type: roomType,
+      price_per_night: pricePerNight,
+      capacity,
+    };
   }
 
   private normalizeRoom(item: Record<string, unknown>): Room {

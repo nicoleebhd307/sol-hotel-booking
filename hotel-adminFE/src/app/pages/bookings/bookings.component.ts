@@ -84,6 +84,10 @@ export class BookingsComponent implements OnInit {
     roomNumber: '',
     note: '',
   };
+  private originalEditNights = 0;
+  private originalEditSubtotal = 0;
+  private originalEditTotalPrice = 0;
+  private originalEditExtraCharge = 0;
   pendingDeleteBooking: BookingView | null = null;
   pendingCancelStatusChange: { booking: BookingView; status: BookingStatus } | null = null;
   private statusUpdatingIds = new Set<string>();
@@ -155,6 +159,37 @@ export class BookingsComponent implements OnInit {
     }
 
     return Math.max(0, Number(this.selectedBooking.totalPrice || 0) - Number(this.selectedBooking.extraCharge || 0));
+  }
+
+  get editNights(): number {
+    if (!this.isEditingDetail) {
+      return this.selectedBookingNights;
+    }
+    const checkIn = new Date(this.editForm.checkIn).getTime();
+    const checkOut = new Date(this.editForm.checkOut).getTime();
+    const diff = Math.ceil((checkOut - checkIn) / 86400000);
+    return Number.isFinite(diff) && diff > 0 ? diff : 1;
+  }
+
+  get editSubtotal(): number {
+    if (!this.isEditingDetail) {
+      return this.selectedBookingSubtotal;
+    }
+    return this.selectedRoomPricePerNight * this.editNights;
+  }
+
+  get editSurcharge(): number {
+    if (!this.isEditingDetail) {
+      return 0;
+    }
+    return this.editSubtotal - this.originalEditSubtotal;
+  }
+
+  get editTotalPrice(): number {
+    if (!this.isEditingDetail || !this.selectedBooking) {
+      return this.selectedBooking?.totalPrice || 0;
+    }
+    return this.originalEditTotalPrice + this.editSurcharge;
   }
 
   get cancelStatusChangeLoading(): boolean {
@@ -363,6 +398,10 @@ export class BookingsComponent implements OnInit {
       return;
     }
 
+    this.originalEditNights = this.selectedBookingNights;
+    this.originalEditSubtotal = this.selectedBookingSubtotal;
+    this.originalEditTotalPrice = this.selectedBooking.totalPrice || 0;
+    this.originalEditExtraCharge = this.selectedBooking.extraCharge || 0;
     this.syncEditFormFromSelectedBooking();
     this.isEditingDetail = true;
   }
@@ -395,15 +434,17 @@ export class BookingsComponent implements OnInit {
 
     const previousBooking = this.selectedBooking;
 
+    const surcharge = this.editSurcharge;
+    const newTotalPrice = this.editTotalPrice;
+    const newExtraCharge = this.originalEditExtraCharge + surcharge;
+
     const payload: Partial<Booking> = {
-      guest_name: this.editForm.guestName.trim(),
-      guest_phone: this.editForm.guestPhone.trim(),
-      room_type: this.editForm.roomType.trim(),
-      room_number: this.editForm.roomNumber.trim(),
       check_in: nextCheckIn,
       check_out: nextCheckOut,
       guests: Math.max(1, Number(this.editForm.guests) || 1),
       note: this.editForm.note.trim(),
+      totalPrice: newTotalPrice,
+      extraCharge: Math.max(0, newExtraCharge),
     };
 
     const optimisticBooking: Booking = {

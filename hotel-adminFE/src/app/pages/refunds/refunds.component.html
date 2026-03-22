@@ -7,7 +7,18 @@
     <app-header-topbar [userInfo]="userInfo"></app-header-topbar>
 
     <main class="flex-1 overflow-y-auto">
-      <div class="px-8 py-8 max-w-[1280px] mx-auto w-full space-y-7">
+      <!-- Access Denied for Receptionist -->
+      <div *ngIf="!isManager" class="flex items-center justify-center min-h-[70vh]">
+        <div class="text-center px-8 py-14 max-w-md">
+          <div class="mx-auto w-20 h-20 rounded-full bg-[rgba(232,227,215,0.75)] border border-[rgba(214,205,187,0.7)] flex items-center justify-center mb-6">
+            <mat-icon class="text-[#a88d47] text-[36px]">lock</mat-icon>
+          </div>
+          <h2 class="text-[28px] text-[#1f1d16] mb-3" style="font-family: 'Playfair Display', serif;">Truy cập <span class="italic">bị từ chối</span></h2>
+          <p class="text-[14px] text-[#6b6459] leading-relaxed">Bạn không có quyền truy cập trang <strong>Quản lý hoàn tiền</strong>. Vui lòng liên hệ quản lý để được cấp quyền.</p>
+        </div>
+      </div>
+
+      <div *ngIf="isManager" class="px-8 py-8 max-w-[1280px] mx-auto w-full space-y-7">
         <div>
           <p class="text-[9px] uppercase tracking-[1.1px] text-[#978f7d] font-semibold">
             Management / <span class="text-[#7c6a39]">Refunds</span>

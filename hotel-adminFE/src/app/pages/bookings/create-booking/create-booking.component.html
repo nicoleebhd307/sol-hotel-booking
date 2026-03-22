@@ -20,9 +20,9 @@
           </div>
 
           <div class="self-start lg:self-auto">
-            <p class="text-[11px] text-right tracking-[1px] uppercase text-[#5f574a]">Current Status</p>
-            <span class="inline-flex mt-1 rounded-full bg-[#d7e8f1] text-[#16435f] px-3 py-1 text-[11px] tracking-[1px] font-bold uppercase">
-              Drafting Mode
+            <p class="text-[11px] text-right tracking-[1px] uppercase text-[#5f574a]">Booking Type</p>
+            <span class="inline-flex mt-1 rounded-full bg-[rgba(119,90,25,0.12)] text-[#775a19] px-3 py-1 text-[11px] tracking-[1px] font-bold uppercase">
+              Receptionist Booking
             </span>
           </div>
         </div>
@@ -38,25 +38,34 @@
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 items-end">
-                  <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253] mb-2">Phone Number</label>
-                    <input
-                      type="text"
-                      formControlName="phone"
-                      placeholder="+1 (555) 000-0000"
-                      class="w-full h-11 px-3 rounded-xl border border-[#d1c5b4] bg-white text-[15px] text-[#1d1c13] focus:outline-none focus:ring-2 focus:ring-[#c9ab66]"
-                    />
-                    <p *ngIf="hasControlError('phone', 'required')" class="mt-1 text-[11px] text-[#b04a4a]">Phone number is required.</p>
-                  </div>
+                <div class="md:col-span-2">
+                  <div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 items-start">
+                    <div>
+                      <label class="block text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253] mb-2">Phone Number</label>
+                      <input
+                        type="text"
+                        formControlName="phone"
+                        placeholder="+1 (555) 000-0000"
+                        class="w-full h-11 px-3 rounded-xl border border-[#d1c5b4] bg-white text-[15px] text-[#1d1c13] focus:outline-none focus:ring-2 focus:ring-[#c9ab66]"
+                      />
+                      <p *ngIf="hasControlError('phone', 'required')" class="mt-1 text-[11px] text-[#b04a4a]">Phone number is required.</p>
+                      <p *ngIf="memberMessage && !hasControlError('phone', 'required')" class="mt-1 text-[11px]"
+                         [style.color]="memberFound ? '#2e7d32' : '#b04a4a'">
+                        {{ memberMessage }}
+                      </p>
+                    </div>
 
-                  <button
-                    type="button"
-                    class="h-11 px-5 rounded-xl bg-[#ede8d9] text-[#775a19] text-[12px] font-bold uppercase tracking-[1px] hover:bg-[#e2dbc7]"
-                    (click)="onCheckMember()"
-                  >
-                    Check Member
-                  </button>
+                    <div class="pt-[22px]">
+                      <button
+                        type="button"
+                        class="h-11 px-5 rounded-xl bg-[#ede8d9] text-[#775a19] text-[12px] font-bold uppercase tracking-[1px] hover:bg-[#e2dbc7] disabled:opacity-50"
+                        (click)="onCheckMember()"
+                        [disabled]="checkingMember"
+                      >
+                        {{ checkingMember ? 'Checking...' : 'Check Member' }}
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 <div>
@@ -156,7 +165,31 @@
                 <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#736b5d]">{{ roomOptions.length }} options available</p>
               </div>
 
-              <div class="space-y-4">
+              <!-- Loading state -->
+              <div *ngIf="loadingRooms" class="flex items-center justify-center py-8">
+                <div class="text-center">
+                  <mat-icon class="text-[32px] text-[#b59a63] animate-spin">refresh</mat-icon>
+                  <p class="text-[13px] text-[#7b7366] mt-2">Loading available rooms...</p>
+                </div>
+              </div>
+
+              <!-- Empty state: no dates selected -->
+              <div *ngIf="!loadingRooms && roomOptions.length === 0 && (!createBookingForm.value.checkIn || !createBookingForm.value.checkOut)" class="flex items-center justify-center py-8">
+                <div class="text-center">
+                  <mat-icon class="text-[32px] text-[#b1aa9b]">event</mat-icon>
+                  <p class="text-[13px] text-[#7b7366] mt-2">Select check-in and check-out dates to see available rooms</p>
+                </div>
+              </div>
+
+              <!-- Empty state: no rooms available -->
+              <div *ngIf="!loadingRooms && roomOptions.length === 0 && createBookingForm.value.checkIn && createBookingForm.value.checkOut && nights > 0" class="flex items-center justify-center py-8">
+                <div class="text-center">
+                  <mat-icon class="text-[32px] text-[#b04a4a]">hotel</mat-icon>
+                  <p class="text-[13px] text-[#b04a4a] mt-2">No rooms available for the selected dates</p>
+                </div>
+              </div>
+
+              <div class="space-y-4" *ngIf="!loadingRooms && roomOptions.length > 0">
                 <button
                   type="button"
                   *ngFor="let room of roomOptions; trackBy: trackRoomById"
@@ -195,6 +228,7 @@
               </div>
             </div>
 
+
             <div class="bg-white border border-[rgba(209,197,180,0.25)] rounded-2xl p-6 shadow-[0_4px_24px_rgba(29,28,19,0.03)]">
               <label class="block text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253] mb-2">Note</label>
               <textarea
@@ -226,12 +260,20 @@
 
                 <div class="mt-4 space-y-2 text-[12px]">
                   <div class="flex items-center justify-between text-[#5f574a]">
-                    <span>Taxes & Resort Fees (12%)</span>
+                    <span>{{ taxLabel }}</span>
                     <span>${{ tax | number:'1.2-2' }}</span>
                   </div>
                   <div class="flex items-center justify-between text-[#5f574a]">
-                    <span>Exclusive Butler Service</span>
-                    <span class="text-[#00687b]">Complimentary</span>
+                    <span>Deposit Required</span>
+                    <span class="text-[#00687b] font-semibold">$0.00</span>
+                  </div>
+                  <div class="flex items-center justify-between text-[#5f574a]">
+                    <span>Payment Status</span>
+                    <span class="inline-flex rounded-full bg-[rgba(176,74,74,0.12)] text-[#b04a4a] px-2 py-0.5 text-[10px] font-bold uppercase">Unpaid</span>
+                  </div>
+                  <div class="flex items-center justify-between text-[#5f574a]">
+                    <span>Booking Status</span>
+                    <span class="inline-flex rounded-full bg-[rgba(0,104,123,0.12)] text-[#00687b] px-2 py-0.5 text-[10px] font-bold uppercase">Confirmed</span>
                   </div>
                 </div>
 
@@ -249,20 +291,9 @@
                   {{ isSubmitting ? 'Creating...' : 'Create Booking' }}
                 </button>
 
-                <button
-                  type="button"
-                  class="mt-3 w-full h-11 rounded-xl border border-[rgba(119,90,25,0.35)] text-[#775a19] text-[12px] font-bold uppercase tracking-[1.2px] hover:bg-[#f3ecda] inline-flex items-center justify-center gap-2"
-                  (click)="onSaveDraft()"
-                >
-                  <mat-icon class="text-[18px]">save</mat-icon>
-                  Save Draft
-                </button>
-
-                <p class="mt-2 text-center text-[11px] text-[#6f6759]">{{ draftTimestampLabel }}</p>
-
                 <p class="mt-4 text-center text-[10px] leading-4 text-[#7a7265]">
-                  By creating this booking, you confirm all guest details are accurate.
-                  A confirmation email will be sent automatically to the guest.
+                  This booking will be created as <strong>Confirmed</strong> with no deposit.
+                  Payment will be collected at check-in.
                 </p>
               </section>
 

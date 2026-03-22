@@ -122,30 +122,12 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-[13px]">
                   <div>
                     <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Guest Name</p>
-                    <ng-container *ngIf="isEditingDetail; else guestNameView">
-                      <input
-                        type="text"
-                        [(ngModel)]="editForm.guestName"
-                        class="mt-1 h-10 w-full rounded-[10px] border border-[rgba(189,179,158,0.75)] px-3 text-[14px] font-medium text-[#1d1c13] focus:outline-none focus:border-[#a88d47]"
-                      />
-                    </ng-container>
-                    <ng-template #guestNameView>
-                      <p class="mt-1 text-[15px] text-[#1d1c13] font-semibold">{{ selectedBookingView?.guestName || '-' }}</p>
-                    </ng-template>
+                    <p class="mt-1 text-[15px] text-[#1d1c13] font-semibold">{{ selectedBookingView?.guestName || '-' }}</p>
                   </div>
 
                   <div>
                     <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Phone Number</p>
-                    <ng-container *ngIf="isEditingDetail; else phoneView">
-                      <input
-                        type="text"
-                        [(ngModel)]="editForm.guestPhone"
-                        class="mt-1 h-10 w-full rounded-[10px] border border-[rgba(189,179,158,0.75)] px-3 text-[14px] font-medium text-[#1d1c13] focus:outline-none focus:border-[#a88d47]"
-                      />
-                    </ng-container>
-                    <ng-template #phoneView>
-                      <p class="mt-1 text-[15px] text-[#1d1c13] font-semibold">{{ selectedBookingView?.phone || '-' }}</p>
-                    </ng-template>
+                    <p class="mt-1 text-[15px] text-[#1d1c13] font-semibold">{{ selectedBookingView?.phone || '-' }}</p>
                   </div>
 
                   <div>
@@ -214,30 +196,12 @@
 
                   <div>
                     <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Room Type</p>
-                    <ng-container *ngIf="isEditingDetail; else roomTypeView">
-                      <input
-                        type="text"
-                        [(ngModel)]="editForm.roomType"
-                        class="mt-1 h-10 w-full rounded-[10px] border border-[rgba(189,179,158,0.75)] px-3 text-[14px] font-medium text-[#1d1c13] focus:outline-none focus:border-[#a88d47]"
-                      />
-                    </ng-container>
-                    <ng-template #roomTypeView>
-                      <p class="mt-1 text-[14px] text-[#2d2b24] font-semibold">{{ selectedBookingView?.roomType || '-' }}</p>
-                    </ng-template>
+                    <p class="mt-1 text-[14px] text-[#2d2b24] font-semibold">{{ selectedBookingView?.roomType || '-' }}</p>
                   </div>
 
                   <div>
                     <p class="text-[10px] font-bold uppercase tracking-[1px] text-[#6b6253]">Room Number</p>
-                    <ng-container *ngIf="isEditingDetail; else roomNumberView">
-                      <input
-                        type="text"
-                        [(ngModel)]="editForm.roomNumber"
-                        class="mt-1 h-10 w-full rounded-[10px] border border-[rgba(189,179,158,0.75)] px-3 text-[14px] font-medium text-[#1d1c13] focus:outline-none focus:border-[#a88d47]"
-                      />
-                    </ng-container>
-                    <ng-template #roomNumberView>
-                      <p class="mt-1 text-[14px] text-[#2d2b24] font-semibold">{{ selectedBookingView?.roomNumber || '-' }}</p>
-                    </ng-template>
+                    <p class="mt-1 text-[14px] text-[#2d2b24] font-semibold">{{ selectedBookingView?.roomNumber || '-' }}</p>
                   </div>
 
                   <div>
@@ -271,13 +235,17 @@
                     <div>
                       <p class="text-[13px] font-bold text-[#1d1c13]">{{ selectedBookingView?.roomType || 'No room selected' }}</p>
                       <p class="text-[12px] text-[#6f6759] mt-1">
-                        {{ selectedBookingNights }} night{{ selectedBookingNights === 1 ? '' : 's' }}
-                        <span>
-                          ({{ selectedBooking.check_in | date:'MMM d' }} - {{ selectedBooking.check_out | date:'MMM d' }})
-                        </span>
+                        {{ isEditingDetail ? editNights : selectedBookingNights }}
+                        night{{ (isEditingDetail ? editNights : selectedBookingNights) === 1 ? '' : 's' }}
+                        <ng-container *ngIf="isEditingDetail">
+                          <span>({{ editForm.checkIn | date:'MMM d' }} - {{ editForm.checkOut | date:'MMM d' }})</span>
+                        </ng-container>
+                        <ng-container *ngIf="!isEditingDetail">
+                          <span>({{ selectedBooking.check_in | date:'MMM d' }} - {{ selectedBooking.check_out | date:'MMM d' }})</span>
+                        </ng-container>
                       </p>
                     </div>
-                    <p class="text-[15px] font-bold text-[#1d1c13]">${{ selectedBookingSubtotal | number:'1.2-2' }}</p>
+                    <p class="text-[15px] font-bold text-[#1d1c13]">${{ (isEditingDetail ? editSubtotal : selectedBookingSubtotal) | number:'1.2-2' }}</p>
                   </div>
 
                   <div class="mt-4 space-y-2 text-[12px]">
@@ -293,11 +261,17 @@
                       <span>Extra Charge</span>
                       <span>${{ selectedBooking.extraCharge | number:'1.2-2' }}</span>
                     </div>
+                    <div *ngIf="isEditingDetail && editSurcharge !== 0"
+                      class="flex items-center justify-between font-semibold"
+                      [class]="editSurcharge > 0 ? 'text-[#a84545]' : 'text-[#2e7d32]'">
+                      <span>{{ editSurcharge > 0 ? 'Phí cộng thêm' : 'Giảm phí' }}</span>
+                      <span>{{ editSurcharge > 0 ? '+' : '' }}${{ editSurcharge | number:'1.2-2' }}</span>
+                    </div>
                   </div>
 
                   <div class="mt-5 pt-5 border-t border-[rgba(209,197,180,0.35)] flex items-end justify-between gap-3">
                     <p class="text-[10px] uppercase tracking-[1px] font-bold text-[#1d1c13]">Booking<br />Total</p>
-                    <p class="text-[34px] leading-none text-[#775a19]" style="font-family: 'Playfair Display', serif;">${{ selectedBooking.totalPrice | number:'1.2-2' }}</p>
+                    <p class="text-[34px] leading-none text-[#775a19]" style="font-family: 'Playfair Display', serif;">${{ (isEditingDetail ? editTotalPrice : selectedBooking.totalPrice) | number:'1.2-2' }}</p>
                   </div>
                 </section>
 

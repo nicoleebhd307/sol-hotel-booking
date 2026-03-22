@@ -33,6 +33,18 @@ export class RoomsComponent implements OnInit {
   roomTypeFilter = 'all';
   sortBy: SortOption = 'default';
 
+  // View detail modal
+  selectedRoom: RoomView | null = null;
+
+  // Edit modal
+  editingRoom: RoomView | null = null;
+  editForm = { status: '' as string, is_active: true };
+  savingEdit = false;
+
+  // Deactivate confirmation
+  pendingDeactivateRoom: RoomView | null = null;
+  deactivating = false;
+
   userInfo = {
     name: 'Hotel Staff',
     role: 'receptionist',
@@ -251,6 +263,87 @@ export class RoomsComponent implements OnInit {
     const start = (this.currentPage - 1) * this.pageSize;
     const end = start + this.pageSize;
     this.pagedRooms = this.filteredRooms.slice(start, end);
+  }
+
+  // --- View detail ---
+  onViewRoom(room: RoomView): void {
+    this.selectedRoom = room;
+  }
+
+  closeViewRoom(): void {
+    this.selectedRoom = null;
+  }
+
+  // --- Edit ---
+  onEditRoom(room: RoomView): void {
+    this.editingRoom = room;
+    this.editForm = {
+      status: room.status,
+      is_active: room.is_active,
+    };
+  }
+
+  closeEditRoom(): void {
+    if (this.savingEdit) return;
+    this.editingRoom = null;
+  }
+
+  saveEditRoom(): void {
+    if (!this.editingRoom || this.savingEdit) return;
+    this.savingEdit = true;
+
+    const payload: Record<string, unknown> = {
+      status: this.editForm.status,
+      is_active: this.editForm.is_active,
+    };
+
+    this.roomService.updateRoom(this.editingRoom._id, payload).subscribe({
+      next: () => {
+        this.ngZone.run(() => {
+          this.savingEdit = false;
+          this.editingRoom = null;
+          this.loadRooms();
+        });
+      },
+      error: () => {
+        this.ngZone.run(() => {
+          this.savingEdit = false;
+          this.cdr.detectChanges();
+        });
+      },
+    });
+  }
+
+  // --- Deactivate / Activate ---
+  onToggleActive(room: RoomView): void {
+    this.pendingDeactivateRoom = room;
+  }
+
+  cancelDeactivate(): void {
+    if (this.deactivating) return;
+    this.pendingDeactivateRoom = null;
+  }
+
+  confirmDeactivate(): void {
+    if (!this.pendingDeactivateRoom || this.deactivating) return;
+    this.deactivating = true;
+
+    const nextActive = !this.pendingDeactivateRoom.is_active;
+    this.roomService.updateRoom(this.pendingDeactivateRoom._id, { is_active: nextActive }).subscribe({
+      next: () => {
+        this.ngZone.run(() => {
+          this.deactivating = false;
+          this.pendingDeactivateRoom = null;
+          this.loadRooms();
+        });
+      },
+      error: () => {
+        this.ngZone.run(() => {
+          this.deactivating = false;
+          this.cdr.detectChanges();
+        });
+      },
+    });
   }
 
   private resolveUserInfo(): void {

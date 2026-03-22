@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Booking, BookingDraft, BookingFilterParams, CreateBookingDraftPayload, CreateBookingPayload } from '../models/booking.model';
+import { Booking, BookingDraft, BookingFilterParams, CreateBookingDraftPayload, CreateBookingPayload, AdminCreateBookingPayload } from '../models/booking.model';
 import { API_CONFIG } from '../config/api.config';
 
 export interface BookingPaymentSyncEvent {
@@ -109,17 +109,25 @@ export class BookingService {
   getBookingById(id: string): Observable<Booking> {
     return this.http.get<unknown>(`${this.apiUrl}/${id}`).pipe(
       map((response) => {
-        if (this.isRecord(response) && this.isRecord(response['data'])) {
-          return this.normalizeBooking(response['data'] as Partial<Booking>, 0);
-        }
-        return this.normalizeBooking(this.toApiBooking(response), 0);
+        // API returns { booking: {...}, payment: {...} }
+        const raw = this.isRecord(response) && this.isRecord(response['booking'])
+          ? response['booking']
+          : this.isRecord(response) && this.isRecord(response['data'])
+            ? response['data']
+            : response;
+        return this.normalizeBooking(this.flattenPopulatedBooking(raw), 0);
       })
     );
   }
 
   updateBooking(id: string, payload: Partial<Booking>): Observable<Booking> {
-    return this.http.patch<{ success: boolean; data: Booking }>(`${this.apiUrl}/${id}`, payload).pipe(
-      map((response) => response.data)
+    return this.http.patch<unknown>(`${this.apiUrl}/${id}`, payload).pipe(
+      map((response) => {
+        const raw = this.isRecord(response) && this.isRecord(response['data'])
+          ? response['data']
+          : response;
+        return this.normalizeBooking(this.flattenPopulatedBooking(raw), 0);
+      })
     );
   }
 
@@ -131,6 +139,17 @@ export class BookingService {
 
   createBooking(payload: CreateBookingPayload): Observable<Booking> {
     return this.http.post<unknown>(this.apiUrl, payload).pipe(
+      map((response) => {
+        if (this.isRecord(response) && this.isRecord(response['data'])) {
+          return this.normalizeBooking(response['data'] as Partial<Booking>, 0);
+        }
+        return this.normalizeBooking(this.toApiBooking(response), 0);
+      })
+    );
+  }
+
+  createAdminBooking(payload: AdminCreateBookingPayload): Observable<Booking> {
+    return this.http.post<unknown>(`${this.apiUrl}/admin`, payload).pipe(
       map((response) => {
         if (this.isRecord(response) && this.isRecord(response['data'])) {
           return this.normalizeBooking(response['data'] as Partial<Booking>, 0);
@@ -308,6 +327,56 @@ export class BookingService {
     }
 
     return this.toText(refund['status'], '');
+  }
+
+  private flattenPopulatedBooking(value: unknown): Partial<Booking> {
+    if (!this.isRecord(value)) {
+      return {};
+    }
+
+    const raw = value as Record<string, unknown>;
+    const result: Record<string, unknown> = { ...raw };
+
+    // Flatten populated customer_id object → guest_name, guest_phone, customer_id string
+    const customer = raw['customer_id'];
+    if (this.isRecord(customer) && typeof customer['_id'] === 'string') {
+      result['guest_name'] = customer['name'] || '';
+      result['guest_phone'] = customer['phone'] || '';
+      result['customer_id'] = customer['_id'];
+    }
+
+    // Flatten populated rooms[].room_id object → flat room_id string + extract room_type/room_number
+    const rooms = raw['rooms'];
+    if (Array.isArray(rooms) && rooms.length > 0) {
+      const flatRooms = rooms.map((r: unknown) => {
+        if (!this.isRecord(r)) return { room_id: '', price_per_night: 0 };
+        const roomObj = r['room_id'];
+        if (this.isRecord(roomObj) && typeof roomObj['_id'] === 'string') {
+          // Extract room type info from first room for display
+          const roomType = this.isRecord(roomObj['room_type_id']) ? roomObj['room_type_id'] : null;
+          if (roomType && !result['room_type']) {
+            result['room_type'] = roomType['name'] || '';
+          }
+          if (!result['room_number']) {
+            result['room_number'] = roomObj['room_number'] || '';
+          }
+          return {
+            room_id: roomObj['_id'] as string,
+            price_per_night: (r['price_per_night'] as number) || (roomType ? (roomType['price_per_night'] as number) || 0 : 0),
+          };
+        }
+        return { room_id: String(r['room_id'] || ''), price_per_night: (r['price_per_night'] as number) || 0 };
+      });
+      result['rooms'] = flatRooms;
+    }
+
+    // Flatten guests object { adults, children } → single number
+    const guests = raw['guests'];
+    if (this.isRecord(guests)) {
+      result['guests'] = ((guests['adults'] as number) || 1) + ((guests['children'] as number) || 0);
+    }
+
+    return result as Partial<Booking>;
   }
 
   private toApiBooking(value: unknown): Partial<Booking> {

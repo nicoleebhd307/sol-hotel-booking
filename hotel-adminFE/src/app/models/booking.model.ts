@@ -63,6 +63,20 @@ export interface CreateBookingPayload {
   note?: string;
 }
 
+export interface AdminCreateBookingPayload {
+  customer: {
+    name: string;
+    email: string;
+    phone: string;
+    identityId: string;
+  };
+  roomIds: string[];
+  check_in: string;
+  check_out: string;
+  guests: { adults: number; children: number };
+  note?: string;
+}
+
 export interface CreateBookingDraftPayload {
   draftId?: string;
   selectedRoomId: string;
