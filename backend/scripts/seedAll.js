@@ -138,14 +138,14 @@ const roomTypeSeed = [
 
 // ─── 3. SERVICES ────────────────────────────────────────────────────────────
 const serviceSeed = [
-  { title: 'Airport Transfer',  imageUrl: '/assets/images/services/airport.jpg' },
+  { title: 'Airport Transfer',  imageUrl: 'https://3f840d42a5c2e25c33bc-dd8f040381d63008401e8ccc233f58ca.ssl.cf1.rackcdn.com/u/_lifestyle/excellence-oysterbay-to-airport-1.jpg' },
   { title: 'Spa & Massage',     imageUrl: 'https://solanbang.com/wp-content/uploads/2025/05/Sol-Spa-Gym-7.jpg' },
   { title: 'Restaurant',        imageUrl: 'https://solanbang.com/wp-content/uploads/2025/05/b82644506bedcbb392fc40.jpg' },
   { title: 'Swimming Pool',     imageUrl: 'https://solanbang.com/wp-content/uploads/2025/03/Sol-An-Bang-_-Swimming-Pool-1.jpg' },
-  { title: 'Fitness Center',    imageUrl: '/assets/images/services/gym.jpg' },
-  { title: 'Car Rental',        imageUrl: '/assets/images/services/car.jpg' },
-  { title: 'Laundry Service',   imageUrl: '/assets/images/services/laundry.jpg' },
-  { title: 'Conference Room',   imageUrl: '/assets/images/services/conference.jpg' },
+  { title: 'Fitness Center',    imageUrl: 'https://xanhvillasresort.com/wp-content/uploads/2021/09/Gym-1-scaled.jpg' },
+  { title: 'Car Rental',        imageUrl: 'https://file.hstatic.net/200000504989/collection/thue_xe_du_lich_a249a63e23ed416491675cdedd2b9edb.jpg' },
+  { title: 'Laundry Service',   imageUrl: 'https://washmate.com.au/wp-content/uploads/2024/09/image-5.jpeg' },
+  { title: 'Conference Room',   imageUrl: 'https://assets.hyatt.com/content/dam/hyatt/hyattdam/images/2022/01/12/2104/DPSAZ-P0575-Meeting-Boardroom-Setup.jpg/DPSAZ-P0575-Meeting-Boardroom-Setup.4x3.jpg' },
   { title: 'Breakfast',      imageUrl: 'https://solanbang.com/wp-content/uploads/2025/03/Sol-An-Bang-_-Array-of-Breakfast-Options-1.jpg' },
   { title: 'Basket Boat',         imageUrl: 'https://solanbang.com/wp-content/uploads/2025/05/hoi-an-basket-boat-family.jpg' },
 ];
