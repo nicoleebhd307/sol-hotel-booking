@@ -1,0 +1,33 @@
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+:host ::ng-deep h2 {
+  animation: slideInLeft 0.8s ease-out;
+}
+
+:host ::ng-deep p {
+  animation: slideInLeft 0.8s ease-out 0.2s both;
+}
+
+:host ::ng-deep .rounded-2xl {
+  animation: slideInRight 0.8s ease-out 0.4s both;
+}
