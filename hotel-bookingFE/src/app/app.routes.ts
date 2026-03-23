@@ -34,6 +34,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/booking-create/booking-create').then(m => m.BookingCreate),
   },
   {
+    path: 'payment/momo',
+    loadComponent: () => import('./pages/momo-payment/momo-payment').then(m => m.MomoPaymentPage),
+  },
+  {
     path: 'cancel-booking',
     loadComponent: () => import('./pages/cancel-booking/cancel-booking').then(m => m.CancelBooking),
   },

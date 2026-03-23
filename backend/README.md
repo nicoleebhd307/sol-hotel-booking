@@ -67,6 +67,18 @@ Base URL: `/api`
     ```
   - `simulateStatus` is only for the stub gateway (`PAYMENT_GATEWAY_MODE=stub`).
 
+- `POST /payments/momo-v2/init`
+  - Body:
+    ```json
+    {
+      "bookingId": "<bookingId>",
+      "channel": "qr",
+      "paymentCode": "<optional for payWithMethod>"
+    }
+    ```
+  - Initializes MoMo sandbox payment session (single runtime flow).
+  - `channel=qr` uses `captureWallet`; `channel=card` uses `payWithMethod`.
+
 ### Admin / Staff
 
 - `POST /admin/login`
@@ -91,3 +103,11 @@ Base URL: `/api`
 - Availability excludes cancelled bookings and respects pending holds.
 - Refund policy is controlled by env vars:
   - `CANCEL_REFUND_BEFORE_DAYS`, `CANCEL_NO_REFUND_WITHIN_DAYS`, `CANCEL_REFUND_PERCENT`
+
+- Optional MoMo sandbox env vars (test only):
+  - `MOMO_PARTNER_CODE`
+  - `MOMO_ACCESS_KEY`
+  - `MOMO_SECRET_KEY`
+  - `MOMO_REQUEST_TYPE` (default: `captureWallet`)
+  - `MOMO_REDIRECT_URL`
+  - `MOMO_IPN_URL`

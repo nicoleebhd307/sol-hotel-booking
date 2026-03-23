@@ -350,12 +350,17 @@
         </div>
       }
 
-      @if (selectedPaymentMethod() === 'momo' || selectedPaymentMethod() === 'vnpay') {
+      @if (selectedPaymentMethod() === 'momo') {
         <div class="bg-[rgba(245,240,228,0.6)] rounded-xl p-6 text-center font-sans text-sm text-[#4e4639]">
-          <p class="font-semibold mb-2">
-            {{ selectedPaymentMethod() === 'momo' ? 'MoMo Wallet' : 'VNPay QR' }} - Simulated
-          </p>
-          <p>Click "Pay Deposit" to simulate a successful payment. Full {{ selectedPaymentMethod() === 'momo' ? 'MoMo' : 'VNPay' }} integration coming soon.</p>
+          <p class="font-semibold mb-2">MoMo Payment</p>
+          <p>Click "Pay Deposit" to continue to the dedicated MoMo checkout page.</p>
+        </div>
+      }
+
+      @if (selectedPaymentMethod() === 'vnpay') {
+        <div class="bg-[rgba(245,240,228,0.6)] rounded-xl p-6 text-center font-sans text-sm text-[#4e4639]">
+          <p class="font-semibold mb-2">VNPay QR - Simulated</p>
+          <p>Click "Pay Deposit" to simulate a successful VNPay payment.</p>
         </div>
       }
 

@@ -33,6 +33,7 @@ export class BookingCreate implements OnInit {
   protected readonly footerData = this.homeContent.getHomePageData().footer;
 
   // Route query params
+  protected bookingId = '';
   protected roomId = '';
   protected roomTypeId = '';
   protected checkIn = '';
@@ -183,7 +184,10 @@ export class BookingCreate implements OnInit {
   }
 
   ngOnInit(): void {
+    this.errorMsg.set('');
+
     const params = this.route.snapshot.queryParamMap;
+    this.bookingId = params.get('bookingId') || '';
     this.roomId = params.get('roomId') || '';
     this.roomTypeId = params.get('roomTypeId') || '';
     this.checkIn = params.get('checkIn') || '';
@@ -201,6 +205,11 @@ export class BookingCreate implements OnInit {
       this.checkOut = outDate.toISOString().slice(0, 10);
     }
 
+    if (this.bookingId) {
+      this.resumeBookingFlow(this.bookingId);
+      return;
+    }
+
     if (this.roomId) {
       this.loadRoomById(this.roomId);
       return;
@@ -214,6 +223,7 @@ export class BookingCreate implements OnInit {
             this.errorMsg.set('No available room found for selected dates. Please choose another room/date.');
             return;
           }
+          this.errorMsg.set('');
           this.roomId = firstRoom._id;
           this.loadRoomById(this.roomId);
         },
@@ -227,9 +237,60 @@ export class BookingCreate implements OnInit {
     this.errorMsg.set('Missing room information. Please select a room first.');
   }
 
+  private resumeBookingFlow(bookingId: string): void {
+    this.api.getBookingById(bookingId).subscribe({
+      next: ({ booking }) => {
+        if (!booking?._id) {
+          this.errorMsg.set('Booking not found. Please create a new booking.');
+          return;
+        }
+
+        this.createdBooking.set(booking);
+
+        if (booking.status === 'confirmed') {
+          this.router.navigate(['/booking', booking._id]);
+          return;
+        }
+
+        this.checkIn = typeof booking.check_in === 'string' ? booking.check_in.slice(0, 10) : this.checkIn;
+        this.checkOut = typeof booking.check_out === 'string' ? booking.check_out.slice(0, 10) : this.checkOut;
+        this.adults = Number(booking?.guests?.adults || this.adults);
+        this.children = Number(booking?.guests?.children || this.children);
+
+        const firstRoom = booking?.rooms?.[0]?.room_id;
+        const roomId = typeof firstRoom === 'string' ? firstRoom : firstRoom?._id;
+        if (roomId) {
+          this.roomId = String(roomId);
+        }
+
+        const roomTypeId = typeof firstRoom?.room_type_id === 'string'
+          ? firstRoom.room_type_id
+          : firstRoom?.room_type_id?._id;
+        if (roomTypeId) {
+          this.roomTypeId = String(roomTypeId);
+        }
+
+        if (firstRoom && typeof firstRoom === 'object') {
+          this.room.set(firstRoom);
+        } else if (this.roomId) {
+          this.loadRoomById(this.roomId);
+        }
+
+        this.currentStep.set(4);
+        this.errorMsg.set('');
+      },
+      error: () => {
+        this.errorMsg.set('Cannot resume booking payment. Please create a new booking.');
+      }
+    });
+  }
+
   private loadRoomById(id: string): void {
     this.api.getRoomById(id).subscribe({
-      next: (room) => this.room.set(room),
+      next: (room) => {
+        this.room.set(room);
+        this.errorMsg.set('');
+      },
       error: () => {
         this.errorMsg.set('Selected room was not found. Please choose another room.');
       }
@@ -277,6 +338,7 @@ export class BookingCreate implements OnInit {
           this.errorMsg.set('No available room found for selected dates. Please choose another date.');
           return;
         }
+        this.errorMsg.set('');
         this.roomId = firstRoom._id;
         this.loadRoomById(this.roomId);
       },
@@ -351,6 +413,15 @@ export class BookingCreate implements OnInit {
       next: (booking) => {
         this.createdBooking.set(booking);
         this.isBookingLoading.set(false);
+        this.bookingId = booking?._id || '';
+        if (this.bookingId) {
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { bookingId: this.bookingId },
+            queryParamsHandling: 'merge',
+            replaceUrl: true
+          });
+        }
         this.currentStep.set(4);
       },
       error: (err) => {
@@ -366,11 +437,29 @@ export class BookingCreate implements OnInit {
       this.cardForm.markAllAsTouched();
       return;
     }
+
+    const booking = this.createdBooking();
+    if (!booking?._id) {
+      this.errorMsg.set('Booking has not been created yet. Please complete the previous steps first.');
+      return;
+    }
+
+    if (this.selectedPaymentMethod() === 'momo') {
+      this.router.navigate(['/payment/momo'], {
+        queryParams: {
+          bookingId: booking._id,
+          amount: this.depositAmount.toFixed(2)
+        }
+      });
+      return;
+    }
+
     this.isPaymentLoading.set(true);
     this.errorMsg.set('');
 
-    const booking = this.createdBooking();
-    this.api.payDeposit(booking._id, this.selectedPaymentMethod()).subscribe({
+    const simulateStatus = undefined;
+
+    this.api.payDeposit(booking._id, this.selectedPaymentMethod(), simulateStatus).subscribe({
       next: () => {
         this.isPaymentLoading.set(false);
         this.router.navigate(['/booking', booking._id]);
@@ -385,6 +474,7 @@ export class BookingCreate implements OnInit {
   // ── Helpers ───────────────────────────────────────────────────────────────
   setPaymentMethod(method: 'card' | 'momo' | 'vnpay'): void {
     this.selectedPaymentMethod.set(method);
+    this.errorMsg.set('');
   }
 
   togglePolicy(): void {
