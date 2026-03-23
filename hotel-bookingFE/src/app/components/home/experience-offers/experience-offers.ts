@@ -27,4 +27,12 @@ export class ExperienceOffers {
   isHighlighted(i: number): boolean {
     return this.hoveredIndex() === i;
   }
+
+  routeFor(item: { title: string }): string {
+    switch (item.title) {
+      case 'Resort':        return '/stories';
+      case 'Accommodation': return '/rooms';
+      default:              return '/';
+    }
+  }
 }

@@ -17,7 +17,7 @@
 			<div class="flex flex-col gap-6">
   @for (item of data().items; track item.title; let i = $index) {
     <a
-      routerLink="/stories"
+      [routerLink]="routeFor(item)"
       class="border-b border-[#f3f4f6] pb-4 flex items-end justify-between no-underline"
       (mouseenter)="hoveredIndex.set(i)"
       (mouseleave)="hoveredIndex.set(null)"

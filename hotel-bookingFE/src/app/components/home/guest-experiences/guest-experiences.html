@@ -44,12 +44,9 @@
 				<div class="grid gap-8" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
 					@for (card of data().cards; track card.author; let i = $index) {
 						<article
-							class="reveal-up flex flex-col justify-between rounded-2xl border border-[rgba(197,160,89,0.10)] p-10 transition-all duration-300 hover:border-[rgba(197,160,89,0.40)] hover:shadow-xl cursor-default"
-							[class.scale-105]="i === 1"
-							[class.bg-white]="true"
-							[style.box-shadow]="i === 1 ? '0px 25px 50px -12px rgba(0,0,0,0.25)' : ''"
+							class="reveal-up flex flex-col justify-between rounded-2xl border border-[rgba(197,160,89,0.10)] p-10 transition-all duration-300 hover:border-[rgba(197,160,89,0.40)] hover:shadow-2xl hover:scale-[1.03] cursor-default bg-white"
 							[style.--animation-delay]="(i * 0.1) + 's'"
-							style="backdrop-filter: blur(4px); background: rgba(255,255,255,0.8);"
+							style="backdrop-filter: blur(4px);"
 						>
 							<!-- Stars -->
 							<div>
@@ -101,12 +98,15 @@
 
 		<!-- Google reviews CTA -->
 		<div class="mt-12 flex justify-center reveal-up">
-			<button
+			<a
+				href="https://www.google.com/maps/place/Sol+An+Bang+Beach+Resort/@15.9101804,108.3429133,17.58z/data=!4m22!1m10!3m9!1s0x31420dfa762f2da9:0x3b88013669789f6b!2sSol+An+Bang+Beach+Resort!5m2!4m1!1i2!8m2!3d15.9101426!4d108.3447767!16s%2Fg%2F11ggng0vq2!3m10!1s0x31420dfa762f2da9:0x3b88013669789f6b!5m2!4m1!1i2!8m2!3d15.9101426!4d108.3447767!9m1!1b1!16s%2Fg%2F11ggng0vq2"
+				target="_blank"
+				rel="noopener noreferrer"
 				class="rounded-2xl px-10 py-4 text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg active:scale-95"
 				style="background: linear-gradient(0deg, rgba(199,158,53,1) 0%, rgba(221,188,108,1) 100%); font-family: 'Playfair Display', serif; font-style: italic;"
 			>
 				View Reviews on Google
-			</button>
+			</a>
 		</div>
 	</div>
 </section>

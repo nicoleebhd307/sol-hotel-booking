@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
-import { input } from '@angular/core';
+import { Component, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { HomePageData } from '../../../models/home.models';
 
 @Component({
   selector: 'app-intro',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './intro.html',
   styleUrl: './intro.css',
 })
