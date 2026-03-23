@@ -8,7 +8,7 @@ import { Room, RoomType, ServiceItem, BookingData } from '../models/home.models'
   providedIn: 'root'
 })
 export class ApiService {
-  private readonly API_URL = 'https://sol-hotel-booking-1.onrender.com/api';
+  private readonly API_URL = 'http://localhost:5000/api';
 
   constructor(private http: HttpClient) {}
 
@@ -79,7 +79,7 @@ export class ApiService {
       retry({
         count: 2,
         delay: (error, retryCount) => {
-          // Render free tier cold-start returns 502 HTML — retry after a delay
+          // Retry transient upstream/network errors after a short delay
           if (error.status === 502 || error.status === 503 || error.status === 0) {
             return timer(retryCount * 10000); // 10s then 20s
           }
@@ -106,6 +106,6 @@ export class ApiService {
 
   // Health check
   healthCheck(): Observable<{ status: string; uptime: number }> {
-    return this.http.get<{ status: string; uptime: number }>(`https://sol-hotel-booking-1.onrender.com/health`);
+    return this.http.get<{ status: string; uptime: number }>(`http://localhost:5000/health`);
   }
 }

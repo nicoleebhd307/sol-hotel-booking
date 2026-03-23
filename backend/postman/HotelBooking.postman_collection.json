@@ -6,7 +6,7 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl",           "value": "https://sol-hotel-booking-1.onrender.com" },
+    { "key": "baseUrl",           "value": "http://localhost:5000" },
     { "key": "adminToken",        "value": "" },
     { "key": "receptionistToken", "value": "" },
     { "key": "bookingId",         "value": "" },
@@ -14,7 +14,6 @@
     { "key": "roomTypeId",        "value": "" },
     { "key": "customerId",        "value": "" },
     { "key": "refundId",          "value": "" },
-    { "key": "draftId",           "value": "" },
     { "key": "momoOrderId",       "value": "" }
   ],
   "item": [
@@ -43,7 +42,12 @@
               "script": {
                 "exec": [
                   "const res = pm.response.json();",
-                  "if (res.token) pm.collectionVariables.set('adminToken', res.token);"
+                  "const token = res.token || (res.data && res.data.token);",
+                  "pm.test('Login should return token', function () { pm.expect(token).to.be.a('string').and.not.empty; });",
+                  "if (token) {",
+                  "  pm.collectionVariables.set('receptionistToken', token);",
+                  "  pm.collectionVariables.set('adminToken', token);",
+                  "}"
                 ]
               }
             }
@@ -54,7 +58,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@hotel.com\",\n  \"password\": \"admin123\"\n}"
+              "raw": "{\n  \"email\": \"reception1@hotel.com\",\n  \"password\": \"123456\"\n}"
             }
           }
         },
@@ -88,7 +92,9 @@
               "script": {
                 "exec": [
                   "const res = pm.response.json();",
-                  "if (res.token) pm.collectionVariables.set('adminToken', res.token);"
+                  "const token = res.token || (res.data && res.data.token);",
+                  "pm.test('Admin login should return token', function () { pm.expect(token).to.be.a('string').and.not.empty; });",
+                  "if (token) pm.collectionVariables.set('adminToken', token);"
                 ]
               }
             }
@@ -99,10 +105,10 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}",
+              "raw": "{\n  \"email\": \"manager@hotel.com\",\n  \"password\": \"123456\"\n}",
               "options": { "raw": { "language": "json" } }
             },
-            "description": "Uses 'username' field. Saves token to adminToken variable."
+            "description": "Uses 'email' field. Saves token to adminToken variable."
           }
         }
       ]
@@ -227,7 +233,7 @@
           "name": "Search Booking",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/bookings/search/BK-001"
+            "url": "{{baseUrl}}/api/bookings/search/69c0c13267deb3b06a2a7d16"
           }
         },
         {
@@ -445,56 +451,6 @@
           "request": {
             "method": "DELETE",
             "url": "{{baseUrl}}/api/admin/bookings/{{bookingId}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
-          }
-        }
-      ]
-    },
-
-    {
-      "name": "Booking Drafts",
-      "item": [
-        {
-          "name": "Save/Update Draft",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "const id = res._id || (res.draft && res.draft._id);",
-                  "if (id) pm.collectionVariables.set('draftId', id);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/bookings/drafts",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
-              { "key": "Content-Type",  "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"selectedRoomId\": \"{{roomId}}\",\n  \"formValue\": {\n    \"guestName\": \"Nguyen Van C\",\n    \"guestEmail\": \"guest@example.com\",\n    \"guestPhone\": \"0901111222\",\n    \"check_in\": \"2026-07-01\",\n    \"check_out\": \"2026-07-05\",\n    \"adults\": 2,\n    \"children\": 1\n  }\n}",
-              "options": { "raw": { "language": "json" } }
-            }
-          }
-        },
-        {
-          "name": "Get Latest Draft",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/api/bookings/drafts/latest",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
-          }
-        },
-        {
-          "name": "Delete Draft",
-          "request": {
-            "method": "DELETE",
-            "url": "{{baseUrl}}/api/bookings/drafts/{{draftId}}",
             "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
           }
         }
