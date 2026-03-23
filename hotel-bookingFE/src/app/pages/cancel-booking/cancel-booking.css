@@ -1,28 +1,87 @@
 :host {
   display: block;
-  background: #f9f7f2;
 }
 
-/* Warning card entrance */
+.cancel-page {
+  background:
+    radial-gradient(1200px 420px at 8% -12%, rgba(197, 160, 89, 0.25), transparent 62%),
+    radial-gradient(900px 360px at 100% 0%, rgba(119, 90, 25, 0.12), transparent 58%),
+    #f9f7f2;
+}
+
+.policy-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: #4f4638;
+  line-height: 1.65;
+}
+
+.policy-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  margin-top: 10px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, #c5a059 0%, #8e6d2e 100%);
+}
+
+.cancel-btn-primary,
+.cancel-btn-secondary {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease, background 180ms ease;
+}
+
+.cancel-btn-primary {
+  border: 1px solid #6f531a;
+  color: #ffffff;
+  background: linear-gradient(98.44deg, #775a19 0%, #c5a059 100%);
+  box-shadow: 0 10px 24px rgba(103, 77, 23, 0.28);
+}
+
+.cancel-btn-primary:hover:not(:disabled),
+.cancel-btn-secondary:hover {
+  transform: translateY(-1px);
+}
+
+.cancel-btn-primary:hover:not(:disabled) {
+  box-shadow: 0 14px 28px rgba(103, 77, 23, 0.34);
+}
+
+.cancel-btn-primary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.cancel-btn-secondary {
+  border: 1px solid #d9c59a;
+  color: #624b1f;
+  background: #fffaf0;
+}
+
+.cancel-btn-secondary:hover {
+  background: #f8eed8;
+}
+
 @media (prefers-reduced-motion: no-preference) {
-  ::ng-deep .bg-red-50 {
-    animation: slideDown 0.5s ease-out;
+  .cancel-page section,
+  .cancel-page aside,
+  .cancel-page .rounded-2xl {
+    animation: cancelFadeIn 420ms ease-out;
   }
 }
 
-@keyframes slideDown {
+@keyframes cancelFadeIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/* Button hover effects */
-::ng-deep button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }

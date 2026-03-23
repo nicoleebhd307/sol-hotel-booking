@@ -1,5 +1,6 @@
 const bookingService = require('../services/bookingService');
 const refundService = require('../services/refundService');
+const Booking = require('../models/Booking');
 
 async function searchBookings(req, res, next) {
   try {
@@ -54,11 +55,60 @@ async function cancelBooking(req, res, next) {
 
     if (booking.status === 'pending') {
       const cancelled = await bookingService.cancelPendingWithoutRefund(id);
-      return res.json({ booking: cancelled, refund: { refundAmount: 0 } });
+      refundService.sendRefundStatusEmailStub({
+        toEmail: booking.customer_id?.email,
+        bookingId: id,
+        status: 'cancelled_no_refund',
+        refundAmount: 0,
+        note: 'Pending booking cancelled by customer'
+      });
+      return res.json({
+        booking: cancelled,
+        refund: { refundAmount: 0, status: 'not_applicable' },
+        message: 'Booking cancelled successfully.'
+      });
     }
 
-    const result = await refundService.cancelBookingWithPolicy({ bookingId: id });
-    return res.json(result);
+    if (booking.status === 'cancelled') {
+      return res.status(409).json({ message: 'Booking already cancelled' });
+    }
+
+    const setFields = {
+      status: 'cancelled',
+      cancelledAt: new Date(),
+      refund_status: booking.depositAmount > 0 ? 'pending' : 'none'
+    };
+
+    const updated = await Booking.findOneAndUpdate(
+      bookingService.buildIdConditions(id),
+      { $set: setFields },
+      { new: true }
+    )
+      .populate('customer_id')
+      .populate({ path: 'rooms.room_id', populate: { path: 'room_type_id' } })
+      .lean();
+
+    const requiresApproval = booking.depositAmount > 0;
+    refundService.sendRefundStatusEmailStub({
+      toEmail: updated?.customer_id?.email,
+      bookingId: id,
+      status: requiresApproval ? 'refund_request_pending_admin_approval' : 'cancelled_no_refund',
+      refundAmount: 0,
+      note: requiresApproval
+        ? 'Cancellation request submitted. Please wait for admin approval.'
+        : 'Booking cancelled with no refundable amount.'
+    });
+
+    return res.json({
+      booking: updated,
+      refund: {
+        refundAmount: 0,
+        status: requiresApproval ? 'pending_admin_approval' : 'not_applicable'
+      },
+      message: requiresApproval
+        ? 'Cancellation request submitted. Please wait for admin approval.'
+        : 'Booking cancelled successfully.'
+    });
   } catch (err) {
     return next(err);
   }

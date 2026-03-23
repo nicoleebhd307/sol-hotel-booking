@@ -1,3 +1,122 @@
 :host {
   display: block;
 }
+
+.cancel-success-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border: 1px solid #b6e0cc;
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #ebfff3 0%, #f6fff9 100%);
+  box-shadow: 0 10px 24px rgba(37, 99, 63, 0.08);
+}
+
+.cancel-success-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: #2f8f5b;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cancel-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(29, 28, 19, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.cancel-modal {
+  width: 100%;
+  max-width: 440px;
+  border-radius: 16px;
+  padding: 22px;
+  background: #fffdf8;
+  border: 1px solid #ead8b4;
+  box-shadow: 0 18px 44px rgba(70, 54, 23, 0.26);
+}
+
+.cancel-modal-title {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.35;
+  color: #2d2517;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.cancel-modal-desc {
+  margin-top: 10px;
+  margin-bottom: 0;
+  color: #5b5347;
+  line-height: 1.6;
+}
+
+.cancel-modal-error {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #efc0c0;
+  background: #fff1f1;
+  color: #a53737;
+  font-size: 0.875rem;
+}
+
+.cancel-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.cancel-modal-btn-secondary,
+.cancel-modal-btn-danger {
+  flex: 1;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-weight: 600;
+  transition: all 180ms ease;
+}
+
+.cancel-modal-btn-secondary {
+  border: 1px solid #d8c59a;
+  background: #fff8e7;
+  color: #624b1f;
+}
+
+.cancel-modal-btn-secondary:hover:not(:disabled) {
+  background: #f8eed8;
+}
+
+.cancel-modal-btn-danger {
+  border: 1px solid #b53b3b;
+  color: #ffffff;
+  background: linear-gradient(145deg, #c14747 0%, #a83434 100%);
+}
+
+.cancel-modal-btn-danger:hover:not(:disabled) {
+  filter: brightness(1.04);
+}
+
+.cancel-modal-btn-secondary:disabled,
+.cancel-modal-btn-danger:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .cancel-modal-actions {
+    flex-direction: column;
+  }
+}

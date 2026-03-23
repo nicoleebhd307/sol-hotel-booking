@@ -1,4 +1,4 @@
-<div class="bg-[#f9f7f2] text-[#1a1a1a] min-h-screen flex flex-col">
+<div class="cancel-page min-h-screen flex flex-col text-[#1d1c13]">
   <!-- Navbar -->
   <app-sticky-navbar
     [navLinks]="navLinks"
@@ -7,46 +7,75 @@
   />
 
   <!-- Main Content -->
-  <main class="flex-grow py-16 px-4">
-    <div class="mx-auto max-w-2xl">
-      <!-- Warning Card -->
-      <div class="bg-red-50 border-2 border-red-300 rounded-xl p-8 mb-8 text-center">
-        <div class="text-6xl mb-4">⚠️</div>
-        <h1 class="font-serif text-3xl text-red-900 mb-3">Cancel Your Reservation?</h1>
-        <p class="text-red-800">This action will permanently cancel your booking. Please review our cancellation policy below.</p>
-      </div>
+  <main class="flex-grow py-14 px-4 md:px-6">
+    <div class="mx-auto max-w-4xl w-full">
+      <section class="mb-8 rounded-3xl border border-[#e1d3b5] bg-white shadow-[0_16px_40px_rgba(90,72,35,0.12)] overflow-hidden">
+        <div class="h-2 w-full bg-gradient-to-r from-[#775a19] to-[#c5a059]"></div>
 
-      <!-- Cancellation Policy -->
-      <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
-        <h2 class="font-serif text-2xl text-slate-800 mb-6">Cancellation Policy</h2>
-        <ul class="space-y-3">
-          <li *ngFor="let policy of cancellationPolicy" class="flex items-start gap-3 text-slate-700">
-            <span class="text-red-500 mt-1 flex-shrink-0">•</span>
-            <span>{{ policy }}</span>
-          </li>
-        </ul>
-      </div>
+        <div class="p-8 md:p-10 text-center">
+          <p class="tracking-[0.22em] text-xs uppercase text-[#8b6f33] mb-3">Reservation Management</p>
+          <h1 class="font-serif text-3xl md:text-4xl text-[#2e2618] mb-4">Confirm Booking Cancellation</h1>
+          <p class="text-[#5a5245] max-w-2xl mx-auto leading-relaxed">
+            We understand plans can change. Please review the cancellation policy below before you proceed.
+          </p>
 
-      <!-- Refund Warning -->
-      <div class="bg-amber-50 border-l-4 border-amber-400 p-6 rounded mb-8">
-        <p class="text-amber-900 font-medium">⏱️ Note: Refunds are typically processed within 7-10 business days after cancellation is confirmed.</p>
-      </div>
+          @if (bookingId()) {
+          <div class="mt-6 inline-flex items-center gap-2 rounded-full bg-[#f5ecd9] px-4 py-2 text-sm text-[#6b5324] border border-[#e7d5ac]">
+            <span class="font-semibold">Booking ID:</span>
+            <span class="font-mono">{{ bookingId() }}</span>
+          </div>
+          }
+        </div>
+      </section>
 
-      <!-- Action Buttons -->
-      <div class="flex flex-col sm:flex-row gap-4">
-        <button
-          (click)="onKeepBooking()"
-          class="flex-1 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all"
-        >
-          ✓ Keep My Reservation
-        </button>
-        <button
-          (click)="onConfirmCancellation()"
-          [disabled]="isCancelling()"
-          class="flex-1 px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {{ isCancelling() ? 'Cancelling...' : '✕ Confirm Cancellation' }}
-        </button>
+      <div class="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-6 md:gap-8">
+        <!-- Cancellation Policy -->
+        <div class="rounded-2xl bg-white p-7 md:p-8 border border-[#eadfc8] shadow-[0_12px_28px_rgba(96,78,43,0.10)]">
+          <h2 class="font-serif text-2xl text-[#2f2618] mb-6">Cancellation Policy</h2>
+          <ul class="space-y-4">
+            <li *ngFor="let policy of cancellationPolicy" class="policy-item">
+              <span class="policy-dot" aria-hidden="true"></span>
+              <span>{{ policy }}</span>
+            </li>
+          </ul>
+
+          <div class="mt-7 rounded-xl border border-[#ead7aa] bg-[#fff8e7] px-4 py-3 text-[#6b5324] text-sm leading-relaxed">
+            Refunds are typically processed within 7-10 business days after the cancellation is confirmed.
+          </div>
+        </div>
+
+        <!-- Action panel -->
+        <aside class="rounded-2xl border border-[#eadfc8] bg-white p-7 md:p-8 shadow-[0_12px_28px_rgba(96,78,43,0.10)] flex flex-col justify-between">
+          <div>
+            <h3 class="font-serif text-xl text-[#2f2618] mb-3">Before You Continue</h3>
+            <p class="text-[#5a5245] leading-relaxed">
+              This action updates your reservation status to cancelled. If a refund applies, the process starts automatically based on our policy.
+            </p>
+          </div>
+
+          @if (errorMessage()) {
+          <div class="mt-6 rounded-xl border border-[#efc0c0] bg-[#fff1f1] px-4 py-3 text-[#a53737] text-sm">
+            {{ errorMessage() }}
+          </div>
+          }
+
+          <div class="mt-6 flex flex-col gap-3">
+            <button
+              (click)="onKeepBooking()"
+              class="cancel-btn-secondary"
+            >
+              Keep My Reservation
+            </button>
+
+            <button
+              (click)="onConfirmCancellation()"
+              [disabled]="isCancelling()"
+              class="cancel-btn-primary"
+            >
+              {{ isCancelling() ? 'Cancelling Booking...' : 'Confirm Cancellation' }}
+            </button>
+          </div>
+        </aside>
       </div>
     </div>
   </main>

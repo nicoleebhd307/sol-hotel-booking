@@ -15,6 +15,14 @@ function getEnvNumber(key, fallback) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function sendRefundStatusEmailStub({ toEmail, bookingId, status, refundAmount = 0, note = '' }) {
+  if (!toEmail) return;
+  const amountText = Number(refundAmount) > 0 ? ` | refundAmount=${refundAmount}` : '';
+  const noteText = note ? ` | note=${note}` : '';
+  // Replace with a real mail provider integration when SMTP/provider is configured.
+  console.log(`[EMAIL][stub] Refund status update sent to ${toEmail} | booking=${bookingId} | status=${status}${amountText}${noteText}`);
+}
+
 function calculateRefundAmount({ depositAmount, daysBeforeCheckIn }) {
   const refundPercent = getEnvNumber('CANCEL_REFUND_PERCENT', 50);
   const refundBeforeDays = getEnvNumber('CANCEL_REFUND_BEFORE_DAYS', 7);
@@ -115,5 +123,6 @@ async function cancelBookingWithPolicy({ bookingId }) {
 
 module.exports = {
   cancelBookingWithPolicy,
-  calculateRefundAmount
+  calculateRefundAmount,
+  sendRefundStatusEmailStub
 };

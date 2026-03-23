@@ -26,6 +26,7 @@ export class CancelBooking implements OnInit {
 
   protected bookingId = signal<string>('');
   protected readonly isCancelling = signal<boolean>(false);
+  protected readonly errorMessage = signal<string>('');
 
   protected readonly cancellationPolicy = [
     'Cancellations within 7 days before check-in are non-refundable',
@@ -53,16 +54,19 @@ export class CancelBooking implements OnInit {
       this.router.navigate(['/search-booking']);
       return;
     }
+
+    this.errorMessage.set('');
     this.isCancelling.set(true);
     this.apiService.cancelBooking(id).subscribe({
       next: () => {
         this.isCancelling.set(false);
-        alert('Booking cancelled successfully. Please check your email for refund details.');
-        this.router.navigate(['/search-booking']);
+        this.router.navigate(['/booking', id], {
+          queryParams: { cancelled: '1' }
+        });
       },
       error: () => {
         this.isCancelling.set(false);
-        alert('Failed to cancel booking. Please contact our support team.');
+        this.errorMessage.set('Unable to cancel this booking right now. Please try again in a few minutes or contact support.');
       }
     });
   }

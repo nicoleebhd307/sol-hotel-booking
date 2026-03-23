@@ -380,6 +380,13 @@ async function confirmRefund(req, res, next) {
     });
 
     const updated = await bookingService.getBookingById(id);
+    refundService.sendRefundStatusEmailStub({
+      toEmail: updated.booking.customer_id?.email,
+      bookingId: id,
+      status: 'refund_approved_waiting_transfer',
+      refundAmount: 0,
+      note: note || ''
+    });
     return res.json({
       success: true,
       data: {
@@ -408,6 +415,13 @@ async function rejectRefund(req, res, next) {
     const { note } = req.body || {};
     await Booking.findOneAndUpdate(buildIdConditions(id), { $set: { refund_status: 'none', note: note || '' } });
     const updated = await bookingService.getBookingById(id);
+    refundService.sendRefundStatusEmailStub({
+      toEmail: updated.booking.customer_id?.email,
+      bookingId: id,
+      status: 'refund_rejected',
+      refundAmount: 0,
+      note: note || ''
+    });
     return res.json({
       success: true,
       data: {
@@ -444,13 +458,20 @@ async function completeRefund(req, res, next) {
     }
 
     // Process the actual refund via refund service
-    await refundService.cancelBookingWithPolicy({ bookingId: booking._id });
+    const refundResult = await refundService.cancelBookingWithPolicy({ bookingId: booking._id });
 
     if (note) {
       await Booking.findOneAndUpdate(buildIdConditions(id), { $set: { note } });
     }
 
     const updated = await bookingService.getBookingById(id);
+    refundService.sendRefundStatusEmailStub({
+      toEmail: updated.booking.customer_id?.email,
+      bookingId: id,
+      status: 'refund_completed',
+      refundAmount: refundResult?.refund?.refundAmount || 0,
+      note: note || ''
+    });
     return res.json({
       success: true,
       data: {
