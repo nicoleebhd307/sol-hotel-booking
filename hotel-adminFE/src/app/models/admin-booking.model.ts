@@ -1,5 +1,5 @@
 export type AdminBookingStatus = 'pending' | 'confirmed' | 'cancelled';
-export type RefundStatus = 'none' | 'pending' | 'confirmed' | 'rejected';
+export type RefundStatus = 'none' | 'pending' | 'awaiting_refund' | 'confirmed' | 'rejected';
 
 export interface ExtraService {
   name: string;
@@ -49,7 +49,7 @@ export interface RefundRequest {
   customerName: string;
   phone: string;
   depositAmount: number;
-  status: 'pending' | 'confirmed' | 'rejected';
+  status: 'pending' | 'awaiting_refund' | 'confirmed' | 'rejected';
   createdAt: string;
   processedAt?: string;
   note?: string;

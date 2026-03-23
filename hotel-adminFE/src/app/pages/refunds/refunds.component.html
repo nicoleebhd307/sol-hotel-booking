@@ -55,6 +55,7 @@
                 >
                   <option value="all">All</option>
                   <option value="pending">Pending</option>
+                  <option value="awaiting_refund">Awaiting Refund</option>
                   <option value="confirmed">Confirmed</option>
                   <option value="rejected">Rejected</option>
                 </select>
@@ -98,29 +99,47 @@
                     <td class="py-3 px-4 text-[13px] font-semibold text-[#2d2b24]">{{ formatAmount(refund.depositAmount) }}</td>
                     <td class="py-3 px-4">
                       <span class="inline-flex px-3 py-1 rounded-full text-[11px] font-semibold uppercase" [ngClass]="getStatusClass(refund.status)">
-                        {{ refund.status }}
+                        {{ getStatusLabel(refund.status) }}
                       </span>
                     </td>
                     <td class="py-3 px-4 text-[12px] text-[#6a6254]">{{ formatDate(refund.createdAt) }}</td>
                     <td class="py-3 px-4">
                       <div class="flex items-center justify-end gap-2.5">
+                        <!-- Pending: Approve / Reject -->
                         <button
+                          *ngIf="refund.status === 'pending'"
                           type="button"
                           class="h-8 px-3 rounded-[9px] bg-[#7d6a2c] text-white text-[12px] font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
-                          [disabled]="!canProcessRefund(refund)"
+                          [disabled]="!canConfirmOrReject(refund)"
                           (click)="confirmRefund(refund)"
                         >
-                          {{ getConfirmButtonLabel(refund) }}
+                          {{ isActionLoading(refund.bookingId) ? 'Processing...' : 'Approve' }}
                         </button>
 
                         <button
+                          *ngIf="refund.status === 'pending'"
                           type="button"
                           class="h-8 px-3 rounded-[9px] border border-[rgba(168,69,69,0.5)] text-[#a84545] text-[12px] font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
-                          [disabled]="!canProcessRefund(refund)"
+                          [disabled]="!canConfirmOrReject(refund)"
                           (click)="rejectRefund(refund)"
                         >
                           {{ isActionLoading(refund.bookingId) ? 'Processing...' : 'Reject' }}
                         </button>
+
+                        <!-- Awaiting Refund: Complete Refund -->
+                        <button
+                          *ngIf="refund.status === 'awaiting_refund'"
+                          type="button"
+                          class="h-8 px-3 rounded-[9px] bg-[#3a6ea5] text-white text-[12px] font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+                          [disabled]="!canCompleteRefund(refund)"
+                          (click)="completeRefund(refund)"
+                        >
+                          {{ isActionLoading(refund.bookingId) ? 'Processing...' : 'Complete Refund' }}
+                        </button>
+
+                        <!-- Confirmed / Rejected: show label only -->
+                        <span *ngIf="refund.status === 'confirmed'" class="text-[12px] font-semibold text-[#246a38]">Refunded</span>
+                        <span *ngIf="refund.status === 'rejected'" class="text-[12px] font-semibold text-[#a84545]">Rejected</span>
                       </div>
                     </td>
                   </tr>
@@ -163,11 +182,11 @@
             <button
               type="button"
               class="h-10 px-4 rounded-[10px] text-white text-[13px] font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
-              [ngClass]="pendingAction.type === 'confirm' ? 'bg-[#7d6a2c] hover:bg-[#6e5d27]' : 'bg-[#a84545] hover:bg-[#923a3a]'"
+              [ngClass]="pendingAction.type === 'reject' ? 'bg-[#a84545] hover:bg-[#923a3a]' : pendingAction.type === 'complete' ? 'bg-[#3a6ea5] hover:bg-[#2f5a87]' : 'bg-[#7d6a2c] hover:bg-[#6e5d27]'"
               (click)="executePendingAction()"
               [disabled]="actionLoadingId !== ''"
             >
-              {{ actionLoadingId !== '' ? 'Processing...' : (pendingAction.type === 'confirm' ? 'Confirm Refund' : 'Reject Refund') }}
+              {{ actionLoadingId !== '' ? 'Processing...' : getActionTitle(pendingAction.type) }}
             </button>
           </div>
         </section>

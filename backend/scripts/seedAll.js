@@ -138,11 +138,11 @@ const roomTypeSeed = [
 
 // ─── 3. SERVICES ────────────────────────────────────────────────────────────
 const serviceSeed = [
-  { title: 'Airport Transfer',  imageUrl: '/assets/images/services/airport.jpg' },
+  { title: 'Airport Transfer',  imageUrl: 'https://onevivu.vn/wp-content/uploads/2022/05/Thue-xe-Ha-Long-3.jpg' },
   { title: 'Spa & Massage',     imageUrl: 'https://solanbang.com/wp-content/uploads/2025/05/Sol-Spa-Gym-7.jpg' },
   { title: 'Restaurant',        imageUrl: 'https://solanbang.com/wp-content/uploads/2025/05/b82644506bedcbb392fc40.jpg' },
   { title: 'Swimming Pool',     imageUrl: 'https://solanbang.com/wp-content/uploads/2025/03/Sol-An-Bang-_-Swimming-Pool-1.jpg' },
-  { title: 'Fitness Center',    imageUrl: '/assets/images/services/gym.jpg' },
+  { title: 'Fitness Center',    imageUrl: 'https://bwarch.bm/wp-content/uploads/2022/08/Fitness-4.jpg' },
   { title: 'Car Rental',        imageUrl: '/assets/images/services/car.jpg' },
   { title: 'Laundry Service',   imageUrl: '/assets/images/services/laundry.jpg' },
   { title: 'Conference Room',   imageUrl: '/assets/images/services/conference.jpg' },
@@ -386,7 +386,33 @@ async function main() {
     createdAt:      new Date(now.getTime() - 35 * 60_000),
   });
 
-  console.log('  20 bookings inserted (7 confirmed | 5 checked_in | 3 checked_out | 4 completed | 2 pending)');
+  // cancelled — with deposit (refund_status: pending → for manager to approve)
+  const cancelledWithDeposit1 = await makeBooking({
+    customer: createdCustomers[3], rooms: [roomByNum['205']], checkInOffset: 14, nights: 3,
+    status: 'confirmed', note: 'Guest requested cancellation — family emergency',
+  });
+  await Booking.findByIdAndUpdate(cancelledWithDeposit1._id, {
+    $set: { status: 'cancelled', cancelledAt: days(-1), refund_status: 'pending' },
+  });
+
+  const cancelledWithDeposit2 = await makeBooking({
+    customer: createdCustomers[5], rooms: [roomByNum['103']], checkInOffset: 20, nights: 2,
+    status: 'confirmed', note: 'Customer changed travel plans',
+  });
+  await Booking.findByIdAndUpdate(cancelledWithDeposit2._id, {
+    $set: { status: 'cancelled', cancelledAt: days(-2), refund_status: 'pending' },
+  });
+
+  // cancelled — with deposit, awaiting_refund (manager approved, waiting for money transfer)
+  const cancelledAwaiting = await makeBooking({
+    customer: createdCustomers[8], rooms: [roomByNum['503']], checkInOffset: 25, nights: 4,
+    status: 'confirmed', note: 'Approved for refund by manager',
+  });
+  await Booking.findByIdAndUpdate(cancelledAwaiting._id, {
+    $set: { status: 'cancelled', cancelledAt: days(-3), refund_status: 'awaiting_refund' },
+  });
+
+  console.log('  23 bookings inserted (7 confirmed | 5 checked_in | 3 checked_out | 4 completed | 2 pending | 3 cancelled with refund)');
 
   // ── STEP 8: Seed Booking Draft ───────────────────────────────────────────
   console.log('\nSeeding booking draft...');

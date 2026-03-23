@@ -34,6 +34,7 @@ router.delete('/bookings/:id', authMiddleware, roleMiddleware(['receptionist', '
 router.get('/refunds', authMiddleware, roleMiddleware(['manager', 'admin']), adminController.getRefundRequests);
 router.patch('/refunds/:id/confirm', authMiddleware, roleMiddleware(['manager', 'admin']), adminController.confirmRefund);
 router.patch('/refunds/:id/reject', authMiddleware, roleMiddleware(['manager', 'admin']), adminController.rejectRefund);
+router.patch('/refunds/:id/complete', authMiddleware, roleMiddleware(['manager', 'admin']), adminController.completeRefund);
 
 // Reports
 router.get('/reports', authMiddleware, roleMiddleware(['manager', 'admin']), adminController.getReports);

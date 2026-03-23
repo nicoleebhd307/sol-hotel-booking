@@ -39,7 +39,7 @@ const BookingSchema = new mongoose.Schema(
     },
     note: { type: String, default: '' },
     holdExpiresAt: { type: Date, index: true },
-    refund_status: { type: String, enum: ['none', 'refunded'], default: 'none' },
+    refund_status: { type: String, enum: ['none', 'pending', 'awaiting_refund', 'refunded'], default: 'none' },
     cancelledAt: { type: Date },
     createdAt: { type: Date, default: Date.now }
   },

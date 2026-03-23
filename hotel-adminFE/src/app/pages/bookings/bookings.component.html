@@ -311,16 +311,23 @@
             </div>
 
             <div>
-              <p class="text-[10px] uppercase tracking-[1.1px] text-[#8b836f]">Delete Booking</p>
-              <h3 class="text-[28px] leading-tight text-[#1f1d16]" style="font-family: 'Playfair Display', serif;">Confirm Deletion</h3>
+              <p class="text-[10px] uppercase tracking-[1.1px] text-[#8b836f]">Cancel Booking</p>
+              <h3 class="text-[28px] leading-tight text-[#1f1d16]" style="font-family: 'Playfair Display', serif;">Confirm Cancellation</h3>
             </div>
           </div>
 
           <p class="mt-4 text-[14px] text-[#5b5448] leading-relaxed">
-            Are you sure you want to delete booking
+            Are you sure you want to cancel booking
             <span class="font-semibold text-[#2d2b24]">#{{ pendingDeleteBooking.id }}</span> for
             <span class="font-semibold text-[#2d2b24]">{{ pendingDeleteBooking.guestName }}</span>?
-            This action cannot be undone.
+          </p>
+
+          <p *ngIf="pendingDeleteBooking.depositAmount > 0" class="mt-2 text-[13px] text-[#8a6a16] bg-[#fff3da] rounded-[10px] px-3 py-2">
+            This booking has a deposit. A refund request will be created for manager approval.
+          </p>
+
+          <p *ngIf="pendingDeleteBooking.depositAmount === 0" class="mt-2 text-[13px] text-[#5b5448]">
+            This booking has no deposit. It will be cancelled directly.
           </p>
 
           <div class="mt-6 flex items-center justify-end gap-2.5">
@@ -330,7 +337,7 @@
               (click)="cancelDeleteBooking()"
               [disabled]="deleteLoading"
             >
-              Cancel
+              Keep Booking
             </button>
 
             <button
@@ -339,7 +346,7 @@
               (click)="confirmDeleteBooking()"
               [disabled]="deleteLoading"
             >
-              {{ deleteLoading ? 'Deleting...' : 'Delete Booking' }}
+              {{ deleteLoading ? 'Cancelling...' : 'Cancel Booking' }}
             </button>
           </div>
         </section>

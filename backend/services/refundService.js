@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const Booking = require('../models/Booking');
 const Payment = require('../models/Payment');
 const { daysBetweenUtc } = require('../utils/dateUtils');
+const { buildIdConditions } = require('./bookingService');
 
 function makeRefundId() {
   return `refund_${crypto.randomBytes(10).toString('hex')}`;
@@ -39,14 +40,15 @@ async function cancelBookingWithPolicy({ bookingId }) {
 
   const now = new Date();
 
-  const booking = await Booking.findById(bookingId);
+  const booking = await Booking.findOne(buildIdConditions(bookingId));
   if (!booking) {
     const err = new Error('Booking not found');
     err.statusCode = 404;
     throw err;
   }
 
-  if (booking.status === 'cancelled') {
+  // When completing a refund, the booking is already cancelled with awaiting_refund status — skip the check
+  if (booking.status === 'cancelled' && booking.refund_status !== 'awaiting_refund') {
     const err = new Error('Booking already cancelled');
     err.statusCode = 409;
     throw err;
@@ -79,7 +81,7 @@ async function cancelBookingWithPolicy({ bookingId }) {
     throw err;
   }
 
-  await Booking.findByIdAndUpdate(booking._id, {
+  await Booking.findOneAndUpdate({ _id: booking._id }, {
     $set: {
       status: 'cancelled',
       cancelledAt: now,
@@ -96,7 +98,7 @@ async function cancelBookingWithPolicy({ bookingId }) {
     });
   }
 
-  const updatedBooking = await Booking.findById(booking._id)
+  const updatedBooking = await Booking.findOne({ _id: booking._id })
     .populate('customer_id')
     .populate({ path: 'rooms.room_id', populate: { path: 'room_type_id' } })
     .lean();

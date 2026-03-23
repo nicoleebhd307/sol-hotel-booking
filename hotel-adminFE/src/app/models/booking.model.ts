@@ -37,6 +37,7 @@ export interface BookingView {
   checkOut: string;
   paymentStatus: PaymentStatus;
   status: BookingStatus;
+  depositAmount: number;
 }
 
 export interface BookingFilterParams {

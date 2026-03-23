@@ -53,7 +53,7 @@ export class AdminBookingService {
     });
   }
 
-  getRefundRequests(status: 'all' | 'pending' | 'confirmed' | 'rejected' = 'all'): Observable<{ success: boolean; data: RefundRequest[] }> {
+  getRefundRequests(status: 'all' | 'pending' | 'awaiting_refund' | 'confirmed' | 'rejected' = 'all'): Observable<{ success: boolean; data: RefundRequest[] }> {
     return this.http.get<{ success: boolean; data: RefundRequest[] }>(`${this.apiUrl}/refunds?status=${status}`, { transferCache: false });
   }
 
@@ -63,5 +63,9 @@ export class AdminBookingService {
 
   rejectRefund(bookingId: string, note = ''): Observable<{ success: boolean; data: { refund: RefundRequest; booking: AdminBooking } }> {
     return this.http.patch<{ success: boolean; data: { refund: RefundRequest; booking: AdminBooking } }>(`${this.apiUrl}/refunds/${bookingId}/reject`, { note });
+  }
+
+  completeRefund(bookingId: string, note = ''): Observable<{ success: boolean; data: { refund: RefundRequest; booking: AdminBooking } }> {
+    return this.http.patch<{ success: boolean; data: { refund: RefundRequest; booking: AdminBooking } }>(`${this.apiUrl}/refunds/${bookingId}/complete`, { note });
   }
 }

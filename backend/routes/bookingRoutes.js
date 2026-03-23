@@ -243,18 +243,29 @@ router.patch('/:id', authMiddleware, async (req, res, next) => {
   }
 });
 
-// DELETE /api/bookings/:id — cancel booking
+// DELETE /api/bookings/:id — cancel booking (with refund-aware logic)
 router.delete('/:id', authMiddleware, async (req, res, next) => {
   try {
     const { id } = req.params;
-    const updated = await Booking.findByIdAndUpdate(id, { $set: { status: 'cancelled', cancelledAt: new Date() } }, { new: true })
+    const booking = await Booking.findOne(buildIdConditions(id));
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+
+    if (booking.status === 'cancelled') {
+      return res.status(409).json({ success: false, message: 'Booking already cancelled' });
+    }
+
+    const setFields = { status: 'cancelled', cancelledAt: new Date() };
+    // If booking has a deposit, create a refund request for manager approval
+    if (booking.depositAmount > 0 && booking.status !== 'pending') {
+      setFields.refund_status = 'pending';
+    }
+
+    const updated = await Booking.findOneAndUpdate(buildIdConditions(id), { $set: setFields }, { new: true })
       .populate('customer_id')
       .populate({ path: 'rooms.room_id', populate: { path: 'room_type_id' } })
       .lean();
-
-    if (!updated) {
-      return res.status(404).json({ success: false, message: 'Booking not found' });
-    }
 
     return res.json({ success: true, data: updated });
   } catch (err) {

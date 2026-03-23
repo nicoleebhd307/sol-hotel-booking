@@ -10,8 +10,8 @@ import { AdminBookingService } from '../../services/admin-booking.service';
 import { AuthService } from '../../services/auth.service';
 import { BookingService } from '../../services/booking.service';
 
-type RefundFilter = 'all' | 'pending' | 'confirmed' | 'rejected';
-type RefundActionType = 'confirm' | 'reject';
+type RefundFilter = 'all' | 'pending' | 'awaiting_refund' | 'confirmed' | 'rejected';
+type RefundActionType = 'confirm' | 'reject' | 'complete';
 
 @Component({
   selector: 'app-refunds',
@@ -135,7 +135,9 @@ export class RefundsComponent implements OnInit {
 
     const request$ = type === 'confirm'
       ? this.adminBookingService.confirmRefund(refund.bookingId, 'Approved by admin')
-      : this.adminBookingService.rejectRefund(refund.bookingId, 'Rejected by admin');
+      : type === 'complete'
+        ? this.adminBookingService.completeRefund(refund.bookingId, 'Refund completed by admin')
+        : this.adminBookingService.rejectRefund(refund.bookingId, 'Rejected by admin');
 
     request$
       .pipe(
@@ -151,7 +153,11 @@ export class RefundsComponent implements OnInit {
         next: (response) => {
           this.ngZone.run(() => {
             this.pendingAction = null;
-            this.showSuccess(type === 'confirm' ? 'Refund confirmed successfully.' : 'Refund rejected successfully.');
+            this.showSuccess(
+              type === 'confirm' ? 'Refund approved — awaiting transfer.' :
+              type === 'complete' ? 'Refund completed successfully.' :
+              'Refund rejected successfully.'
+            );
 
             const updatedRefund = response?.data?.refund;
             if (updatedRefund) {
@@ -159,7 +165,7 @@ export class RefundsComponent implements OnInit {
               this.applyClientFilters();
             }
 
-            if (type === 'confirm') {
+            if (type === 'complete') {
               this.bookingService.syncRefundedPayment(refund.bookingId);
             }
 
@@ -168,7 +174,11 @@ export class RefundsComponent implements OnInit {
         },
         error: () => {
           this.ngZone.run(() => {
-            this.showError(type === 'confirm' ? 'Failed to confirm refund.' : 'Failed to reject refund.');
+            this.showError(
+              type === 'confirm' ? 'Failed to approve refund.' :
+              type === 'complete' ? 'Failed to complete refund.' :
+              'Failed to reject refund.'
+            );
             this.cdr.detectChanges();
           });
         },
@@ -180,7 +190,19 @@ export class RefundsComponent implements OnInit {
   }
 
   canProcessRefund(refund: RefundRequest): boolean {
+    return (refund.status === 'pending' || refund.status === 'awaiting_refund') && refund.depositAmount > 0 && !this.isActionLoading(refund.bookingId);
+  }
+
+  canConfirmOrReject(refund: RefundRequest): boolean {
     return refund.status === 'pending' && refund.depositAmount > 0 && !this.isActionLoading(refund.bookingId);
+  }
+
+  canCompleteRefund(refund: RefundRequest): boolean {
+    return refund.status === 'awaiting_refund' && refund.depositAmount > 0 && !this.isActionLoading(refund.bookingId);
+  }
+
+  completeRefund(refund: RefundRequest): void {
+    this.openActionModal('complete', refund);
   }
 
   getConfirmButtonLabel(refund: RefundRequest): string {
@@ -188,16 +210,24 @@ export class RefundsComponent implements OnInit {
       return 'Processing...';
     }
 
-    return refund.status === 'confirmed' ? 'Refunded' : 'Confirm';
+    if (refund.status === 'confirmed') return 'Refunded';
+    if (refund.status === 'awaiting_refund') return 'Complete Refund';
+    return 'Approve';
   }
 
   getActionTitle(type: RefundActionType): string {
-    return type === 'confirm' ? 'Confirm Refund' : 'Reject Refund';
+    if (type === 'confirm') return 'Approve Refund';
+    if (type === 'complete') return 'Complete Refund';
+    return 'Reject Refund';
   }
 
   getActionDescription(type: RefundActionType, refund: RefundRequest): string {
     if (type === 'confirm') {
-      return `Confirm refund for booking ${refund.bookingId} with amount ${this.formatAmount(refund.depositAmount)}?`;
+      return `Approve refund for booking ${refund.bookingId} with amount ${this.formatAmount(refund.depositAmount)}? Status will change to "Awaiting Refund".`;
+    }
+
+    if (type === 'complete') {
+      return `Complete refund for booking ${refund.bookingId} with amount ${this.formatAmount(refund.depositAmount)}? This marks the money transfer as done.`;
     }
 
     return `Reject refund request for booking ${refund.bookingId} with amount ${this.formatAmount(refund.depositAmount)}?`;
@@ -259,7 +289,18 @@ export class RefundsComponent implements OnInit {
       return 'bg-[#fce8e8] text-[#a84545]';
     }
 
+    if (status === 'awaiting_refund') {
+      return 'bg-[#e8f0fc] text-[#3a6ea5]';
+    }
+
     return 'bg-[#fff3da] text-[#8a6a16]';
+  }
+
+  getStatusLabel(status: RefundRequest['status']): string {
+    if (status === 'awaiting_refund') return 'Awaiting Refund';
+    if (status === 'confirmed') return 'Refunded';
+    if (status === 'rejected') return 'Rejected';
+    return 'Pending';
   }
 
   private applyClientFilters(): void {

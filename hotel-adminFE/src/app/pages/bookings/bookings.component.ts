@@ -556,6 +556,7 @@ export class BookingsComponent implements OnInit {
       checkOut: booking.check_out,
       paymentStatus: this.mapPaymentStatus(booking.totalPrice, booking.depositAmount, booking.payment, booking.refundStatus),
       status: this.mapStatus(booking.status),
+      depositAmount: booking.depositAmount || 0,
     };
   }
 

@@ -5,6 +5,7 @@ const Staff = require('../models/Staff');
 const Booking = require('../models/Booking');
 const bookingService = require('../services/bookingService');
 const refundService = require('../services/refundService');
+const { buildIdConditions } = require('../services/bookingService');
 
 function signToken({ staffId, accountId, role }) {
   const secret = process.env.JWT_SECRET;
@@ -224,7 +225,7 @@ async function updateBookingForAdminFE(req, res, next) {
     if (updates.depositAmount !== undefined) setFields.depositAmount = Number(updates.depositAmount);
 
     if (Object.keys(setFields).length > 0) {
-      await Booking.findByIdAndUpdate(id, { $set: setFields });
+      await Booking.findOneAndUpdate(buildIdConditions(id), { $set: setFields });
     }
 
     const updated = await bookingService.getBookingById(id);
@@ -262,7 +263,7 @@ async function addExtraServicesForAdminFE(req, res, next) {
       amount: Number(s.amount) || 0,
       createdAt: new Date(),
     }));
-    await Booking.findByIdAndUpdate(id, { $push: { extraServices: { $each: extraServices } } });
+    await Booking.findOneAndUpdate(buildIdConditions(id), { $push: { extraServices: { $each: extraServices } } });
 
     const updated = await bookingService.getBookingById(id);
     return res.json({ success: true, data: formatAdminBooking(updated.booking, updated.payment) });
@@ -277,14 +278,33 @@ async function cancelBookingForAdminFE(req, res, next) {
     const { reason } = req.body || {};
     const { booking } = await bookingService.getBookingById(id);
 
+    if (booking.status === 'cancelled') {
+      return res.status(409).json({ success: false, message: 'Booking already cancelled' });
+    }
+
     if (booking.status === 'pending') {
       await bookingService.cancelPendingWithoutRefund(id);
+    } else if (booking.depositAmount > 0) {
+      // Confirmed booking with deposit → cancel and create refund request for manager
+      await Booking.findOneAndUpdate(buildIdConditions(id), {
+        $set: {
+          status: 'cancelled',
+          cancelledAt: new Date(),
+          refund_status: 'pending',
+        }
+      });
     } else {
-      await refundService.cancelBookingWithPolicy({ bookingId: id });
+      // Confirmed booking without deposit → simple cancel
+      await Booking.findOneAndUpdate(buildIdConditions(id), {
+        $set: {
+          status: 'cancelled',
+          cancelledAt: new Date(),
+        }
+      });
     }
 
     if (reason) {
-      await Booking.findByIdAndUpdate(id, { $set: { note: reason } });
+      await Booking.findOneAndUpdate(buildIdConditions(id), { $set: { note: reason } });
     }
 
     const updated = await bookingService.getBookingById(id);
@@ -299,7 +319,17 @@ async function getRefundRequests(req, res, next) {
     const { status } = req.query;
     const query = { status: 'cancelled' };
     if (status && status !== 'all') {
-      query.refund_status = status === 'confirmed' ? 'refunded' : status;
+      if (status === 'confirmed') {
+        query.refund_status = 'refunded';
+      } else if (status === 'awaiting_refund') {
+        query.refund_status = 'awaiting_refund';
+      } else if (status === 'pending') {
+        query.refund_status = 'pending';
+      } else if (status === 'rejected') {
+        query.refund_status = 'none';
+      } else {
+        query.refund_status = status;
+      }
     }
 
     const bookings = await Booking.find(query)
@@ -310,17 +340,25 @@ async function getRefundRequests(req, res, next) {
 
     const data = bookings
       .filter(b => b.depositAmount > 0)
-      .map(b => ({
-        id: String(b._id),
-        bookingId: String(b._id),
-        customerName: b.customer_id?.name || '',
-        phone: b.customer_id?.phone || '',
-        depositAmount: b.depositAmount || 0,
-        status: b.refund_status === 'refunded' ? 'confirmed' : (b.refund_status === 'none' ? 'pending' : b.refund_status),
-        createdAt: b.cancelledAt ? new Date(b.cancelledAt).toISOString() : '',
-        processedAt: '',
-        note: b.note || '',
-      }));
+      .map(b => {
+        let mappedStatus = 'pending';
+        if (b.refund_status === 'refunded') mappedStatus = 'confirmed';
+        else if (b.refund_status === 'awaiting_refund') mappedStatus = 'awaiting_refund';
+        else if (b.refund_status === 'pending') mappedStatus = 'pending';
+        else if (b.refund_status === 'none') mappedStatus = 'rejected';
+
+        return {
+          id: String(b._id),
+          bookingId: String(b._id),
+          customerName: b.customer_id?.name || '',
+          phone: b.customer_id?.phone || '',
+          depositAmount: b.depositAmount || 0,
+          status: mappedStatus,
+          createdAt: b.cancelledAt ? new Date(b.cancelledAt).toISOString() : '',
+          processedAt: '',
+          note: b.note || '',
+        };
+      });
 
     return res.json({ success: true, data });
   } catch (err) {
@@ -332,10 +370,15 @@ async function confirmRefund(req, res, next) {
   try {
     const { id } = req.params;
     const { note } = req.body || {};
-    const result = await refundService.cancelBookingWithPolicy({ bookingId: id });
-    if (note) {
-      await Booking.findByIdAndUpdate(id, { $set: { note } });
-    }
+
+    // Manager approves refund → set to awaiting_refund (waiting for actual money transfer)
+    await Booking.findOneAndUpdate(buildIdConditions(id), {
+      $set: {
+        refund_status: 'awaiting_refund',
+        ...(note ? { note } : {}),
+      }
+    });
+
     const updated = await bookingService.getBookingById(id);
     return res.json({
       success: true,
@@ -346,7 +389,7 @@ async function confirmRefund(req, res, next) {
           customerName: updated.booking.customer_id?.name || '',
           phone: updated.booking.customer_id?.phone || '',
           depositAmount: updated.booking.depositAmount || 0,
-          status: 'confirmed',
+          status: 'awaiting_refund',
           createdAt: updated.booking.cancelledAt ? new Date(updated.booking.cancelledAt).toISOString() : '',
           processedAt: new Date().toISOString(),
           note: note || '',
@@ -363,7 +406,7 @@ async function rejectRefund(req, res, next) {
   try {
     const { id } = req.params;
     const { note } = req.body || {};
-    await Booking.findByIdAndUpdate(id, { $set: { refund_status: 'none', note: note || '' } });
+    await Booking.findOneAndUpdate(buildIdConditions(id), { $set: { refund_status: 'none', note: note || '' } });
     const updated = await bookingService.getBookingById(id);
     return res.json({
       success: true,
@@ -375,6 +418,49 @@ async function rejectRefund(req, res, next) {
           phone: updated.booking.customer_id?.phone || '',
           depositAmount: updated.booking.depositAmount || 0,
           status: 'rejected',
+          createdAt: updated.booking.cancelledAt ? new Date(updated.booking.cancelledAt).toISOString() : '',
+          processedAt: new Date().toISOString(),
+          note: note || '',
+        },
+        booking: formatAdminBooking(updated.booking, updated.payment),
+      },
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function completeRefund(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { note } = req.body || {};
+
+    const booking = await Booking.findOne(buildIdConditions(id));
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+    if (booking.refund_status !== 'awaiting_refund') {
+      return res.status(409).json({ success: false, message: 'Refund is not in awaiting state' });
+    }
+
+    // Process the actual refund via refund service
+    await refundService.cancelBookingWithPolicy({ bookingId: booking._id });
+
+    if (note) {
+      await Booking.findOneAndUpdate(buildIdConditions(id), { $set: { note } });
+    }
+
+    const updated = await bookingService.getBookingById(id);
+    return res.json({
+      success: true,
+      data: {
+        refund: {
+          id: String(id),
+          bookingId: String(id),
+          customerName: updated.booking.customer_id?.name || '',
+          phone: updated.booking.customer_id?.phone || '',
+          depositAmount: updated.booking.depositAmount || 0,
+          status: 'confirmed',
           createdAt: updated.booking.cancelledAt ? new Date(updated.booking.cancelledAt).toISOString() : '',
           processedAt: new Date().toISOString(),
           note: note || '',
@@ -578,5 +664,6 @@ module.exports = {
   getRefundRequests,
   confirmRefund,
   rejectRefund,
+  completeRefund,
   getReports,
 };
