@@ -458,7 +458,11 @@ export class BookingCreate implements OnInit {
         },
         error: (err) => {
           this.isPaymentLoading.set(false);
-          this.errorMsg.set(err?.error?.message || 'Failed to initialize MoMo payment. Please try again.');
+          if (err?.status === 502 || err?.status === 503 || err?.status === 0) {
+            this.errorMsg.set('Payment server is starting up. Please wait a moment and try again.');
+          } else {
+            this.errorMsg.set(err?.error?.message || 'Failed to initialize MoMo payment. Please try again.');
+          }
         }
       });
       return;

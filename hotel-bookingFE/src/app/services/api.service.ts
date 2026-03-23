@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, timer } from 'rxjs';
+import { retry } from 'rxjs/operators';
 import { Room, RoomType, ServiceItem, BookingData } from '../models/home.models';
 
 @Injectable({
@@ -74,7 +75,18 @@ export class ApiService {
   }
 
   initMomoPayment(bookingId: string): Observable<{ payUrl: string; orderId: string; amount: string; [key: string]: any }> {
-    return this.http.post<any>(`${this.API_URL}/payment/momo`, { bookingId, channel: 'atm' });
+    return this.http.post<any>(`${this.API_URL}/payment/momo`, { bookingId, channel: 'atm' }).pipe(
+      retry({
+        count: 2,
+        delay: (error, retryCount) => {
+          // Render free tier cold-start returns 502 HTML — retry after a delay
+          if (error.status === 502 || error.status === 503 || error.status === 0) {
+            return timer(retryCount * 10000); // 10s then 20s
+          }
+          throw error; // non-transient errors propagate immediately
+        }
+      })
+    );
   }
 
   initMomoV2Session(
