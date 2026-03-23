@@ -38,6 +38,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/momo-payment/momo-payment').then(m => m.MomoPaymentPage),
   },
   {
+    path: 'payment-result',
+    loadComponent: () => import('./pages/payment-result/payment-result').then(m => m.PaymentResult),
+  },
+  {
     path: 'cancel-booking',
     loadComponent: () => import('./pages/cancel-booking/cancel-booking').then(m => m.CancelBooking),
   },

@@ -95,11 +95,15 @@ function buildSessionBase({ booking, channel, paymentCode }) {
 
 async function createTestSession({ booking, channel, paymentCode }) {
   const base = buildSessionBase({ booking, channel, paymentCode });
+  const gatewayMode = process.env.PAYMENT_GATEWAY_MODE || 'stub';
 
-  if (!base.partnerCode || !base.accessKey || !base.secretKey) {
+  if (gatewayMode === 'stub' || !base.partnerCode || !base.accessKey || !base.secretKey) {
+    const stubReason = gatewayMode === 'stub'
+      ? 'PAYMENT_GATEWAY_MODE is set to stub. Running in simulated test mode.'
+      : 'MoMo credentials are not configured. Running in simulated test mode.';
     return {
       mode: 'sandbox_stub',
-      message: 'MoMo test credentials are not configured. Running in simulated test mode.',
+      message: stubReason,
       orderId: base.orderId,
       requestId: base.requestId,
       amount: base.amount,
@@ -173,6 +177,67 @@ async function createTestSession({ booking, channel, paymentCode }) {
   };
 }
 
+/**
+ * Verify the HMAC-SHA256 signature on a MoMo IPN / redirect callback.
+ *
+ * MoMo v2 callback fields (alphabetical key=value):
+ *   accessKey, amount, extraData, message, orderId, orderInfo,
+ *   orderType, partnerCode, payType, requestId, responseTime,
+ *   resultCode, transId
+ *
+ * Returns true in stub mode (so local dev doesn't need fake signatures).
+ */
+function verifyCallbackSignature(payload) {
+  const gatewayMode = process.env.PAYMENT_GATEWAY_MODE || 'stub';
+  if (gatewayMode === 'stub') return true;
+
+  const accessKey = process.env.MOMO_ACCESS_KEY || '';
+  const secretKey = process.env.MOMO_SECRET_KEY || '';
+
+  const {
+    amount       = '',
+    extraData    = '',
+    message      = '',
+    orderId      = '',
+    orderInfo    = '',
+    orderType    = '',
+    partnerCode  = '',
+    payType      = '',
+    requestId    = '',
+    responseTime = '',
+    resultCode   = '',
+    transId      = '',
+    signature
+  } = payload;
+
+  const rawSignature =
+    `accessKey=${accessKey}` +
+    `&amount=${amount}` +
+    `&extraData=${extraData}` +
+    `&message=${message}` +
+    `&orderId=${orderId}` +
+    `&orderInfo=${orderInfo}` +
+    `&orderType=${orderType}` +
+    `&partnerCode=${partnerCode}` +
+    `&payType=${payType}` +
+    `&requestId=${requestId}` +
+    `&responseTime=${responseTime}` +
+    `&resultCode=${resultCode}` +
+    `&transId=${transId}`;
+
+  const expected = crypto.createHmac('sha256', secretKey).update(rawSignature).digest('hex');
+
+  try {
+    return crypto.timingSafeEqual(
+      Buffer.from(expected, 'hex'),
+      Buffer.from(String(signature || ''), 'hex')
+    );
+  } catch {
+    return false;
+  }
+}
+
 module.exports = {
-  createTestSession
+  createTestSession,
+  verifyCallbackSignature
 };

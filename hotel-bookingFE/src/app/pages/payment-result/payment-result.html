@@ -1,0 +1,67 @@
+<div class="min-h-screen bg-[#fffcf1]">
+  <app-sticky-navbar [navLinks]="navLinks" [logoUrl]="logoUrl" [reserveLabel]="reserveLabel" [alwaysSolid]="true" />
+
+  <div class="px-6 md:px-12 pt-36 pb-20 max-w-[700px] mx-auto">
+    <div class="bg-white/70 rounded-2xl border border-[rgba(197,160,89,0.20)] p-8 md:p-12 flex flex-col items-center gap-6 text-center"
+         style="box-shadow: 0px 10px 30px -10px rgba(197,160,89,0.3);">
+
+      @if (isSuccess()) {
+        <!-- Success state -->
+        <div class="w-20 h-20 rounded-full flex items-center justify-center" style="background: rgba(76,175,80,0.12);">
+          <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+
+        <div>
+          <h1 class="font-serif text-[#1a1a1a] text-3xl font-normal">Payment Successful</h1>
+          <p class="font-sans text-[#6b7280] mt-2 text-sm">Your deposit has been received. Your booking is now confirmed.</p>
+        </div>
+
+        @if (bookingId()) {
+          <div class="bg-[rgba(245,240,228,0.6)] rounded-xl p-4 w-full text-left">
+            <p class="text-xs text-[#6b7280] uppercase tracking-widest mb-1">Booking ID</p>
+            <p class="font-mono text-sm text-[#775a19] break-all">{{ bookingId() }}</p>
+          </div>
+        }
+
+        <button
+          (click)="goToBookingDetail()"
+          class="w-full rounded-2xl px-6 py-3 font-serif italic text-white text-xl"
+          style="background: linear-gradient(98.44deg, #775a19 0%, #c5a059 100%);">
+          View Booking Details
+        </button>
+      } @else {
+        <!-- Failure state -->
+        <div class="w-20 h-20 rounded-full flex items-center justify-center" style="background: rgba(244,67,54,0.10);">
+          <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </div>
+
+        <div>
+          <h1 class="font-serif text-[#1a1a1a] text-3xl font-normal">Payment Failed</h1>
+          <p class="font-sans text-[#6b7280] mt-2 text-sm">The payment was not completed. Please try again or contact support.</p>
+        </div>
+
+        @if (bookingId()) {
+          <button
+            (click)="goToBookingDetail()"
+            class="w-full rounded-2xl px-6 py-3 font-serif italic text-white text-xl"
+            style="background: linear-gradient(98.44deg, #775a19 0%, #c5a059 100%);">
+            Return to Booking
+          </button>
+        } @else {
+          <a routerLink="/"
+             class="w-full rounded-2xl px-6 py-3 font-serif italic text-white text-xl text-center block"
+             style="background: linear-gradient(98.44deg, #775a19 0%, #c5a059 100%);">
+            Go to Home
+          </a>
+        }
+      }
+
+    </div>
+  </div>
+
+  <app-site-footer [footerData]="footerData" />
+</div>
