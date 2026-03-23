@@ -3,6 +3,7 @@ const paymentController = require('../controllers/paymentController');
 
 const router = express.Router();
 
+router.post('/momo', paymentController.momoCreate);             // ATM Web Payment — POST /api/payment/momo
 router.post('/momo/create', paymentController.momoCreate);      // primary create endpoint
 router.post('/momo-v2/init', paymentController.initMomoV2Session); // backwards-compat
 router.get('/momo/return', paymentController.momoReturn);

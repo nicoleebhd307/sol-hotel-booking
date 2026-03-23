@@ -45,14 +45,22 @@ function buildSessionBase({ booking, channel, paymentCode }) {
   const partnerCode = process.env.MOMO_PARTNER_CODE || '';
   const accessKey = process.env.MOMO_ACCESS_KEY || '';
   const secretKey = process.env.MOMO_SECRET_KEY || '';
-  const normalizedChannel = channel === 'card' ? 'card' : 'qr';
+  // channel: 'atm' → payWithATM (domestic Napas/ATM card web form)
+  //           'card' → payWithMethod (international credit/debit card)
+  //           'qr' or default → captureWallet (MoMo app QR scan)
+  const normalizedChannel = channel === 'card' ? 'card' : channel === 'atm' ? 'atm' : 'qr';
   const requestType = normalizedChannel === 'card'
     ? (process.env.MOMO_REQUEST_TYPE_CARD || 'payWithMethod')
-    : (process.env.MOMO_REQUEST_TYPE_QR || process.env.MOMO_REQUEST_TYPE || 'captureWallet');
+    : normalizedChannel === 'atm'
+      ? (process.env.MOMO_REQUEST_TYPE_ATM || 'payWithATM')
+      : (process.env.MOMO_REQUEST_TYPE_QR || process.env.MOMO_REQUEST_TYPE || 'captureWallet');
   const backendBaseUrl = process.env.BACKEND_BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
   const redirectUrl = process.env.MOMO_REDIRECT_URL || `${backendBaseUrl}/api/payments/momo/return`;
   const ipnUrl = process.env.MOMO_IPN_URL || `${backendBaseUrl}/api/payments/momo/ipn`;
-  const momoPaymentCode = String(paymentCode || process.env.MOMO_TEST_PAYMENT_CODE || '').trim();
+  // paymentCode (quickpay token) is only relevant for captureWallet; omit for ATM/card form flows
+  const momoPaymentCode = (normalizedChannel === 'atm')
+    ? ''
+    : String(paymentCode || process.env.MOMO_TEST_PAYMENT_CODE || '').trim();
 
   const requestId = `MOMO_${Date.now()}`;
   const orderId = `BK_${booking._id}_${Date.now()}`;

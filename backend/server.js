@@ -32,7 +32,8 @@ app.get('/health', (req, res) => {
 
 app.use('/api/rooms', roomRoutes);
 app.use('/api/bookings', bookingRoutes);
-app.use('/api/payments', paymentRoutes);
+app.use('/api/payments', paymentRoutes);  // plural — legacy
+app.use('/api/payment',  paymentRoutes);  // singular — MoMo ATM Web Payment integration
 app.use('/api/admin', adminRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/customers', customerRoutes);
