@@ -41,7 +41,6 @@ export class Rooms implements OnInit, AfterViewInit {
   protected readonly navLinks = this.homeContent.getHomePageData().hero.navLinks;
   protected readonly logoUrl = this.homeContent.getHomePageData().hero.logoUrl;
   protected readonly reserveLabel = this.homeContent.getHomePageData().hero.reserveLabel;
-  protected readonly availabilityFields = this.homeContent.getHomePageData().availabilityFields;
 
   private readonly filters = signal<FilterState>({});
 

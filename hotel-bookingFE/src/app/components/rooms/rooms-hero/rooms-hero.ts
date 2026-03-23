@@ -1,14 +1,13 @@
-import { Component, input } from '@angular/core';
-import { AvailabilityField } from '../../../models/home.models';
+import { Component } from '@angular/core';
+import { AvailabilityBar } from '../../home/availability-bar/availability-bar';
 
 @Component({
   selector: 'app-rooms-hero',
-  imports: [],
+  imports: [AvailabilityBar],
   templateUrl: './rooms-hero.html',
   styleUrl: './rooms-hero.css',
 })
 export class RoomsHero {
   readonly title = 'Rooms & Suites';
   readonly subtitle = 'EXPERIENCE TIMELESS ELEGANCE IN OUR CAREFULLY DESIGNED ROOMS';
-  readonly fields = input<AvailabilityField[]>([]);
 }

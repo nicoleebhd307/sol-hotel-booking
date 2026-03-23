@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { input } from '@angular/core';
-import { HomePageData, AvailabilityField } from '../../../models/home.models';
+import { HomePageData } from '../../../models/home.models';
 import { AvailabilityBar } from '../availability-bar/availability-bar';
 
 @Component({
@@ -11,5 +11,4 @@ import { AvailabilityBar } from '../availability-bar/availability-bar';
 })
 export class Hero {
   readonly data = input.required<HomePageData['hero']>();
-  readonly availabilityFields = input.required<AvailabilityField[]>();
 }

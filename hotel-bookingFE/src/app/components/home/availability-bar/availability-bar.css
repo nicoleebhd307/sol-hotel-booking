@@ -15,6 +15,234 @@
   max-width: 100%;
 }
 
+/* Dropdown panel */
+.dropdown-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  min-width: 220px;
+  background: white;
+  border-radius: 12px;
+  padding: 8px 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
+  z-index: 50;
+  animation: dropdownEnter 0.18s ease-out;
+}
+
+/* Counter buttons */
+.counter-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #d1c5b4;
+  background: transparent;
+  font-size: 16px;
+  color: #4e4639;
+  cursor: pointer;
+  transition: all 0.15s;
+  line-height: 1;
+}
+
+.counter-btn:hover:not(:disabled) {
+  background: #f3eedf;
+  border-color: #b7934a;
+}
+
+.counter-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Room type dropdown items */
+.dropdown-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 4px;
+  font-size: 13px;
+  color: #4e4639;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.dropdown-item:hover {
+  background: #f7f3e7;
+}
+
+.dropdown-item.active {
+  color: #7f6323;
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════
+   Custom Calendar — Gold / Beige luxury theme
+   ═══════════════════════════════════════════════ */
+
+.calendar-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 300px;
+  background: #fffdf8;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow:
+    0 16px 40px rgba(78, 60, 20, 0.12),
+    0 4px 12px rgba(78, 60, 20, 0.06);
+  z-index: 60;
+  animation: calendarEnter 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  border: 1px solid #f0ebe0;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding: 0 2px;
+}
+
+.calendar-month-label {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+  letter-spacing: 0.02em;
+}
+
+.calendar-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #e8e0d0;
+  background: transparent;
+  color: #7f6323;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.calendar-nav-btn:hover {
+  background: #f5eed8;
+  border-color: #c5a059;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 6px;
+}
+
+.calendar-weekday {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #b7a687;
+  padding: 4px 0;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.calendar-day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: #3a3228;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+
+.calendar-day:hover:not(:disabled):not(.selected) {
+  background: #f5eed8;
+  color: #7f6323;
+}
+
+.calendar-day.today:not(.selected) {
+  color: #c5a059;
+  font-weight: 700;
+}
+
+.calendar-day.today:not(.selected)::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #c5a059;
+}
+
+.calendar-day.selected {
+  background: linear-gradient(135deg, #c5a059, #d4b87a);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(197, 160, 89, 0.35);
+}
+
+.calendar-day.in-range {
+  background: #f5eed8;
+  color: #7f6323;
+  border-radius: 0;
+}
+
+.calendar-day.range-start {
+  border-radius: 50% 0 0 50%;
+}
+
+.calendar-day.range-end {
+  border-radius: 0 50% 50% 0;
+}
+
+.calendar-day.range-start.range-end {
+  border-radius: 50%;
+}
+
+.calendar-day.other-month {
+  color: #d1cab8;
+}
+
+.calendar-day.disabled {
+  color: #d9d3c5;
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+@keyframes calendarEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @keyframes availabilityBarEnter {
   from {
     opacity: 0;
@@ -23,6 +251,26 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes dropdownEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 1200px) {
+  .dropdown-panel {
+    min-width: 200px;
+  }
+  .calendar-panel {
+    min-width: 280px;
   }
 }
 

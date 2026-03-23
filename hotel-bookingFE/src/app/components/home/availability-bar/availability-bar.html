@@ -1,34 +1,212 @@
 <div class="absolute-booking-bar">
 	<div class="booking-bar-wrapper">
 		<div
-			class="rounded-lg bg-white/88 overflow-hidden"
+			class="rounded-lg bg-white/88 overflow-visible"
 			style="backdrop-filter: blur(4px); box-shadow: 0px 8px 10px -6px rgba(0,0,0,0.1), 0px 20px 25px -5px rgba(0,0,0,0.1);"
 		>
 			<div class="grid" style="grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(140px, 1fr); grid-template-rows: 87px;">
-				@for (field of fields(); track field.label; let i = $index) {
-					<div
-						class="flex flex-col justify-center cursor-pointer transition-colors duration-300 hover:bg-slate-50/60 px-6 border-[#e5e7eb]"
-						[class.border-l]="i > 0"
-											>
-						<p class="text-[10px] uppercase text-[#9ca3af] leading-[15px]" style="letter-spacing: 1px;">{{ field.label }}</p>
-						<div class="mt-1 flex items-center justify-between">
-							<p class="text-sm font-medium text-[#1a1a1a] leading-5">{{ field.value }}</p>
-							@if (field.icon) {
-								<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-									<path d="M6.29999 8.3999L10.5 12.5999L14.7 8.3999" stroke="#6B7280" stroke-width="1.575" stroke-linecap="round" stroke-linejoin="round"/>
-								</svg>
+
+				<!-- CHECK IN -->
+				<div class="relative flex flex-col justify-center cursor-pointer transition-colors duration-300 hover:bg-slate-50/60 px-6"
+					(click)="openCalendar('checkIn'); $event.stopPropagation()">
+					<p class="text-[10px] uppercase text-[#9ca3af] leading-[15px]" style="letter-spacing: 1px;">Check In</p>
+					<div class="mt-1 flex items-center justify-between">
+						<p class="text-sm font-medium text-[#1a1a1a] leading-5">{{ checkInDisplay() }}</p>
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<rect x="3" y="4" width="18" height="18" rx="2" stroke="#9ca3af" stroke-width="1.5"/>
+							<path d="M3 10h18" stroke="#9ca3af" stroke-width="1.5"/>
+							<path d="M8 2v4M16 2v4" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round"/>
+						</svg>
+					</div>
+
+					<!-- Calendar dropdown for check-in -->
+					@if (calendarField() === 'checkIn') {
+						<div class="calendar-panel" (click)="$event.stopPropagation()">
+							<div class="calendar-header">
+								<button type="button" class="calendar-nav-btn" (click)="prevMonth(); $event.stopPropagation()">
+									<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+								</button>
+								<span class="calendar-month-label">{{ calendarMonthLabel() }}</span>
+								<button type="button" class="calendar-nav-btn" (click)="nextMonth(); $event.stopPropagation()">
+									<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+								</button>
+							</div>
+							<div class="calendar-weekdays">
+								@for (d of weekDays; track d) {
+									<span class="calendar-weekday">{{ d }}</span>
+								}
+							</div>
+							<div class="calendar-grid">
+								@for (day of calendarDays(); track day.iso) {
+									<button type="button"
+										class="calendar-day"
+										[class.other-month]="!day.isCurrentMonth"
+										[class.today]="day.isToday"
+										[class.selected]="day.isSelected"
+										[class.range-start]="day.isRangeStart"
+										[class.range-end]="day.isRangeEnd"
+										[class.in-range]="day.isInRange"
+										[class.disabled]="day.isDisabled"
+										[disabled]="day.isDisabled"
+										(click)="selectCalendarDate(day); $event.stopPropagation()"
+									>{{ day.date }}</button>
+								}
+							</div>
+						</div>
+					}
+				</div>
+
+				<!-- CHECK OUT -->
+				<div class="relative flex flex-col justify-center cursor-pointer transition-colors duration-300 hover:bg-slate-50/60 px-6 border-l border-[#e5e7eb]"
+					(click)="openCalendar('checkOut'); $event.stopPropagation()">
+					<p class="text-[10px] uppercase text-[#9ca3af] leading-[15px]" style="letter-spacing: 1px;">Check Out</p>
+					<div class="mt-1 flex items-center justify-between">
+						<p class="text-sm font-medium text-[#1a1a1a] leading-5">{{ checkOutDisplay() }}</p>
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<rect x="3" y="4" width="18" height="18" rx="2" stroke="#9ca3af" stroke-width="1.5"/>
+							<path d="M3 10h18" stroke="#9ca3af" stroke-width="1.5"/>
+							<path d="M8 2v4M16 2v4" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round"/>
+						</svg>
+					</div>
+
+					<!-- Calendar dropdown for check-out -->
+					@if (calendarField() === 'checkOut') {
+						<div class="calendar-panel" (click)="$event.stopPropagation()">
+							<div class="calendar-header">
+								<button type="button" class="calendar-nav-btn" (click)="prevMonth(); $event.stopPropagation()">
+									<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+								</button>
+								<span class="calendar-month-label">{{ calendarMonthLabel() }}</span>
+								<button type="button" class="calendar-nav-btn" (click)="nextMonth(); $event.stopPropagation()">
+									<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+								</button>
+							</div>
+							<div class="calendar-weekdays">
+								@for (d of weekDays; track d) {
+									<span class="calendar-weekday">{{ d }}</span>
+								}
+							</div>
+							<div class="calendar-grid">
+								@for (day of calendarDays(); track day.iso) {
+									<button type="button"
+										class="calendar-day"
+										[class.other-month]="!day.isCurrentMonth"
+										[class.today]="day.isToday"
+										[class.selected]="day.isSelected"
+										[class.range-start]="day.isRangeStart"
+										[class.range-end]="day.isRangeEnd"
+										[class.in-range]="day.isInRange"
+										[class.disabled]="day.isDisabled"
+										[disabled]="day.isDisabled"
+										(click)="selectCalendarDate(day); $event.stopPropagation()"
+									>{{ day.date }}</button>
+								}
+							</div>
+						</div>
+					}
+				</div>
+
+				<!-- GUESTS -->
+				<div
+					class="relative flex flex-col justify-center cursor-pointer transition-colors duration-300 hover:bg-slate-50/60 px-6 border-l border-[#e5e7eb]"
+					(click)="toggleDropdown('guests'); $event.stopPropagation()"
+				>
+					<p class="text-[10px] uppercase text-[#9ca3af] leading-[15px]" style="letter-spacing: 1px;">Guests</p>
+					<div class="mt-1 flex items-center justify-between">
+						<p class="text-sm font-medium text-[#1a1a1a] leading-5">{{ guestsDisplay() }}</p>
+						<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg"
+							class="transition-transform duration-200" [class.rotate-180]="openDropdown() === 'guests'">
+							<path d="M6.29999 8.3999L10.5 12.5999L14.7 8.3999" stroke="#6B7280" stroke-width="1.575" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+					</div>
+
+					<!-- Guest dropdown -->
+					@if (openDropdown() === 'guests') {
+						<div class="dropdown-panel" (click)="$event.stopPropagation()">
+							<div class="flex items-center justify-between py-3">
+								<div>
+									<p class="text-sm font-medium text-[#1a1a1a]">Adults</p>
+									<p class="text-xs text-[#9ca3af]">Ages 13+</p>
+								</div>
+								<div class="flex items-center gap-3">
+									<button type="button" class="counter-btn" [disabled]="adults() <= 1" (click)="adjustAdults(-1)">−</button>
+									<span class="text-sm font-medium w-5 text-center">{{ adults() }}</span>
+									<button type="button" class="counter-btn" [disabled]="adults() >= 10" (click)="adjustAdults(1)">+</button>
+								</div>
+							</div>
+							<div class="border-t border-[#f0ede5]"></div>
+							<div class="flex items-center justify-between py-3">
+								<div>
+									<p class="text-sm font-medium text-[#1a1a1a]">Children</p>
+									<p class="text-xs text-[#9ca3af]">Ages 0–12</p>
+								</div>
+								<div class="flex items-center gap-3">
+									<button type="button" class="counter-btn" [disabled]="children() <= 0" (click)="adjustChildren(-1)">−</button>
+									<span class="text-sm font-medium w-5 text-center">{{ children() }}</span>
+									<button type="button" class="counter-btn" [disabled]="children() >= 6" (click)="adjustChildren(1)">+</button>
+								</div>
+							</div>
+						</div>
+					}
+				</div>
+
+				<!-- ROOM TYPE -->
+				<div
+					class="relative flex flex-col justify-center cursor-pointer transition-colors duration-300 hover:bg-slate-50/60 px-6 border-l border-[#e5e7eb]"
+					(click)="toggleDropdown('roomType'); $event.stopPropagation()"
+				>
+					<p class="text-[10px] uppercase text-[#9ca3af] leading-[15px]" style="letter-spacing: 1px;">Room Type</p>
+					<div class="mt-1 flex items-center justify-between">
+						<p class="text-sm font-medium text-[#1a1a1a] leading-5 truncate">{{ roomTypeDisplay() }}</p>
+						<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg"
+							class="shrink-0 transition-transform duration-200" [class.rotate-180]="openDropdown() === 'roomType'">
+							<path d="M6.29999 8.3999L10.5 12.5999L14.7 8.3999" stroke="#6B7280" stroke-width="1.575" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+					</div>
+
+					<!-- Room type dropdown -->
+					@if (openDropdown() === 'roomType') {
+						<div class="dropdown-panel" (click)="$event.stopPropagation()">
+							<button
+								type="button"
+								class="dropdown-item"
+								[class.active]="!selectedRoomType()"
+								(click)="selectRoomType(null)"
+							>
+								All Room Types
+							</button>
+							@for (rt of roomTypes(); track rt._id) {
+								<button
+									type="button"
+									class="dropdown-item"
+									[class.active]="selectedRoomType()?._id === rt._id"
+									(click)="selectRoomType(rt)"
+								>
+									{{ rt.name }}
+								</button>
 							}
 						</div>
-					</div>
-				}
+					}
+				</div>
+
+				<!-- SEARCH BUTTON -->
 				<button
 					type="button"
-					class="rounded-tr-lg rounded-br-lg border-l border-[#e5e7eb] flex items-center justify-center text-sm uppercase tracking-[0.1em] text-white transition-all duration-300 hover:opacity-90 hover:shadow-lg"
+					class="rounded-tr-lg rounded-br-lg border-l border-[#e5e7eb] flex items-center justify-center text-sm uppercase tracking-[0.1em] text-white transition-all duration-300 hover:opacity-90 hover:shadow-lg disabled:opacity-60"
 					style="background: linear-gradient(0deg, rgba(199,158,53,1) 0%, rgba(221,188,108,1) 100%);"
+					[disabled]="isSearching()"
+					(click)="search()"
 				>
-					Search Availability
+					{{ isSearching() ? 'Searching...' : 'Search Availability' }}
 				</button>
 			</div>
+
+			<!-- Error message -->
+			@if (searchError()) {
+				<div class="px-6 py-3 text-xs text-red-600 bg-red-50/80 border-t border-red-100">
+					{{ searchError() }}
+				</div>
+			}
 		</div>
 	</div>
 </div>
