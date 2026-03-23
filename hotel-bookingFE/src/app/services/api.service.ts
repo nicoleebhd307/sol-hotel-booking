@@ -73,9 +73,13 @@ export class ApiService {
     return this.http.post<any>(`${this.API_URL}/bookings`, data);
   }
 
+  initMomoPayment(bookingId: string): Observable<{ payUrl: string; orderId: string; amount: string; [key: string]: any }> {
+    return this.http.post<any>(`${this.API_URL}/payment/momo`, { bookingId, channel: 'atm' });
+  }
+
   initMomoV2Session(
     bookingId: string,
-    options?: { channel?: 'qr' | 'card'; paymentCode?: string }
+    options?: { channel?: 'qr' | 'card' | 'atm'; paymentCode?: string }
   ): Observable<any> {
     return this.http.post<any>(`${this.API_URL}/payments/momo-v2/init`, {
       bookingId,

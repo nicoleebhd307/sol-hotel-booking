@@ -445,10 +445,20 @@ export class BookingCreate implements OnInit {
     }
 
     if (this.selectedPaymentMethod() === 'momo') {
-      this.router.navigate(['/payment/momo'], {
-        queryParams: {
-          bookingId: booking._id,
-          amount: this.depositAmount.toFixed(2)
+      this.isPaymentLoading.set(true);
+      this.errorMsg.set('');
+      this.api.initMomoPayment(booking._id).subscribe({
+        next: (session) => {
+          this.isPaymentLoading.set(false);
+          if (session?.payUrl) {
+            window.location.href = session.payUrl;
+            return;
+          }
+          this.errorMsg.set('MoMo did not return a payment URL. Please try again.');
+        },
+        error: (err) => {
+          this.isPaymentLoading.set(false);
+          this.errorMsg.set(err?.error?.message || 'Failed to initialize MoMo payment. Please try again.');
         }
       });
       return;
