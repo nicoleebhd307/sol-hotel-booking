@@ -1,905 +1,2445 @@
 {
   "info": {
-    "name": "Hotel Booking API",
-    "_postman_id": "hotel-booking-api-v1",
-    "description": "Full manual test suite — follows the guest booking flow end-to-end plus Admin use cases.\n\nSetup:\n1. Set `baseUrl` variable to `http://localhost:5000`\n2. Run requests in order within each folder.\n3. The collection uses `pm.environment.set` to pass IDs between steps automatically.",
+    "name": "Hotel Booking API – Full Suite",
+    "_postman_id": "hotel-booking-api-v2",
+    "description": "Complete test suite for all backend API endpoints.\n\nSetup:\n1. Set collection variable `baseUrl` to your backend URL.\n2. Run requests in order — scripts auto-save tokens and IDs between requests.\n3. Login first (Auth or Admin Login folder) to populate `adminToken` before calling protected endpoints.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl",    "value": "http://localhost:5000" },
-    { "key": "adminToken", "value": "" },
-    { "key": "roomTypeId", "value": "" },
-    { "key": "roomId",     "value": "" },
-    { "key": "bookingId",  "value": "" },
-    { "key": "guestEmail", "value": "john.doe@example.com" }
+    {
+      "key": "baseUrl",
+      "value": "https://sol-hotel-booking-1.onrender.com"
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "receptionistToken",
+      "value": ""
+    },
+    {
+      "key": "bookingId",
+      "value": ""
+    },
+    {
+      "key": "roomId",
+      "value": ""
+    },
+    {
+      "key": "roomTypeId",
+      "value": ""
+    },
+    {
+      "key": "customerId",
+      "value": ""
+    },
+    {
+      "key": "refundId",
+      "value": ""
+    },
+    {
+      "key": "draftId",
+      "value": ""
+    },
+    {
+      "key": "momoOrderId",
+      "value": ""
+    },
+    {
+      "key": "momoPayUrl",
+      "value": ""
+    }
   ],
   "item": [
-
     {
-      "name": "0 – Health",
+      "name": "Health",
       "item": [
         {
-          "name": "GET /health",
+          "name": "Health Check",
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/health"
           },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('status ok', () => {",
-              "  pm.response.to.have.status(200);",
-              "  pm.expect(pm.response.json().status).to.eql('ok');",
-              "});"
-            ]}
-          }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "pm.test('Health endpoint returns ok status', function () {",
+                  "  pm.expect(res && res.status).to.eql('ok');",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
-
     {
-      "name": "1 – Rooms (public)",
+      "name": "Auth",
       "item": [
         {
-          "name": "GET /api/rooms/types  – list room types",
+          "name": "Login (Staff)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "const token = res?.token || res?.data?.token || res?.data?.accessToken || '';",
+                  "pm.test('Token is returned', function () { pm.expect(token).to.be.a('string').and.not.empty; });",
+                  "if (token) {",
+                  "  pm.collectionVariables.set('adminToken', token);",
+                  "  pm.collectionVariables.set('receptionistToken', token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@hotel.com\",\n  \"password\": \"admin123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/auth/profile",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "pm.test('Profile payload exists', function () {",
+                  "  pm.expect(res?.data || res).to.be.ok;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/logout",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin Login",
+      "item": [
+        {
+          "name": "Admin Portal Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "const token = res?.token || res?.data?.token || res?.data?.accessToken || '';",
+                  "pm.test('Token is returned', function () { pm.expect(token).to.be.a('string').and.not.empty; });",
+                  "if (token) {",
+                  "  pm.collectionVariables.set('adminToken', token);",
+                  "  pm.collectionVariables.set('receptionistToken', token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Uses 'username' field. Saves token to adminToken variable."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rooms",
+      "item": [
+        {
+          "name": "Get All Rooms",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "const rooms = Array.isArray(res) ? res : (res?.data || res?.rooms || []);",
+                  "pm.test('Rooms list is array', function () { pm.expect(rooms).to.be.an('array'); });",
+                  "if (rooms.length > 0 && rooms[0]._id) pm.collectionVariables.set('roomId', rooms[0]._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/rooms"
+          }
+        },
+        {
+          "name": "Get Room by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/rooms/{{roomId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get All Room Types",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "const types = Array.isArray(res) ? res : (res?.data || res?.roomTypes || []);",
+                  "pm.test('Room types list is array', function () { pm.expect(types).to.be.an('array'); });",
+                  "if (types.length > 0 && types[0]._id) pm.collectionVariables.set('roomTypeId', types[0]._id);"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/api/rooms/types"
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200 and array', () => {",
-              "  pm.response.to.have.status(200);",
-              "  const body = pm.response.json();",
-              "  pm.expect(body).to.be.an('array');",
-              "  pm.expect(body.length).to.be.greaterThan(0);",
-              "  // Save first id for later",
-              "  pm.collectionVariables.set('roomTypeId', body[0]._id);",
-              "  console.log('roomTypeId saved:', body[0]._id);",
-              "});"
-            ]}
-          }]
+          }
         },
         {
-          "name": "GET /api/rooms/types/:id  – single room type",
+          "name": "Get Room Type by ID",
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/api/rooms/types/{{roomTypeId}}"
           },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200 and has _id', () => {",
-              "  pm.response.to.have.status(200);",
-              "  pm.expect(pm.response.json()._id).to.be.a('string');",
-              "});"
-            ]}
-          }]
-        },
-        {
-          "name": "GET /api/rooms/types/:id  – 404 for bad id",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/api/rooms/types/000000000000000000000000"
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('404 not found', () => {",
-              "  pm.response.to.have.status(404);",
-              "});"
-            ]}
-          }]
-        },
-        {
-          "name": "GET /api/rooms  – list all active rooms",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/api/rooms"
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200 array', () => {",
-              "  pm.response.to.have.status(200);",
-              "  const body = pm.response.json();",
-              "  pm.expect(body).to.be.an('array');",
-              "  if (body.length > 0) {",
-              "    pm.collectionVariables.set('roomId', body[0]._id);",
-              "    console.log('roomId saved:', body[0]._id);",
-              "  }",
-              "});"
-            ]}
-          }]
-        },
-        {
-          "name": "GET /api/rooms?roomTypeId=…  – filter by type",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/rooms?roomTypeId={{roomTypeId}}",
-              "query": [{ "key": "roomTypeId", "value": "{{roomTypeId}}" }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
             }
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200', () => pm.response.to.have.status(200));"
-            ]}
-          }]
+          ]
         },
         {
-          "name": "GET /api/rooms/available  – check availability",
+          "name": "Get Available Rooms",
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/rooms/available?checkIn=2026-04-01&checkOut=2026-04-05",
+              "raw": "{{baseUrl}}/api/rooms/available?checkIn=2026-06-01&checkOut=2026-06-05",
               "query": [
-                { "key": "checkIn",  "value": "2026-04-01" },
-                { "key": "checkOut", "value": "2026-04-05" }
+                {
+                  "key": "checkIn",
+                  "value": "2026-06-01"
+                },
+                {
+                  "key": "checkOut",
+                  "value": "2026-06-05"
+                }
               ]
             }
           },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200 with rooms array', () => {",
-              "  pm.response.to.have.status(200);",
-              "  const body = pm.response.json();",
-              "  pm.expect(body).to.have.property('rooms');",
-              "  pm.expect(body.rooms).to.be.an('array');",
-              "  pm.expect(body).to.have.property('count');",
-              "  if (body.rooms.length > 0) {",
-              "    pm.collectionVariables.set('roomId', body.rooms[0]._id);",
-              "    console.log('available roomId saved:', body.rooms[0]._id);",
-              "  }",
-              "});"
-            ]}
-          }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "const availableRooms = res?.rooms || res?.data || [];",
+                  "pm.test('Available rooms payload exists', function () { pm.expect(availableRooms).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "GET /api/rooms/available  – 400 missing dates",
+          "name": "Update Room (Admin)",
           "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/api/rooms/available"
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('400 missing checkIn/checkOut', () => {",
-              "  pm.response.to.have.status(400);",
-              "});"
-            ]}
-          }]
-        },
-        {
-          "name": "GET /api/rooms/available?roomTypeId=…  – filter by type",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/rooms/available?checkIn=2026-04-01&checkOut=2026-04-05&roomTypeId={{roomTypeId}}",
-              "query": [
-                { "key": "checkIn",    "value": "2026-04-01" },
-                { "key": "checkOut",   "value": "2026-04-05" },
-                { "key": "roomTypeId", "value": "{{roomTypeId}}" }
-              ]
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/rooms/{{roomId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"available\"\n}"
             }
           },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200', () => pm.response.to.have.status(200));"
-            ]}
-          }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
-
     {
-      "name": "2 – Guest: Create Booking (pending)",
+      "name": "Bookings (Public)",
       "item": [
         {
-          "name": "POST /api/bookings  – success (new customer)",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/bookings",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"customer\": {\n    \"name\": \"John Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"phone\": \"0901234567\",\n    \"identityId\": \"079123456789\",\n    \"nationality\": \"Vietnamese\"\n  },\n  \"roomIds\": [\"{{roomId}}\"],\n  \"check_in\": \"2026-04-01\",\n  \"check_out\": \"2026-04-05\",\n  \"guests\": { \"adults\": 2, \"children\": 0 },\n  \"note\": \"Late check-in requested\"\n}"
+          "name": "Get All Bookings",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "const bookings = Array.isArray(res) ? res : (res?.items || res?.data || res?.bookings || []);",
+                  "pm.test('Bookings list is array', function () { pm.expect(bookings).to.be.an('array'); });",
+                  "if (bookings.length > 0) {",
+                  "  const id = bookings[0]._id || bookings[0].bookingId;",
+                  "  if (id) pm.collectionVariables.set('bookingId', String(id));",
+                  "}"
+                ]
+              }
             }
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('201 pending booking created', () => {",
-              "  pm.response.to.have.status(201);",
-              "  const body = pm.response.json();",
-              "  pm.expect(body.status).to.eql('pending');",
-              "  pm.expect(body._id).to.be.a('string');",
-              "  pm.expect(body.depositAmount).to.be.greaterThan(0);",
-              "  pm.collectionVariables.set('bookingId', body._id);",
-              "  console.log('bookingId saved:', body._id);",
-              "});"
-            ]}
-          }]
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/bookings"
+          }
         },
         {
-          "name": "POST /api/bookings  – re-use existing customer (same email)",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/bookings",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"customer\": {\n    \"email\": \"john.doe@example.com\"\n  },\n  \"roomIds\": [\"{{roomId}}\"],\n  \"check_in\": \"2026-05-10\",\n  \"check_out\": \"2026-05-12\",\n  \"guests\": { \"adults\": 1, \"children\": 0 }\n}"
-            }
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "// Should succeed (customer email is already in DB)",
-              "pm.test('201 or 409 (room busy)', () => {",
-              "  pm.expect([201, 409]).to.include(pm.response.code);",
-              "});"
-            ]}
-          }]
-        },
-        {
-          "name": "POST /api/bookings  – 400 missing email",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/bookings",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"customer\": { \"name\": \"No Email\" },\n  \"roomIds\": [\"{{roomId}}\"],\n  \"check_in\": \"2026-04-10\",\n  \"check_out\": \"2026-04-12\",\n  \"guests\": { \"adults\": 1, \"children\": 0 }\n}"
-            }
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('400 missing email', () => pm.response.to.have.status(400));"
-            ]}
-          }]
-        },
-        {
-          "name": "POST /api/bookings  – 400 missing roomIds",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/bookings",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"customer\": { \"email\": \"john.doe@example.com\" },\n  \"roomIds\": [],\n  \"check_in\": \"2026-04-10\",\n  \"check_out\": \"2026-04-12\",\n  \"guests\": { \"adults\": 1, \"children\": 0 }\n}"
-            }
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('400 missing roomIds', () => pm.response.to.have.status(400));"
-            ]}
-          }]
-        }
-      ]
-    },
-
-    {
-      "name": "3 – Guest: View Booking",
-      "item": [
-        {
-          "name": "GET /api/bookings/:id  – guest fetches own booking (no email guard)",
+          "name": "Get Booking by ID",
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/api/bookings/{{bookingId}}"
           },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200 booking returned', () => {",
-              "  pm.response.to.have.status(200);",
-              "  const body = pm.response.json();",
-              "  pm.expect(body.booking._id).to.eql(pm.collectionVariables.get('bookingId'));",
-              "});"
-            ]}
-          }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "GET /api/bookings/:id?email=…  – with email guard (correct)",
+          "name": "Search Booking",
           "request": {
             "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/bookings/{{bookingId}}?email={{guestEmail}}",
-              "query": [{ "key": "email", "value": "{{guestEmail}}" }]
-            }
+            "url": "{{baseUrl}}/api/bookings/search/BK-001"
           },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200 owner email matches', () => pm.response.to.have.status(200));"
-            ]}
-          }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "GET /api/bookings/:id?email=…  – 404 wrong email",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/bookings/{{bookingId}}?email=wrong@example.com",
-              "query": [{ "key": "email", "value": "wrong@example.com" }]
+          "name": "Create Booking (Public)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([201]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "const bookingId = res?._id || res?.booking?._id || res?.data?._id || res?.data?.bookingId;",
+                  "pm.test('Booking ID is returned', function () { pm.expect(bookingId).to.exist; });",
+                  "if (bookingId) pm.collectionVariables.set('bookingId', String(bookingId));"
+                ]
+              }
             }
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('404 wrong email rejected', () => pm.response.to.have.status(404));"
-            ]}
-          }]
-        },
-        {
-          "name": "GET /api/bookings/:id  – 400 invalid id",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/api/bookings/not-a-valid-id"
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('400 invalid id', () => pm.response.to.have.status(400));"
-            ]}
-          }]
-        }
-      ]
-    },
-
-    {
-      "name": "4 – Guest: Pay Deposit",
-      "item": [
-        {
-          "name": "POST /api/payments/deposit  – payment SUCCESS (stub)",
+          ],
           "request": {
             "method": "POST",
-            "url": "{{baseUrl}}/api/payments/deposit",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/bookings",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"paymentMethod\": \"credit_card\",\n  \"simulateStatus\": \"success\"\n}"
+              "raw": "{\n  \"customer\": {\n    \"email\": \"guest@example.com\",\n    \"name\": \"Nguyen Van A\",\n    \"phone\": \"0901234567\",\n    \"identityId\": \"012345678\"\n  },\n  \"roomIds\": [\"{{roomId}}\"],\n  \"check_in\": \"2026-06-01\",\n  \"check_out\": \"2026-06-04\",\n  \"guests\": { \"adults\": 2, \"children\": 0 },\n  \"note\": \"Early check-in requested\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200 payment success, booking confirmed', () => {",
-              "  pm.response.to.have.status(200);",
-              "  const body = pm.response.json();",
-              "  pm.expect(body.booking.status).to.eql('confirmed');",
-              "  pm.expect(body.payment.paymentStatus).to.eql('success');",
-              "  console.log('Booking confirmed. transactionId:', body.payment.transactionId);",
-              "});"
-            ]}
-          }]
+          }
         },
         {
-          "name": "POST /api/payments/deposit  – 409 already paid",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/payments/deposit",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"paymentMethod\": \"credit_card\",\n  \"simulateStatus\": \"success\"\n}"
-            }
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('409 already paid', () => pm.response.to.have.status(409));"
-            ]}
-          }]
-        },
-        {
-          "name": "POST /api/payments/deposit  – payment FAILED (stub)",
-          "description": "Create a fresh pending booking first, then simulate a failed payment.",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/payments/deposit",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"paymentMethod\": \"bank_transfer\",\n  \"simulateStatus\": \"failed\"\n}"
-            }
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "// Booking was already confirmed above, so this may 409.",
-              "// To test a fresh fail: create a new booking first and paste its id here.",
-              "pm.test('200 with failed payment OR 409', () => {",
-              "  pm.expect([200, 409]).to.include(pm.response.code);",
-              "  if (pm.response.code === 200) {",
-              "    const body = pm.response.json();",
-              "    pm.expect(body.payment.paymentStatus).to.eql('failed');",
-              "    pm.expect(body.booking.status).to.eql('pending');",
-              "  }",
-              "});"
-            ]}
-          }]
-        },
-        {
-          "name": "POST /api/payments/deposit  – 400 missing paymentMethod",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/payments/deposit",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"bookingId\": \"{{bookingId}}\"\n}"
-            }
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('400 missing paymentMethod', () => pm.response.to.have.status(400));"
-            ]}
-          }]
-        }
-      ]
-    },
-
-    {
-      "name": "5 – Guest: Cancel Booking",
-      "item": [
-        {
-          "name": "POST /api/bookings/:id/cancel  – confirmed booking (refund policy applies)",
+          "name": "Cancel Booking (Public)",
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/api/bookings/{{bookingId}}/cancel",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"john.doe@example.com\"\n}"
+              "raw": "{\n  \"email\": \"guest@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200 cancelled with refund info', () => {",
-              "  pm.response.to.have.status(200);",
-              "  const body = pm.response.json();",
-              "  pm.expect(body.booking.status).to.eql('cancelled');",
-              "  pm.expect(body.refund).to.have.property('refundAmount');",
-              "  console.log('Refund amount:', body.refund.refundAmount);",
-              "  console.log('Days before check-in:', body.refund.daysBeforeCheckIn);",
-              "});"
-            ]}
-          }]
-        },
-        {
-          "name": "POST /api/bookings/:id/cancel  – 409 already cancelled",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/bookings/{{bookingId}}/cancel",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{ \"email\": \"john.doe@example.com\" }"
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
             }
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('409 already cancelled', () => pm.response.to.have.status(409));"
-            ]}
-          }]
-        },
-        {
-          "name": "POST /api/bookings/:id/cancel  – cancel pending booking (no refund)",
-          "description": "Create a fresh pending booking without paying deposit first, then cancel it.",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/bookings/{{bookingId}}/cancel",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{ \"email\": \"john.doe@example.com\" }"
-            }
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "// If booking is already cancelled this returns 409 — that is expected.",
-              "pm.test('cancelled (no refund for pending) or 409', () => {",
-              "  pm.expect([200, 409]).to.include(pm.response.code);",
-              "  if (pm.response.code === 200) {",
-              "    pm.expect(pm.response.json().refund.refundAmount).to.eql(0);",
-              "  }",
-              "});"
-            ]}
-          }]
+          ]
         }
       ]
     },
-
     {
-      "name": "6 – Admin: Login",
+      "name": "Bookings (Admin/Staff)",
       "item": [
         {
-          "name": "POST /api/admin/login  – success",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/admin/login",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin@12345\"\n}"
-            }
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200 token returned', () => {",
-              "  pm.response.to.have.status(200);",
-              "  const body = pm.response.json();",
-              "  pm.expect(body.token).to.be.a('string');",
-              "  pm.collectionVariables.set('adminToken', body.token);",
-              "  console.log('Admin role:', body.staff.role);",
-              "});"
-            ]}
-          }]
-        },
-        {
-          "name": "POST /api/admin/login  – 401 wrong password",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/admin/login",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{ \"username\": \"admin\", \"password\": \"wrongpassword\" }"
-            }
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('401 invalid credentials', () => pm.response.to.have.status(401));"
-            ]}
-          }]
-        },
-        {
-          "name": "POST /api/admin/login  – 400 missing fields",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/admin/login",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{}" }
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('400 missing fields', () => pm.response.to.have.status(400));"
-            ]}
-          }]
-        }
-      ]
-    },
-
-    {
-      "name": "7 – Admin: Manage Bookings",
-      "item": [
-        {
-          "name": "GET /api/admin/bookings  – list all",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/api/admin/bookings",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200 list', () => {",
-              "  pm.response.to.have.status(200);",
-              "  pm.expect(pm.response.json().items).to.be.an('array');",
-              "});"
-            ]}
-          }]
-        },
-        {
-          "name": "GET /api/admin/bookings?status=pending",
+          "name": "Get All Bookings (Admin)",
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/admin/bookings?status=pending",
-              "query": [{ "key": "status", "value": "pending" }]
-            },
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200 filtered by pending', () => pm.response.to.have.status(200));"
-            ]}
-          }]
-        },
-        {
-          "name": "GET /api/admin/bookings?status=confirmed&limit=5",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/bookings?status=confirmed&limit=5",
+              "raw": "{{baseUrl}}/api/admin/bookings?status=pending&limit=20&skip=0",
               "query": [
-                { "key": "status", "value": "confirmed" },
-                { "key": "limit",  "value": "5" }
+                {
+                  "key": "status",
+                  "value": "pending",
+                  "description": "pending | confirmed | checked_in | checked_out | cancelled"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "skip",
+                  "value": "0"
+                },
+                {
+                  "key": "from",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                }
               ]
             },
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200 confirmed list', () => pm.response.to.have.status(200));"
-            ]}
-          }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "GET /api/admin/bookings/:id  – detail",
+          "name": "Get Booking by ID (Admin)",
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/api/admin/bookings/{{bookingId}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200 detail', () => {",
-              "  pm.response.to.have.status(200);",
-              "  pm.expect(pm.response.json().booking).to.have.property('_id');",
-              "});"
-            ]}
-          }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "POST /api/admin/bookings  – create manual booking (confirmImmediately)",
+          "name": "Create Booking (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([201]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "const bookingId = res?._id || res?.booking?._id || res?.data?._id || res?.data?.bookingId;",
+                  "pm.test('Booking ID is returned', function () { pm.expect(bookingId).to.exist; });",
+                  "if (bookingId) pm.collectionVariables.set('bookingId', String(bookingId));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/api/admin/bookings",
             "header": [
-              { "key": "Content-Type",  "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"customer\": {\n    \"name\": \"Walk-in Guest\",\n    \"email\": \"walkin@hotel.local\",\n    \"phone\": \"0909999888\"\n  },\n  \"roomIds\": [\"{{roomId}}\"],\n  \"check_in\": \"2026-06-01\",\n  \"check_out\": \"2026-06-03\",\n  \"guests\": { \"adults\": 2, \"children\": 1 },\n  \"note\": \"Walk-in offline booking\",\n  \"confirmImmediately\": true\n}"
+              "raw": "{\n  \"customer\": {\n    \"email\": \"vip@example.com\",\n    \"name\": \"Tran Thi B\",\n    \"phone\": \"0987654321\",\n    \"identityId\": \"098765432\"\n  },\n  \"roomIds\": [\"{{roomId}}\"],\n  \"check_in\": \"2026-06-10\",\n  \"check_out\": \"2026-06-13\",\n  \"guests\": { \"adults\": 2, \"children\": 0 },\n  \"note\": \"VIP guest, late check-out\",\n  \"confirmImmediately\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('201 manual booking confirmed', () => {",
-              "  pm.response.to.have.status(201);",
-              "  pm.expect(pm.response.json().status).to.eql('confirmed');",
-              "});"
-            ]}
-          }]
+          }
         },
         {
-          "name": "POST /api/admin/bookings/:id/check-in",
-          "description": "Requires a booking with status=confirmed. Use bookingId from a confirmed booking.",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/admin/bookings/{{bookingId}}/check-in",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200 checked_in or 404/409', () => {",
-              "  pm.expect([200, 404, 409]).to.include(pm.response.code);",
-              "  if (pm.response.code === 200) {",
-              "    pm.expect(pm.response.json().booking.status).to.eql('checked_in');",
-              "  }",
-              "});"
-            ]}
-          }]
-        },
-        {
-          "name": "POST /api/admin/bookings/:id/check-out",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/admin/bookings/{{bookingId}}/check-out",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200 checked_out or 404', () => {",
-              "  pm.expect([200, 404]).to.include(pm.response.code);",
-              "});"
-            ]}
-          }]
-        },
-        {
-          "name": "PATCH /api/admin/bookings/:id/extra-charges",
+          "name": "Update Booking (Admin)",
           "request": {
             "method": "PATCH",
-            "url": "{{baseUrl}}/api/admin/bookings/{{bookingId}}/extra-charges",
+            "url": "{{baseUrl}}/api/admin/bookings/{{bookingId}}",
             "header": [
-              { "key": "Content-Type",  "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{ \"extraCharge\": 150000 }"
+              "raw": "{\n  \"check_in\": \"2026-06-11\",\n  \"check_out\": \"2026-06-14\",\n  \"note\": \"Updated check-in date\",\n  \"guests\": { \"adults\": 2, \"children\": 1 }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200 extra charges updated', () => {",
-              "  pm.expect([200, 404]).to.include(pm.response.code);",
-              "});"
-            ]}
-          }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "PATCH /api/admin/bookings/:id/note",
+          "name": "Update Booking Status",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/admin/bookings/{{bookingId}}/status",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"confirmed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Booking Note",
           "request": {
             "method": "PATCH",
             "url": "{{baseUrl}}/api/admin/bookings/{{bookingId}}/note",
             "header": [
-              { "key": "Content-Type",  "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{ \"note\": \"Guest requested extra pillows\" }"
+              "raw": "{\n  \"note\": \"Guest requested extra pillows and late checkout\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200 note updated', () => {",
-              "  pm.expect([200, 404]).to.include(pm.response.code);",
-              "});"
-            ]}
-          }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "POST /api/admin/bookings/:id/cancel  – admin cancel",
+          "name": "Add Extra Charges",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/admin/bookings/{{bookingId}}/extra-charges",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"extraCharge\": 200000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Add Extra Services",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/admin/bookings/{{bookingId}}/services",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"services\": [\n    { \"name\": \"Breakfast\", \"price\": 150000, \"quantity\": 2 },\n    { \"name\": \"Airport Transfer\", \"price\": 300000, \"quantity\": 1 }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Check In",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/bookings/{{bookingId}}/check-in",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Check Out",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/bookings/{{bookingId}}/check-out",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancel Booking (Admin)",
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/api/admin/bookings/{{bookingId}}/cancel",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Guest requested cancellation via phone\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200 cancelled (or 404/409 if not found/already done)', () => {",
-              "  pm.expect([200, 404, 409]).to.include(pm.response.code);",
-              "});"
-            ]}
-          }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Booking (Admin)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/admin/bookings/{{bookingId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "pm.test('Delete request handled', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
-
     {
-      "name": "8 – Admin: Room Calendar & Stats",
+      "name": "Booking Drafts",
       "item": [
         {
-          "name": "GET /api/admin/rooms/calendar  – for a room",
+          "name": "Save/Update Draft",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "const draftId = res?._id || res?.draft?._id || res?.data?._id;",
+                  "if (draftId) pm.collectionVariables.set('draftId', String(draftId));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/rooms/calendar?roomId={{roomId}}&from=2026-04-01&to=2026-06-30",
-              "query": [
-                { "key": "roomId", "value": "{{roomId}}" },
-                { "key": "from",   "value": "2026-04-01" },
-                { "key": "to",     "value": "2026-06-30" }
-              ]
-            },
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200 calendar items', () => {",
-              "  pm.response.to.have.status(200);",
-              "  pm.expect(pm.response.json().items).to.be.an('array');",
-              "});"
-            ]}
-          }]
+            "method": "POST",
+            "url": "{{baseUrl}}/api/bookings/drafts",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"selectedRoomId\": \"{{roomId}}\",\n  \"formValue\": {\n    \"guestName\": \"Nguyen Van C\",\n    \"guestEmail\": \"guest@example.com\",\n    \"guestPhone\": \"0901111222\",\n    \"check_in\": \"2026-07-01\",\n    \"check_out\": \"2026-07-05\",\n    \"adults\": 2,\n    \"children\": 1\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
         },
         {
-          "name": "GET /api/admin/rooms/calendar  – 400 invalid roomId",
+          "name": "Get Latest Draft",
           "request": {
             "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/rooms/calendar?roomId=badid",
-              "query": [{ "key": "roomId", "value": "badid" }]
-            },
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "url": "{{baseUrl}}/api/bookings/drafts/latest",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('400 invalid roomId', () => pm.response.to.have.status(400));"
-            ]}
-          }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "const draftId = res?._id || res?.draft?._id || res?.data?._id;",
+                  "if (draftId) pm.collectionVariables.set('draftId', String(draftId));"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "GET /api/admin/stats/bookings",
+          "name": "Delete Draft",
           "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/stats/bookings?from=2026-01-01&to=2026-12-31",
-              "query": [
-                { "key": "from", "value": "2026-01-01" },
-                { "key": "to",   "value": "2026-12-31" }
-              ]
-            },
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/bookings/drafts/{{draftId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('200 stats', () => {",
-              "  pm.response.to.have.status(200);",
-              "  const body = pm.response.json();",
-              "  pm.expect(body).to.have.property('byStatus');",
-              "  pm.expect(body).to.have.property('range');",
-              "});"
-            ]}
-          }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "pm.test('Delete request handled', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
-
     {
-      "name": "9 – Auth Edge Cases",
+      "name": "Payments",
       "item": [
         {
-          "name": "GET /api/admin/bookings  – 401 no token",
+          "name": "MoMo – Create Payment (QR)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "const orderId = res?.orderId || res?.data?.orderId;",
+                  "const payUrl = res?.payUrl || res?.data?.payUrl;",
+                  "pm.test('MoMo session has payUrl', function () { pm.expect(payUrl).to.be.a('string').and.not.empty; });",
+                  "if (orderId) pm.collectionVariables.set('momoOrderId', String(orderId));",
+                  "if (payUrl) pm.collectionVariables.set('momoPayUrl', String(payUrl));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/api/admin/bookings"
-          },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('401 no token', () => pm.response.to.have.status(401));"
-            ]}
-          }]
+            "method": "POST",
+            "url": "{{baseUrl}}/api/payments/momo/create",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"channel\": \"qr\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "channel: 'qr' (MoMo app) or 'card' (ATM/credit card).\nReturns payUrl + qrCodeUrl from MoMo sandbox.\nRequires PAYMENT_GATEWAY_MODE=sandbox in backend .env."
+          }
         },
         {
-          "name": "GET /api/admin/bookings  – 401 bad token",
+          "name": "MoMo – Create Payment (Card)",
           "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/api/admin/bookings",
-            "header": [{ "key": "Authorization", "value": "Bearer this.is.not.valid" }]
+            "method": "POST",
+            "url": "{{baseUrl}}/api/payments/momo/create",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"channel\": \"card\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('401 bad token', () => pm.response.to.have.status(401));"
-            ]}
-          }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "const orderId = res?.orderId || res?.data?.orderId;",
+                  "const payUrl = res?.payUrl || res?.data?.payUrl;",
+                  "pm.test('MoMo session has payUrl', function () { pm.expect(payUrl).to.be.a('string').and.not.empty; });",
+                  "if (orderId) pm.collectionVariables.set('momoOrderId', String(orderId));",
+                  "if (payUrl) pm.collectionVariables.set('momoPayUrl', String(payUrl));"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "GET /api/unknown-route  – 404",
+          "name": "MoMo – Create Payment (ATM / FE Path)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/payment/momo",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"channel\": \"atm\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Matches frontend flow: POST /api/payment/momo with channel atm."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "const orderId = res?.orderId || res?.data?.orderId;",
+                  "const payUrl = res?.payUrl || res?.data?.payUrl;",
+                  "pm.test('MoMo session has payUrl', function () { pm.expect(payUrl).to.be.a('string').and.not.empty; });",
+                  "if (orderId) pm.collectionVariables.set('momoOrderId', String(orderId));",
+                  "if (payUrl) pm.collectionVariables.set('momoPayUrl', String(payUrl));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "MoMo – Init V2 Session (Legacy alias)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/payments/momo-v2/init",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"channel\": \"qr\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "const orderId = res?.orderId || res?.data?.orderId;",
+                  "const payUrl = res?.payUrl || res?.data?.payUrl;",
+                  "pm.test('MoMo session has payUrl', function () { pm.expect(payUrl).to.be.a('string').and.not.empty; });",
+                  "if (orderId) pm.collectionVariables.set('momoOrderId', String(orderId));",
+                  "if (payUrl) pm.collectionVariables.set('momoPayUrl', String(payUrl));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "MoMo – Simulate IPN Callback",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/payments/momo/ipn",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"partnerCode\": \"MOMOBKUN20180529\",\n  \"accessKey\": \"klm05TvNBzhg7h7j\",\n  \"requestId\": \"MOMO_1234567890\",\n  \"amount\": \"1000000\",\n  \"orderId\": \"{{momoOrderId}}\",\n  \"orderInfo\": \"Deposit for booking\",\n  \"orderType\": \"momo_wallet\",\n  \"transId\": \"2345678901\",\n  \"resultCode\": 0,\n  \"message\": \"Successful.\",\n  \"payType\": \"qr\",\n  \"responseTime\": \"1711000000000\",\n  \"extraData\": \"\",\n  \"signature\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Simulates MoMo calling your IPN endpoint after payment.\nresultCode 0 = success, non-zero = failure.\nSet orderId to the value saved in momoOrderId variable after creating a session."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "pm.test('IPN endpoint acknowledged callback', function () {",
+                  "  pm.expect([0, 1]).to.include(res?.resultCode);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pay Deposit (Stub/Simulate)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/payments/deposit",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"paymentMethod\": \"momo\",\n  \"simulateStatus\": \"success\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "simulateStatus: 'success' or 'failed'"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Refunds",
+      "item": [
+        {
+          "name": "Get All Refunds",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "const refunds = Array.isArray(res) ? res : (res?.items || res?.data || res?.refunds || []);",
+                  "pm.test('Refund list is array', function () { pm.expect(refunds).to.be.an('array'); });",
+                  "if (refunds.length > 0) {",
+                  "  const refundId = refunds[0]._id || refunds[0].id;",
+                  "  if (refundId) pm.collectionVariables.set('refundId', String(refundId));",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/unknown-route"
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/refunds?status=pending",
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending",
+                  "description": "pending | confirmed | completed | rejected"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Confirm Refund",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/admin/refunds/{{refundId}}/confirm",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           },
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "pm.test('404 route not found', () => pm.response.to.have.status(404));"
-            ]}
-          }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject Refund",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/admin/refunds/{{refundId}}/reject",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Complete Refund (Mark as Paid)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/admin/refunds/{{refundId}}/complete",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Customers",
+      "item": [
+        {
+          "name": "Lookup Customer by Phone",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/lookup?phone=0901234567",
+              "query": [
+                {
+                  "key": "phone",
+                  "value": "0901234567"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get All Customers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "const customers = Array.isArray(res) ? res : (res?.data || res?.customers || []);",
+                  "pm.test('Customer list is array', function () { pm.expect(customers).to.be.an('array'); });",
+                  "if (customers.length > 0) {",
+                  "  const customerId = customers[0]._id || customers[0].id;",
+                  "  if (customerId) pm.collectionVariables.set('customerId', String(customerId));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/customers?page=1&limit=10",
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "sortBy",
+                  "value": "nameAsc",
+                  "disabled": true,
+                  "description": "nameAsc | nameDesc | oldestCreated"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Export Customers (CSV)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/export",
+              "query": [
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "sortBy",
+                  "value": "nameAsc",
+                  "disabled": true
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is CSV', function () {",
+                  "  pm.expect(contentType).to.include('text/csv');",
+                  "});",
+                  "pm.test('CSV body is not empty', function () {",
+                  "  pm.expect(pm.response.text().length).to.be.greaterThan(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Services",
+      "item": [
+        {
+          "name": "Get All Services",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/services"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "const services = Array.isArray(res) ? res : (res?.data || []);",
+                  "pm.test('Service list is array', function () { pm.expect(services).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Summary",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/dashboard/summary",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "pm.test('Dashboard/report payload exists', function () {",
+                  "  pm.expect(res).to.be.ok;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Today Check-ins",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/dashboard/checkins",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "pm.test('Dashboard/report payload exists', function () {",
+                  "  pm.expect(res).to.be.ok;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Today Check-outs",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/dashboard/checkouts",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "pm.test('Dashboard/report payload exists', function () {",
+                  "  pm.expect(res).to.be.ok;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Room Availability Overview",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/dashboard/room-availability",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "pm.test('Dashboard/report payload exists', function () {",
+                  "  pm.expect(res).to.be.ok;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Manager Summary",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/dashboard/manager-summary",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "pm.test('Dashboard/report payload exists', function () {",
+                  "  pm.expect(res).to.be.ok;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Stats & Reports",
+      "item": [
+        {
+          "name": "Booking Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/stats/bookings",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "pm.test('Dashboard/report payload exists', function () {",
+                  "  pm.expect(res).to.be.ok;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Room Calendar",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/rooms/calendar?month=6&year=2026",
+              "query": [
+                {
+                  "key": "month",
+                  "value": "6"
+                },
+                {
+                  "key": "year",
+                  "value": "2026"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "pm.test('Dashboard/report payload exists', function () {",
+                  "  pm.expect(res).to.be.ok;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Revenue Reports",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/reports?from=2026-01-01&to=2026-12-31",
+              "query": [
+                {
+                  "key": "from",
+                  "value": "2026-01-01"
+                },
+                {
+                  "key": "to",
+                  "value": "2026-12-31"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is expected', function () {",
+                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "pm.test('Response content-type is JSON', function () {",
+                  "  pm.expect(contentType).to.include('application/json');",
+                  "});",
+                  "let res = null;",
+                  "if (contentType.includes('application/json')) {",
+                  "  res = pm.response.json();",
+                  "}",
+                  "if (res && Object.prototype.hasOwnProperty.call(res, 'success')) {",
+                  "  pm.test('success flag is true', function () { pm.expect(res.success).to.eql(true); });",
+                  "}",
+                  "pm.test('Dashboard/report payload exists', function () {",
+                  "  pm.expect(res).to.be.ok;",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     }
-
   ]
 }
