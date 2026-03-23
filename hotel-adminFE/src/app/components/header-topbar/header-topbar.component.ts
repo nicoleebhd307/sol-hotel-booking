@@ -20,24 +20,9 @@ interface HeaderNotification {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <header class="bg-[#fcfaf1] h-20 px-10 flex items-center justify-between border-b border-[rgba(209,197,180,0.1)] sticky top-0 z-50 backdrop-blur-[12px]">
-      <!-- Search Bar -->
-      <div class="flex-1 max-w-[576px]">
-        <div class="relative">
-          <input
-            type="text"
-            placeholder="Search bookings, guests, or rooms..."
-            class="w-full bg-white rounded-[12px] px-12 py-3 text-sm placeholder-[#6b7280] border border-[rgba(209,197,180,0.2)] focus:outline-none focus:border-[#c5a059]"
-            style="font-family: 'Plus Jakarta Sans', sans-serif;"
-          />
-          <span class="material-symbols-outlined absolute left-4 top-1/2 transform -translate-y-1/2 text-[#6b7280] text-[20px]">
-            search
-          </span>
-        </div>
-      </div>
-
+    <header class="bg-[#fcfaf1] h-20 px-10 flex items-center justify-end border-b border-[rgba(209,197,180,0.1)] sticky top-0 z-50 backdrop-blur-[12px]">
       <!-- Right Side Controls -->
-      <div class="flex items-center gap-6 pl-10">
+      <div class="flex items-center gap-6">
         <!-- Notification Button -->
         <div class="relative">
           <button

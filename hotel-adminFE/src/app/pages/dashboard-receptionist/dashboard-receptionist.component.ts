@@ -54,6 +54,32 @@ export class DashboardReceptionistComponent implements OnInit, OnDestroy {
   // Room availability
   roomAvailability: RoomAvailability[] = [];
   
+  // Pagination
+  readonly pageSize = 5;
+  checkInPage = 0;
+  checkOutPage = 0;
+
+  get pagedCheckIns(): CheckInGuest[] {
+    return this.checkInGuests.slice(this.checkInPage * this.pageSize, (this.checkInPage + 1) * this.pageSize);
+  }
+
+  get checkInTotalPages(): number {
+    return Math.max(1, Math.ceil(this.checkInGuests.length / this.pageSize));
+  }
+
+  get pagedCheckOuts(): CheckOutGuest[] {
+    return this.checkOutGuests.slice(this.checkOutPage * this.pageSize, (this.checkOutPage + 1) * this.pageSize);
+  }
+
+  get checkOutTotalPages(): number {
+    return Math.max(1, Math.ceil(this.checkOutGuests.length / this.pageSize));
+  }
+
+  prevCheckInPage(): void { if (this.checkInPage > 0) this.checkInPage--; }
+  nextCheckInPage(): void { if (this.checkInPage < this.checkInTotalPages - 1) this.checkInPage++; }
+  prevCheckOutPage(): void { if (this.checkOutPage > 0) this.checkOutPage--; }
+  nextCheckOutPage(): void { if (this.checkOutPage < this.checkOutTotalPages - 1) this.checkOutPage++; }
+
   // Loading states
   isLoadingSummary = true;
   isLoadingCheckIns = true;
@@ -216,6 +242,7 @@ export class DashboardReceptionistComponent implements OnInit, OnDestroy {
         next: (response) => {
           if (response.success && Array.isArray(response.data)) {
             this.checkInGuests = response.data;
+            this.checkInPage = 0;
           }
           this.isLoadingCheckIns = false;
           this.cdr.detectChanges();
@@ -246,6 +273,7 @@ export class DashboardReceptionistComponent implements OnInit, OnDestroy {
         next: (response) => {
           if (response.success && Array.isArray(response.data)) {
             this.checkOutGuests = response.data;
+            this.checkOutPage = 0;
           }
           this.isLoadingCheckOuts = false;
           this.cdr.detectChanges();
