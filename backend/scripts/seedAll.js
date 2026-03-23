@@ -143,9 +143,9 @@ const serviceSeed = [
   { title: 'Restaurant',        imageUrl: 'https://solanbang.com/wp-content/uploads/2025/05/b82644506bedcbb392fc40.jpg' },
   { title: 'Swimming Pool',     imageUrl: 'https://solanbang.com/wp-content/uploads/2025/03/Sol-An-Bang-_-Swimming-Pool-1.jpg' },
   { title: 'Fitness Center',    imageUrl: 'https://bwarch.bm/wp-content/uploads/2022/08/Fitness-4.jpg' },
-  { title: 'Car Rental',        imageUrl: '/assets/images/services/car.jpg' },
-  { title: 'Laundry Service',   imageUrl: '/assets/images/services/laundry.jpg' },
-  { title: 'Conference Room',   imageUrl: '/assets/images/services/conference.jpg' },
+  { title: 'Car Rental',        imageUrl: 'https://thuexedongduong.com/wp-content/uploads/2021/05/Thue-xe-7-cho-TPHCM-6.jpg' },
+  { title: 'Laundry Service',   imageUrl: 'https://nhanhmua.com/wp-content/uploads/2025/11/Commercial_WM_Lifestyle_Laundromat_A-2_W.jpg' },
+  { title: 'Conference Room',   imageUrl: 'https://amazingo.vn/upload/vivu_image/dream-dragon-resort-do-son/dream-dragon-resort-do-son-22.jpg' },
   { title: 'Breakfast',      imageUrl: 'https://solanbang.com/wp-content/uploads/2025/03/Sol-An-Bang-_-Array-of-Breakfast-Options-1.jpg' },
   { title: 'Basket Boat',         imageUrl: 'https://solanbang.com/wp-content/uploads/2025/05/hoi-an-basket-boat-family.jpg' },
 ];
