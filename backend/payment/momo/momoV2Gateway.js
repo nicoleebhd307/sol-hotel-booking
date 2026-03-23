@@ -64,10 +64,10 @@ function buildSessionBase({ booking, channel, paymentCode }) {
 
   const requestId = `MOMO_${Date.now()}`;
   const orderId = `BK_${booking._id}_${Date.now()}`;
-  const exchangeRate = Number(process.env.MOMO_VND_EXCHANGE_RATE || 1);
-  const depositBase = Number(booking.depositAmount || 0);
-  const convertedVnd = Math.round(depositBase * (Number.isFinite(exchangeRate) && exchangeRate > 0 ? exchangeRate : 1));
-  const amount = String(Math.min(50000000, Math.max(1000, convertedVnd)));
+  // depositAmount is stored in VND — send directly, no conversion needed.
+  // MoMo UAT limits: min 1,000đ, max 50,000,000đ.
+  const depositVnd = Math.round(Number(booking.depositAmount || 0));
+  const amount = String(Math.min(50000000, Math.max(1000, depositVnd)));
   const orderInfo = `Deposit for booking ${booking._id}`;
   const extraData = '';
 
