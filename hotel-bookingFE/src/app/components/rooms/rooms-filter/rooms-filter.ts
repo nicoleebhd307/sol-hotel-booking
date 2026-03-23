@@ -25,12 +25,17 @@ export class RoomsFilterComponent {
     {
       key: 'roomType',
       label: 'Room Type',
-      options: ['Deluxe', 'Suite']
+      options: ['Deluxe', 'Superior']
     },
     {
       key: 'priceRange',
       label: 'Price Range',
-      options: ['$0 - $500', '$500 - $1000', '$1000+']
+      options: [
+        '1,000,000 - 1,200,000',
+        '1,200,000 - 1,400,000',
+        '1,400,000 - 1,700,000',
+        '1,700,000+'
+      ]
     },
     {
       key: 'guests',
@@ -40,7 +45,7 @@ export class RoomsFilterComponent {
     {
       key: 'view',
       label: 'View',
-      options: ['Sea View', 'Street View', 'Ocean View', 'Garden View', 'Lagoon View', 'No View']
+      options: ['Sea View', 'Street View', 'Forest View', 'Garden View']
     }
   ];
 

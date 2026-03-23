@@ -56,10 +56,10 @@ function buildSessionBase({ booking, channel, paymentCode }) {
 
   const requestId = `MOMO_${Date.now()}`;
   const orderId = `BK_${booking._id}_${Date.now()}`;
-  const exchangeRate = Number(process.env.MOMO_VND_EXCHANGE_RATE || 25000);
+  const exchangeRate = Number(process.env.MOMO_VND_EXCHANGE_RATE || 1);
   const depositBase = Number(booking.depositAmount || 0);
-  const convertedVnd = Math.round(depositBase * (Number.isFinite(exchangeRate) ? exchangeRate : 25000));
-  const amount = String(Math.max(1000, convertedVnd));
+  const convertedVnd = Math.round(depositBase * (Number.isFinite(exchangeRate) && exchangeRate > 0 ? exchangeRate : 1));
+  const amount = String(Math.min(50000000, Math.max(1000, convertedVnd)));
   const orderInfo = `Deposit for booking ${booking._id}`;
   const extraData = '';
 
@@ -137,6 +137,8 @@ async function createTestSession({ booking, channel, paymentCode }) {
     payload.paymentCode = base.paymentCode;
   }
 
+  console.log('[MoMo] Sending to sandbox:', { amount: base.amount, orderId: base.orderId, requestType: base.requestType, channel: base.channel });
+
   const response = await postJson({
     hostname: 'test-payment.momo.vn',
     path: '/v2/gateway/api/create',
@@ -145,8 +147,10 @@ async function createTestSession({ booking, channel, paymentCode }) {
 
   const body = response.data || {};
   if ((response.statusCode < 200 || response.statusCode >= 300) || Number(body.resultCode) !== 0) {
-    const err = new Error(body.message || 'Failed to initialize MoMo sandbox session');
+    console.error('[MoMo] Sandbox API error:', { statusCode: response.statusCode, resultCode: body.resultCode, message: body.message, localMessage: body.localMessage });
+    const err = new Error(body.message || body.localMessage || 'Failed to initialize MoMo sandbox session');
     err.statusCode = 502;
+    err.momoResultCode = body.resultCode;
     throw err;
   }
 

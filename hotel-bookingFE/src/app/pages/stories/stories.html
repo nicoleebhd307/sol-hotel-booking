@@ -1,1 +1,15 @@
-<p>stories works!</p>
+<div class="bg-[#f9f7f2] text-[#1a1a1a]">
+  <app-sticky-navbar
+    [navLinks]="navLinks"
+    [logoUrl]="logoUrl"
+    [reserveLabel]="reserveLabel"
+  />
+
+  <app-stories-hero />
+  <app-about-resort />
+  <app-meet-team />
+  <app-discover-hoi-an />
+  <app-moments-gallery />
+
+  <app-site-footer [data]="footerData" />
+</div>

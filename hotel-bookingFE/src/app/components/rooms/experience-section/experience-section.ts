@@ -14,6 +14,9 @@ export class ExperienceSection {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly services = signal<ServiceItem[]>([]);
+  protected readonly isLoading = signal(true);
+  protected readonly hasError = signal(false);
+  
   protected readonly loopedServices = computed(() => {
     const items = this.services();
     return [...items, ...items];
@@ -23,6 +26,17 @@ export class ExperienceSection {
     this.apiService
       .getServices()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((items) => this.services.set(items));
+      .subscribe({
+        next: (items) => {
+          console.log('Services loaded:', items);
+          this.services.set(items);
+          this.isLoading.set(false);
+        },
+        error: (err) => {
+          console.error('Error loading services:', err);
+          this.hasError.set(true);
+          this.isLoading.set(false);
+        }
+      });
   }
 }

@@ -7,7 +7,7 @@ import { Room, RoomType, ServiceItem, BookingData } from '../models/home.models'
   providedIn: 'root'
 })
 export class ApiService {
-  private readonly API_URL = 'http://localhost:5005/api';
+  private readonly API_URL = 'http://localhost:5000/api';
 
   constructor(private http: HttpClient) {}
 
@@ -90,6 +90,6 @@ export class ApiService {
 
   // Health check
   healthCheck(): Observable<{ status: string; uptime: number }> {
-    return this.http.get<{ status: string; uptime: number }>(`http://localhost:5005/health`);
+    return this.http.get<{ status: string; uptime: number }>(`http://localhost:5000/health`);
   }
 }

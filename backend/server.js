@@ -46,7 +46,9 @@ app.use((req, res) => {
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   const status = err.statusCode || err.status || 500;
-  const message = status >= 500 ? 'Internal server error' : err.message;
+  const message = (status >= 500 && process.env.NODE_ENV === 'production')
+    ? 'Internal server error'
+    : err.message;
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line no-console

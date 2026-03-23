@@ -15,6 +15,7 @@ export interface AccommodationCard {
   imageUrl: string;
   primaryAction: string;
   secondaryAction: string;
+  roomTypeId?: string;
   featured?: boolean;
 }
 

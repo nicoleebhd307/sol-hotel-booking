@@ -1,30 +1,43 @@
 <section class="bg-[#fffcf1] px-4 py-12 md:py-20 reveal-up">
   <div class="mx-auto max-w-7xl">
-    <!-- Title and Description -->
+
+    <!-- Title -->
     <div class="mb-12 md:mb-16">
-      <h2 class="font-serif text-4xl italic text-[#1a1a1a] mb-4">Curated Experiences</h2>
+      <h2 class="font-serif text-4xl italic text-[#1a1a1a] mb-4">
+        Curated Experiences
+      </h2>
       <p class="text-sm text-[#374151] max-w-2xl leading-relaxed">
         Beyond the luxury of your room lies a world of intentional leisure and revitalizing discovery.
       </p>
     </div>
 
+    <!-- Marquee -->
     @if (services().length > 0) {
-      <div class="experience-marquee rounded-xl border border-[#e8e2d4] bg-white/70 py-4">
+      <div class="experience-marquee ">
+
         <div class="experience-track">
           @for (item of loopedServices(); track $index) {
             <article class="experience-card">
+
               <img
                 [src]="item.imageUrl"
                 [alt]="item.title"
                 class="experience-image"
               />
-              <h3 class="experience-title">{{ item.title }}</h3>
+
+              <div class="experience-overlay">
+                <h3 class="experience-title">
+                  {{ item.title }}
+                </h3>
+              </div>
+
             </article>
           }
         </div>
+
       </div>
     } @else {
-      <div class="w-full h-64 md:h-80 overflow-hidden rounded-lg shadow-lg">
+      <div class="w-full h-64 md:h-80 overflow-hidden rounded-xl shadow-lg">
         <img
           src="/assets/images/golf-course.jpg"
           alt="Curated Experiences"
@@ -32,5 +45,6 @@
         />
       </div>
     }
+
   </div>
 </section>

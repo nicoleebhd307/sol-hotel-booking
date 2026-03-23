@@ -1,0 +1,54 @@
+<section class="py-20 px-4 bg-[#f9f7f2]">
+  <div class="max-w-7xl mx-auto">
+    <!-- Heading -->
+    <div class="text-center mb-10">
+      <h2 class="text-4xl text-[#1a1a1a]" style="font-family: 'Playfair Display', serif;">
+        The Sol An Bang <span class="italic">Moments</span>
+      </h2>
+    </div>
+
+    <!-- Gallery Grid - 5 Column Masonry Layout -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-2 items-start">
+      <!-- Column 1: Tall Vertical Image (Left) -->
+      <div class="md:col-span-1 mt-20">
+        <div class="rounded-3xl overflow-hidden h-100 shadow-lg hover:shadow-2xl transition-shadow duration-300">
+          <img [src]="images[0]" alt="Moment 1" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500 cursor-pointer" />
+        </div>
+      </div>
+
+      <!-- Column 2: 2 Stacked Images -->
+      <div class="md:col-span-1 flex flex-col gap-2 mt-8">
+        <div class="rounded-3xl overflow-hidden h-65 shadow-lg hover:shadow-2xl transition-shadow duration-300">
+          <img [src]="images[1]" alt="Moment 2" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500 cursor-pointer" />
+        </div>
+        <div class="rounded-3xl overflow-hidden h-55 shadow-lg hover:shadow-2xl transition-shadow duration-300">
+          <img [src]="images[2]" alt="Moment 3" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500 cursor-pointer" />
+        </div>
+      </div>
+
+      <!-- Column 3: Large Featured Center Image -->
+      <div class="md:col-span-1 mt-0">
+        <div class="rounded-3xl overflow-hidden h-135 shadow-2xl hover:shadow-3xl transition-all duration-300">
+          <img [src]="images[3]" alt="Moment Featured" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500 cursor-pointer" />
+        </div>
+      </div>
+
+      <!-- Column 4: 2 Stacked Images -->
+      <div class="md:col-span-1 flex flex-col gap-2 mt-8">
+        <div class="rounded-3xl overflow-hidden h-55 shadow-lg hover:shadow-2xl transition-shadow duration-300">
+          <img [src]="images[4]" alt="Moment 4" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500 cursor-pointer" />
+        </div>
+        <div class="rounded-3xl overflow-hidden h-65 shadow-lg hover:shadow-2xl transition-shadow duration-300">
+          <img [src]="images[5]" alt="Moment 5" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500 cursor-pointer" />
+        </div>
+      </div>
+
+      <!-- Column 5: 2 Tall Vertical Images (Right) -->
+      <div class="md:col-span-1 flex flex-col gap-4 mt-20">
+        <div class="rounded-3xl overflow-hidden h-100 shadow-lg hover:shadow-2xl transition-shadow duration-300">
+          <img [src]="images[6]" alt="Moment 7" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500 cursor-pointer" />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

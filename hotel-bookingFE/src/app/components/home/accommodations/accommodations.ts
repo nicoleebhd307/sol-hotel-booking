@@ -1,14 +1,31 @@
-import { Component } from '@angular/core';
-import { NgClass } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { input } from '@angular/core';
 import { AccommodationCard } from '../../../models/home.models';
 
 @Component({
   selector: 'app-accommodations',
-  imports: [NgClass],
+  imports: [CommonModule],
   templateUrl: './accommodations.html',
   styleUrl: './accommodations.css',
 })
 export class Accommodations {
-  readonly cards = input.required<AccommodationCard[]>();
+  private readonly router = inject(Router);
+  readonly cards = input<AccommodationCard[]>([]);
+
+  navigateToDetail(card: AccommodationCard): void {
+    // Navigate to room-detail page with room ID or name
+    if (card.roomTypeId) {
+      this.router.navigate(['/rooms', card.roomTypeId]);
+    } else {
+      // Fallback to query param if ID not available
+      this.router.navigate(['/rooms', 'search'], { queryParams: { name: card.title } });
+    }
+  }
+
+  navigateToStories(): void {
+    // Navigate to stories/our-stories page
+    this.router.navigate(['/stories']);
+  }
 }

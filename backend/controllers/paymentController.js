@@ -8,7 +8,11 @@ async function initMomoV2Session(req, res, next) {
 
     return res.status(200).json(result);
   } catch (err) {
-    return next(err);
+    console.error('[MoMo Init Error]', err.message, { statusCode: err.statusCode, momoResultCode: err.momoResultCode });
+    return res.status(err.statusCode || 502).json({
+      message: err.message || 'MoMo payment initialization failed',
+      momoResultCode: err.momoResultCode
+    });
   }
 }
 
