@@ -33,25 +33,43 @@ export class BookingDetail implements OnInit {
   protected readonly payment = signal<any>(null);
   protected readonly isLoading = signal<boolean>(true);
   protected readonly errorMessage = signal<string>('');
+  protected readonly showCancelNotice = signal<boolean>(false);
+  protected readonly showCancelDialog = signal<boolean>(false);
+  protected readonly isCancelSubmitting = signal<boolean>(false);
+  protected readonly cancelActionError = signal<string>('');
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
+    const cancelled = this.route.snapshot.queryParamMap.get('cancelled');
+    this.showCancelNotice.set(cancelled === '1' || cancelled === 'true');
+
     if (id) {
-      this.apiService.getBookingById(id).subscribe({
-        next: ({ booking, payment }) => {
-          this.booking.set(booking);
-          this.payment.set(payment);
-          this.isLoading.set(false);
-        },
-        error: () => {
-          this.isLoading.set(false);
-          this.errorMessage.set('Booking not found. Please check your Booking ID and try again.');
-        }
-      });
+      this.loadBooking(id, true);
     } else {
       this.isLoading.set(false);
       this.errorMessage.set('No booking ID provided.');
     }
+  }
+
+  private loadBooking(id: string, withPageLoader = false): void {
+    if (withPageLoader) this.isLoading.set(true);
+
+    this.apiService.getBookingById(id).subscribe({
+      next: ({ booking, payment }) => {
+        this.booking.set(booking);
+        this.payment.set(payment);
+        this.errorMessage.set('');
+        if (withPageLoader) this.isLoading.set(false);
+      },
+      error: () => {
+        if (withPageLoader) {
+          this.isLoading.set(false);
+          this.errorMessage.set('Booking not found. Please check your Booking ID and try again.');
+        } else {
+          this.cancelActionError.set('Cancellation was submitted, but we could not refresh booking data. Please reload this page.');
+        }
+      }
+    });
   }
 
   get nights(): number {
@@ -97,9 +115,42 @@ export class BookingDetail implements OnInit {
 
   onCancelBooking(): void {
     const id = this.booking()?._id;
-    if (id) {
-      this.router.navigate(['/cancel-booking'], { queryParams: { bookingId: id } });
+    if (!id) return;
+
+    if ((this.booking()?.status || '').toLowerCase() === 'cancelled') {
+      this.showCancelNotice.set(true);
+      return;
     }
+
+    this.cancelActionError.set('');
+    this.showCancelDialog.set(true);
+  }
+
+  closeCancelDialog(): void {
+    if (this.isCancelSubmitting()) return;
+    this.showCancelDialog.set(false);
+    this.cancelActionError.set('');
+  }
+
+  confirmCancellation(): void {
+    const id = this.booking()?._id;
+    if (!id || this.isCancelSubmitting()) return;
+
+    this.isCancelSubmitting.set(true);
+    this.cancelActionError.set('');
+
+    this.apiService.cancelBooking(id).subscribe({
+      next: () => {
+        this.isCancelSubmitting.set(false);
+        this.showCancelDialog.set(false);
+        this.showCancelNotice.set(true);
+        this.loadBooking(id, false);
+      },
+      error: () => {
+        this.isCancelSubmitting.set(false);
+        this.cancelActionError.set('Failed to cancel this booking. Please try again or contact support.');
+      }
+    });
   }
 
   onDownloadPDF(): void {

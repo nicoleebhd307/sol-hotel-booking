@@ -35,6 +35,19 @@
 
   <!-- ─── Main Content Grid (overlaps hero) ──────────────── -->
   <div class="relative z-10 -mt-24 md:-mt-28 px-4 md:px-6 pb-10 mx-auto max-w-[1200px] w-full">
+    @if (showCancelNotice()) {
+    <div class="cancel-success-banner mb-6">
+      <div class="cancel-success-icon" aria-hidden="true">✓</div>
+      <div>
+        <p class="font-semibold text-[#234f3a]">Your booking has been cancelled successfully.</p>
+        <p class="text-sm text-[#3f6a56]">
+          Current booking status:
+          <span class="font-semibold uppercase">{{ booking()?.status || 'cancelled' }}</span>
+        </p>
+      </div>
+    </div>
+    }
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
       <!-- Left column: 2/3 -->
@@ -59,6 +72,30 @@
       </div><!-- end right -->
     </div><!-- end grid -->
   </div>
+
+  @if (showCancelDialog()) {
+  <div class="cancel-modal-backdrop" (click)="closeCancelDialog()">
+    <div class="cancel-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Confirm cancellation">
+      <h3 class="cancel-modal-title">Cancel this booking?</h3>
+      <p class="cancel-modal-desc">
+        This will update your reservation status to cancelled and apply refund policy automatically where eligible.
+      </p>
+
+      @if (cancelActionError()) {
+      <div class="cancel-modal-error">{{ cancelActionError() }}</div>
+      }
+
+      <div class="cancel-modal-actions">
+        <button class="cancel-modal-btn-secondary" [disabled]="isCancelSubmitting()" (click)="closeCancelDialog()">
+          Keep Booking
+        </button>
+        <button class="cancel-modal-btn-danger" [disabled]="isCancelSubmitting()" (click)="confirmCancellation()">
+          {{ isCancelSubmitting() ? 'Cancelling...' : 'Confirm Cancel' }}
+        </button>
+      </div>
+    </div>
+  </div>
+  }
 
   }<!-- end @else if booking() -->
 
