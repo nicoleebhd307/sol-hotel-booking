@@ -140,16 +140,61 @@
         </div>
 
         <div class="grid grid-cols-2 gap-8 mb-10">
-          <app-table-checkins
-            [guests]="checkInGuests"
-            [updatingId]="updatingCheckInId"
-            (checkIn)="onCheckIn($event)"
-          ></app-table-checkins>
-          <app-table-checkouts
-            [guests]="checkOutGuests"
-            [updatingId]="updatingCheckOutId"
-            (checkOut)="onCheckOut($event)"
-          ></app-table-checkouts>
+          <!-- Check-ins Table -->
+          <div class="flex flex-col gap-3">
+            <app-table-checkins
+              [guests]="pagedCheckIns"
+              [updatingId]="updatingCheckInId"
+              (checkIn)="onCheckIn($event)"
+            ></app-table-checkins>
+            <div *ngIf="checkInTotalPages > 1" class="flex items-center justify-between px-2" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+              <button
+                type="button"
+                class="flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-[12px] font-semibold text-[#775a19] border border-[rgba(119,90,25,0.25)] hover:bg-[rgba(119,90,25,0.06)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                [disabled]="checkInPage === 0"
+                (click)="prevCheckInPage()"
+              >
+                <span class="material-symbols-outlined text-[16px]">chevron_left</span> Previous
+              </button>
+              <span class="text-[12px] text-[#8a7f6d]">{{ checkInPage + 1 }} / {{ checkInTotalPages }}</span>
+              <button
+                type="button"
+                class="flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-[12px] font-semibold text-[#775a19] border border-[rgba(119,90,25,0.25)] hover:bg-[rgba(119,90,25,0.06)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                [disabled]="checkInPage === checkInTotalPages - 1"
+                (click)="nextCheckInPage()"
+              >
+                Next <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Check-outs Table -->
+          <div class="flex flex-col gap-3">
+            <app-table-checkouts
+              [guests]="pagedCheckOuts"
+              [updatingId]="updatingCheckOutId"
+              (checkOut)="onCheckOut($event)"
+            ></app-table-checkouts>
+            <div *ngIf="checkOutTotalPages > 1" class="flex items-center justify-between px-2" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+              <button
+                type="button"
+                class="flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-[12px] font-semibold text-[#00687b] border border-[rgba(0,104,123,0.25)] hover:bg-[rgba(0,104,123,0.06)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                [disabled]="checkOutPage === 0"
+                (click)="prevCheckOutPage()"
+              >
+                <span class="material-symbols-outlined text-[16px]">chevron_left</span> Previous
+              </button>
+              <span class="text-[12px] text-[#8a7f6d]">{{ checkOutPage + 1 }} / {{ checkOutTotalPages }}</span>
+              <button
+                type="button"
+                class="flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-[12px] font-semibold text-[#00687b] border border-[rgba(0,104,123,0.25)] hover:bg-[rgba(0,104,123,0.06)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                [disabled]="checkOutPage === checkOutTotalPages - 1"
+                (click)="nextCheckOutPage()"
+              >
+                Next <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </main>

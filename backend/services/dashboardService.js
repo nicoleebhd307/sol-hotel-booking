@@ -28,17 +28,14 @@ async function getSummary() {
 }
 
 async function getCheckIns() {
-  const todayStart = startOfDayUtc(new Date());
-
-  // Upcoming confirmed bookings — check_in from today onwards, waiting to be checked in
+  // All confirmed bookings not yet checked in — upcoming + overdue
   const bookings = await Booking.find({
-    check_in: { $gte: todayStart },
     status: 'confirmed',
   })
     .populate('customer_id')
     .populate({ path: 'rooms.room_id', populate: { path: 'room_type_id' } })
     .sort({ check_in: 1 })
-    .limit(10)
+    .limit(50)
     .lean();
 
   return bookings.map((b, i) => {
@@ -57,17 +54,14 @@ async function getCheckIns() {
 }
 
 async function getCheckOuts() {
-  const todayStart = startOfDayUtc(new Date());
-
-  // Currently checked-in guests with check-out from today onwards — these need to be checked out
+  // All checked-in guests that still need to check out — upcoming + overdue
   const bookings = await Booking.find({
-    check_out: { $gte: todayStart },
     status: 'checked_in',
   })
     .populate('customer_id')
     .populate({ path: 'rooms.room_id', populate: { path: 'room_type_id' } })
     .sort({ check_out: 1 })
-    .limit(10)
+    .limit(50)
     .lean();
 
   return bookings.map((b, i) => {
