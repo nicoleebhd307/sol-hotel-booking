@@ -278,6 +278,20 @@ async function main() {
   console.log('\nSeeding bookings & payments...');
 
   const now = new Date();
+  const bookingStats = {
+    pending: 0,
+    confirmed: 0,
+    checked_in: 0,
+    checked_out: 0,
+    completed: 0,
+    cancelled: 0,
+  };
+
+  const bumpStatus = (status, delta = 1) => {
+    if (Object.prototype.hasOwnProperty.call(bookingStats, status)) {
+      bookingStats[status] += delta;
+    }
+  };
 
   const priceOf = (room) => {
     const rt = createdRoomTypes.find(r => String(r._id) === String(room.room_type_id));
@@ -315,6 +329,8 @@ async function main() {
       createdAt:     days(checkInOffset - 5),
     });
 
+    bumpStatus(status);
+
     if (paymentStatus !== 'none') {
       await Payment.create({
         bookingId:     booking._id,
@@ -335,6 +351,9 @@ async function main() {
   await makeBooking({ customer: createdCustomers[7],  rooms: [roomByNum['501']], checkInOffset: 12, nights: 5, status: 'confirmed', note: 'Honeymoon package - Superior Room' });
   await makeBooking({ customer: createdCustomers[9],  rooms: [roomByNum['301']], checkInOffset: 15, nights: 3, status: 'confirmed' });
   await makeBooking({ customer: createdCustomers[10], rooms: [roomByNum['402']], checkInOffset: 8,  nights: 2, status: 'confirmed' });
+  await makeBooking({ customer: createdCustomers[4],  rooms: [roomByNum['405'], roomByNum['105']], checkInOffset: 6, nights: 2, status: 'confirmed', note: 'Family booking with 2 rooms' });
+  await makeBooking({ customer: createdCustomers[8],  rooms: [roomByNum['202']], checkInOffset: 18, nights: 4, status: 'confirmed' });
+  await makeBooking({ customer: createdCustomers[11], rooms: [roomByNum['304']], checkInOffset: 9, nights: 3, status: 'confirmed' });
 
   // checked_in — currently staying
   await makeBooking({ customer: createdCustomers[2], rooms: [roomByNum['203']], checkInOffset: -1, nights: 4, status: 'checked_in' });
@@ -342,17 +361,23 @@ async function main() {
   await makeBooking({ customer: createdCustomers[8], rooms: [roomByNum['403']], checkInOffset: 0,  nights: 3, status: 'checked_in', extraServices: [{ name: 'Minibar', amount: 150_000 }], extraCharge: 150_000 });
   await makeBooking({ customer: createdCustomers[4], rooms: [roomByNum['502']], checkInOffset: -3, nights: 7, status: 'checked_in', note: 'VIP guest — butler service requested' });
   await makeBooking({ customer: createdCustomers[11],rooms: [roomByNum['102']], checkInOffset: -1, nights: 2, status: 'checked_in' });
+  await makeBooking({ customer: createdCustomers[0], rooms: [roomByNum['204']], checkInOffset: -2, nights: 4, status: 'checked_in' });
+  await makeBooking({ customer: createdCustomers[6], rooms: [roomByNum['401'], roomByNum['301']], checkInOffset: -1, nights: 3, status: 'checked_in', note: 'Group booking, two rooms' });
 
   // checked_out — recently departed (last 1-12 days)
   await makeBooking({ customer: createdCustomers[5],  rooms: [roomByNum['104']], checkInOffset: -8,  nights: 3, status: 'checked_out' });
   await makeBooking({ customer: createdCustomers[10], rooms: [roomByNum['302']], checkInOffset: -10, nights: 2, status: 'checked_out' });
   await makeBooking({ customer: createdCustomers[11], rooms: [roomByNum['404']], checkInOffset: -12, nights: 4, status: 'checked_out', extraCharge: 500_000, extraServices: [{ name: 'Airport transfer', amount: 500_000 }] });
+  await makeBooking({ customer: createdCustomers[2],  rooms: [roomByNum['201']], checkInOffset: -14, nights: 3, status: 'checked_out' });
+  await makeBooking({ customer: createdCustomers[7],  rooms: [roomByNum['501']], checkInOffset: -16, nights: 2, status: 'checked_out' });
 
   // completed — paid & closed
   await makeBooking({ customer: createdCustomers[0], rooms: [roomByNum['204']], checkInOffset: -20, nights: 2, status: 'completed' });
   await makeBooking({ customer: createdCustomers[1], rooms: [roomByNum['304']], checkInOffset: -25, nights: 3, status: 'completed' });
   await makeBooking({ customer: createdCustomers[6], rooms: [roomByNum['503']], checkInOffset: -30, nights: 5, status: 'completed', note: 'Anniversary stay' });
   await makeBooking({ customer: createdCustomers[9], rooms: [roomByNum['202']], checkInOffset: -18, nights: 2, status: 'completed' });
+  await makeBooking({ customer: createdCustomers[3], rooms: [roomByNum['305']], checkInOffset: -22, nights: 2, status: 'completed' });
+  await makeBooking({ customer: createdCustomers[5], rooms: [roomByNum['402']], checkInOffset: -28, nights: 4, status: 'completed' });
 
   // confirmed extra — additional upcoming
   await makeBooking({ customer: createdCustomers[2], rooms: [roomByNum['405']], checkInOffset: 3, nights: 2, status: 'confirmed' });
@@ -371,6 +396,7 @@ async function main() {
     holdExpiresAt:  new Date(now.getTime() + 20 * 60_000), // expires in 20 min
     createdAt:      new Date(),
   });
+  bumpStatus('pending');
 
   await Booking.create({
     customer_id:    createdCustomers[11]._id,
@@ -385,6 +411,30 @@ async function main() {
     holdExpiresAt:  new Date(now.getTime() - 5 * 60_000), // already expired
     createdAt:      new Date(now.getTime() - 35 * 60_000),
   });
+  bumpStatus('pending');
+
+  const pendingWithFailedPayment = await Booking.create({
+    customer_id:    createdCustomers[2]._id,
+    rooms:          [{ room_id: roomByNum['101']._id, price_per_night: priceOf(roomByNum['101']) }],
+    check_in:       days(4),
+    check_out:      days(6),
+    guests:         { adults: 2, children: 0 },
+    totalPrice:     Math.round(1_100_000 * 2 * 1.15),
+    depositAmount:  Math.round(1_100_000 * 2 * 1.15 * 0.3),
+    extraCharge:    0,
+    status:         'pending',
+    holdExpiresAt:  new Date(now.getTime() + 10 * 60_000),
+    createdAt:      new Date(now.getTime() - 10 * 60_000),
+  });
+  bumpStatus('pending');
+  await Payment.create({
+    bookingId: pendingWithFailedPayment._id,
+    amount: pendingWithFailedPayment.depositAmount,
+    paymentMethod: 'momo',
+    paymentStatus: 'failed',
+    transactionId: `TXN${Date.now()}FAIL`,
+    createdAt: new Date(now.getTime() - 8 * 60_000),
+  });
 
   // cancelled — with deposit (refund_status: pending → for manager to approve)
   const cancelledWithDeposit1 = await makeBooking({
@@ -394,6 +444,8 @@ async function main() {
   await Booking.findByIdAndUpdate(cancelledWithDeposit1._id, {
     $set: { status: 'cancelled', cancelledAt: days(-1), refund_status: 'pending' },
   });
+  bumpStatus('confirmed', -1);
+  bumpStatus('cancelled');
 
   const cancelledWithDeposit2 = await makeBooking({
     customer: createdCustomers[5], rooms: [roomByNum['103']], checkInOffset: 20, nights: 2,
@@ -402,6 +454,8 @@ async function main() {
   await Booking.findByIdAndUpdate(cancelledWithDeposit2._id, {
     $set: { status: 'cancelled', cancelledAt: days(-2), refund_status: 'pending' },
   });
+  bumpStatus('confirmed', -1);
+  bumpStatus('cancelled');
 
   // cancelled — with deposit, awaiting_refund (manager approved, waiting for money transfer)
   const cancelledAwaiting = await makeBooking({
@@ -411,8 +465,51 @@ async function main() {
   await Booking.findByIdAndUpdate(cancelledAwaiting._id, {
     $set: { status: 'cancelled', cancelledAt: days(-3), refund_status: 'awaiting_refund' },
   });
+  bumpStatus('confirmed', -1);
+  bumpStatus('cancelled');
 
-  console.log('  23 bookings inserted (7 confirmed | 5 checked_in | 3 checked_out | 4 completed | 2 pending | 3 cancelled with refund)');
+  // cancelled — refunded (already completed transfer)
+  const cancelledRefunded = await makeBooking({
+    customer: createdCustomers[0], rooms: [roomByNum['503']], checkInOffset: 22, nights: 3,
+    status: 'confirmed', note: 'Refund processed successfully',
+  });
+  await Booking.findByIdAndUpdate(cancelledRefunded._id, {
+    $set: { status: 'cancelled', cancelledAt: days(-4), refund_status: 'refunded' },
+  });
+  await Payment.updateOne({ bookingId: cancelledRefunded._id, paymentStatus: 'success' }, {
+    $set: { paymentStatus: 'refunded' }
+  });
+  bumpStatus('confirmed', -1);
+  bumpStatus('cancelled');
+
+  // cancelled — no refund (pending hold expired/cancelled)
+  const cancelledNoRefund = await Booking.create({
+    customer_id:    createdCustomers[1]._id,
+    rooms:          [{ room_id: roomByNum['102']._id, price_per_night: priceOf(roomByNum['102']) }],
+    check_in:       days(11),
+    check_out:      days(13),
+    guests:         { adults: 1, children: 0 },
+    totalPrice:     Math.round(1_100_000 * 2 * 1.15),
+    depositAmount:  Math.round(1_100_000 * 2 * 1.15 * 0.3),
+    extraCharge:    0,
+    status:         'cancelled',
+    refund_status:  'none',
+    cancelledAt:    days(-1),
+    note:           'Auto-cancelled: payment hold expired',
+    createdAt:      days(-2),
+  });
+  bumpStatus('cancelled');
+  await Payment.create({
+    bookingId: cancelledNoRefund._id,
+    amount: cancelledNoRefund.depositAmount,
+    paymentMethod: 'card',
+    paymentStatus: 'failed',
+    transactionId: `TXN${Date.now()}CANCEL`,
+    createdAt: days(-2),
+  });
+
+  const totalBookingsSeeded = Object.values(bookingStats).reduce((sum, v) => sum + v, 0);
+  console.log(`  ${totalBookingsSeeded} bookings inserted (${bookingStats.confirmed} confirmed | ${bookingStats.checked_in} checked_in | ${bookingStats.checked_out} checked_out | ${bookingStats.completed} completed | ${bookingStats.pending} pending | ${bookingStats.cancelled} cancelled)`);
 
   // ── STEP 8: Seed Booking Draft ───────────────────────────────────────────
   console.log('\nSeeding booking draft...');
@@ -444,7 +541,7 @@ async function main() {
   console.log(`  ${createdRoomTypes.length} room types  (Deluxe Street View | Deluxe Sea View | Deluxe Forest View | Deluxe Garden View | Superior Room)`);
   console.log(`  ${createdRooms.length} rooms`);
   console.log(`  ${serviceSeed.length} services`);
-  console.log('  20 bookings  (7 confirmed | 5 checked_in | 3 checked_out | 4 completed | 2 pending)');
+  console.log(`  ${totalBookingsSeeded} bookings (${bookingStats.confirmed} confirmed | ${bookingStats.checked_in} checked_in | ${bookingStats.checked_out} checked_out | ${bookingStats.completed} completed | ${bookingStats.pending} pending | ${bookingStats.cancelled} cancelled)`);
   console.log('  Payments created for all managed bookings');
   console.log('  1 booking draft');
   console.log('\nStaff login credentials:');
