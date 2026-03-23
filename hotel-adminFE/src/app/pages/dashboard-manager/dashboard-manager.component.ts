@@ -305,7 +305,7 @@ export class DashboardManagerComponent implements OnInit, OnDestroy {
       return '';
     }
 
-    const bottomY = 146;
+    const bottomY = 196;
     return `${this.activitySmoothPath} L${points[points.length - 1].x.toFixed(1)} ${bottomY} L${points[0].x.toFixed(1)} ${bottomY} Z`;
   }
 
@@ -320,7 +320,7 @@ export class DashboardManagerComponent implements OnInit, OnDestroy {
     }
 
     const width = 560;
-    const height = 130;
+    const height = 180;
     const max = Math.max(...values);
     const min = Math.min(...values);
     const range = Math.max(1, max - min);
@@ -329,7 +329,7 @@ export class DashboardManagerComponent implements OnInit, OnDestroy {
 
     return values.map((value, index) => {
       const x = (index / divider) * width;
-      const y = height - ((value - min) / range) * (height - 16) - 8;
+      const y = height - ((value - min) / range) * (height - 20) - 10;
       return { x, y };
     });
   }

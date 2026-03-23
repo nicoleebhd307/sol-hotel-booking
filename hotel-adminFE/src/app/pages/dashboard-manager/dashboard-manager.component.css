@@ -9,7 +9,7 @@
 .chart-wrap {
   border-radius: 16px;
   background: linear-gradient(180deg, rgba(243, 238, 223, 0.32) 0%, rgba(243, 238, 223, 0.1) 100%);
-  padding: 12px 8px 4px;
+  padding: 16px 12px 8px;
 }
 
 .activity-scroll {
