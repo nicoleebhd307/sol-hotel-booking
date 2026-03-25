@@ -2,12 +2,13 @@
   "info": {
     "name": "Hotel Booking API – Full Suite",
     "_postman_id": "hotel-booking-api-v2",
-    "description": "Complete test suite for all backend API endpoints.\n\nSetup:\n1. Set collection variable `baseUrl` to your backend URL.\n2. Run requests in order — scripts auto-save tokens and IDs between requests.\n3. Login first (Auth or Admin Login folder) to populate `adminToken` before calling protected endpoints.",
+    "description": "Complete test suite for all backend API endpoints.\n\nSetup:\n1. Set collection variable `baseUrl` to your backend URL.\n2. Run requests in order — scripts auto-save tokens and IDs between requests.\n3. Login first (Auth/Admin Login folder) to populate `receptionistToken`, `managerToken`, and `adminToken` before calling protected endpoints.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     { "key": "baseUrl",           "value": "http://localhost:5000" },
     { "key": "adminToken",        "value": "" },
+    { "key": "managerToken",      "value": "" },
     { "key": "receptionistToken", "value": "" },
     { "key": "bookingId",         "value": "" },
     { "key": "roomId",            "value": "" },
@@ -44,10 +45,7 @@
                   "const res = pm.response.json();",
                   "const token = res.token || (res.data && res.data.token);",
                   "pm.test('Login should return token', function () { pm.expect(token).to.be.a('string').and.not.empty; });",
-                  "if (token) {",
-                  "  pm.collectionVariables.set('receptionistToken', token);",
-                  "  pm.collectionVariables.set('adminToken', token);",
-                  "}"
+                  "if (token) pm.collectionVariables.set('receptionistToken', token);"
                 ]
               }
             }
@@ -67,7 +65,7 @@
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/api/auth/profile",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "header": [{ "key": "Authorization", "value": "Bearer {{receptionistToken}}" }]
           }
         },
         {
@@ -75,7 +73,7 @@
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/api/auth/logout",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "header": [{ "key": "Authorization", "value": "Bearer {{receptionistToken}}" }]
           }
         }
       ]
@@ -85,7 +83,7 @@
       "name": "Admin Login",
       "item": [
         {
-          "name": "Admin Portal Login",
+          "name": "Manager/Admin Login",
           "event": [
             {
               "listen": "test",
@@ -93,8 +91,11 @@
                 "exec": [
                   "const res = pm.response.json();",
                   "const token = res.token || (res.data && res.data.token);",
-                  "pm.test('Admin login should return token', function () { pm.expect(token).to.be.a('string').and.not.empty; });",
-                  "if (token) pm.collectionVariables.set('adminToken', token);"
+                  "pm.test('Manager/Admin login should return token', function () { pm.expect(token).to.be.a('string').and.not.empty; });",
+                  "if (token) {",
+                  "  pm.collectionVariables.set('managerToken', token);",
+                  "  pm.collectionVariables.set('adminToken', token);",
+                  "}"
                 ]
               }
             }
@@ -105,10 +106,10 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"manager@hotel.com\",\n  \"password\": \"123456\"\n}",
+              "raw": "{\n  \"username\": \"manager@hotel.com\",\n  \"password\": \"123456\"\n}",
               "options": { "raw": { "language": "json" } }
             },
-            "description": "Uses 'email' field. Saves token to adminToken variable."
+            "description": "Uses 'username' field. Saves token to both managerToken and adminToken variables."
           }
         }
       ]
