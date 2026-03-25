@@ -1,14 +1,13 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { StickyNavbar } from '../../components/sticky-navbar/sticky-navbar';
 import { SiteFooter } from '../../components/site-footer/site-footer';
 import { HomeContent } from '../../services/home-content';
 
 @Component({
   selector: 'app-payment-result',
   standalone: true,
-  imports: [CommonModule, RouterLink, StickyNavbar, SiteFooter],
+  imports: [CommonModule, RouterLink, SiteFooter],
   templateUrl: './payment-result.html',
   styleUrl: './payment-result.css'
 })

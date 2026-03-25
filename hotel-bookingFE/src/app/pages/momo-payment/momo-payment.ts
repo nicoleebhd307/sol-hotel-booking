@@ -3,7 +3,6 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { StickyNavbar } from '../../components/sticky-navbar/sticky-navbar';
 import { SiteFooter } from '../../components/site-footer/site-footer';
 import { HomeContent } from '../../services/home-content';
 import { ApiService } from '../../services/api.service';
@@ -13,7 +12,7 @@ type MomoChannel = 'qr' | 'card';
 @Component({
   selector: 'app-momo-payment',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, StickyNavbar, SiteFooter],
+  imports: [CommonModule, ReactiveFormsModule, SiteFooter],
   templateUrl: './momo-payment.html',
   styleUrl: './momo-payment.css'
 })

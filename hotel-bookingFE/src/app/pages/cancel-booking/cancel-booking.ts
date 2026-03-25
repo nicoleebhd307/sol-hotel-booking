@@ -1,7 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { StickyNavbar } from '../../components/sticky-navbar/sticky-navbar';
 import { HomeContent } from '../../services/home-content';
 import { ApiService } from '../../services/api.service';
 import { SiteFooter } from '../../components/site-footer/site-footer';
@@ -9,7 +8,7 @@ import { SiteFooter } from '../../components/site-footer/site-footer';
 @Component({
   selector: 'app-cancel-booking',
   standalone: true,
-  imports: [CommonModule, StickyNavbar, SiteFooter],
+  imports: [CommonModule, SiteFooter],
   templateUrl: './cancel-booking.html',
   styleUrl: './cancel-booking.css',
 })
