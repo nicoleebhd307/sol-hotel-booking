@@ -1,3 +1,3 @@
 export const API_CONFIG = {
-  baseUrl: 'http://localhost:5000',
+  baseUrl: 'https://sol-hotel-booking-1.onrender.com',
 };
